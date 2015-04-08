@@ -1,0 +1,51 @@
+{
+  "name": "jquery.scrollable",
+  "version": "0.1.0",
+  "homepage": "https://github.com/hashchange/jquery.scrollable",
+  "authors": [
+    "Michael Heim <heim@zeilenwechsel.de>"
+  ],
+  "description": "Scrolls elements or windows, cross-browser. Offers convenient, flexible options for animation.",
+  "main": "dist/jquery.scrollable.js",
+  "keywords": [
+    "javascript",
+    "jquery",
+    "jquery-plugin",
+    "scrolling",
+    "scrollable",
+    "scrollTo",
+    "scroll",
+    "scrollbar",
+    "animation",
+    "animated",
+    "cross-browser",
+    "viewport",
+    "window",
+    "container",
+    "overflow",
+    "dom",
+    "element"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests",
+    "public",
+    "reports",
+    "demo",
+    "lib-other",
+    "web-mocha",
+    "spec",
+    "src",
+    "Gruntfile.js",
+    "karma.conf.js",
+    "package.json"
+  ],
+  "devDependencies": {},
+  "dependencies": {
+    "jquery": ">=1.7.0 <2.2"
+  }
+}

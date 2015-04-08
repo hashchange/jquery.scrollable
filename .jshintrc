@@ -1,0 +1,32 @@
+{
+  "bitwise": true,
+  "curly": false,
+  "eqeqeq": true,
+  "es3": true,
+  "freeze": true,
+  "immed": true,
+  "latedef": true,
+  "newcap": true,
+  "noarg": true,
+  "noempty": true,
+  "nonbsp": true,
+  "undef": true,
+
+  "eqnull": true,
+  "expr": true,
+  "sub": true,
+
+  "browser": true,
+  "jquery": true,
+
+  "strict": true,
+
+  "globals": {
+    "$": true,
+    "Zepto": true,
+
+    "require": false,
+    "define": false,
+    "module": false
+  }
+}

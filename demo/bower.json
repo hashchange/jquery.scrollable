@@ -1,0 +1,32 @@
+{
+  "name": "demo",
+  "main": "index.html",
+  "version": "0.0.0",
+  "homepage": "https://github.com/hashchange/jquery.scrollable",
+  "authors": [
+    "hashchange <heim@zeilenwechsel.de>"
+  ],
+  "description": "jQuery.scrollable demo and playground",
+  "keywords": [
+    "demo"
+  ],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "bower_demo_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "^1",
+    "requirejs": "~2.1.16",
+    "foundation": "~5.5.1",
+    "modernizr": "~2.8.3"
+  },
+  "resolutions": {
+    "jquery": "^1"
+  }
+}
