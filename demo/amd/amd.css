@@ -2,6 +2,7 @@
 
 body {
     margin: 0.25rem;
+    min-height: 3000px;
 }
 
 #header {

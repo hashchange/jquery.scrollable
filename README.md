@@ -1,10 +1,10 @@
 # jQuery.scrollable
 
-TAG LINE HERE.
+THIS COMPONENT IS IN ITS EARLY STAGES. STAY CLEAR FOR NOW.
 
 ## Dependencies and setup
 
-[jQuery][] is the only dependency. It also works with [Zepto][]. Either of them must be ready for use when jquery.scrollable.js is loaded.
+jQuery.scrollable depends on [jQuery][] and [jQuery.documentSize][]. They must be ready for use when jquery.scrollable.js is loaded.
 
 The stable version of jQuery.scrollable is available in the `dist` directory ([dev][dist-dev], [prod][dist-prod]), including an AMD build ([dev][dist-amd-dev], [prod][dist-amd-prod]). If you use Bower, fetch the files with `bower install jquery.scrollable`. With npm, it is `npm install jquery.scrollable`.
 
@@ -81,7 +81,7 @@ Code in the data provider test helper: (c) 2014 Box, Inc., Apache 2.0 license. [
 [dist-amd-prod]: https://raw.github.com/hashchange/jquery.scrollable/master/dist/amd/jquery.scrollable.min.js "jquery.scrollable.min.js, AMD build"
 
 [jQuery]: http://jquery.com/ "jQuery"
-[Zepto]: http://zeptojs.com/ "Zepto.js"
+[jQuery.documentSize]: https://github.com/hashchange/jquery.documentsize "jQuery.documentSize"
 
 [data-provider.js]: https://github.com/hashchange/jquery.scrollable/blob/master/spec/helpers/data-provider.js "Source code of data-provider.js"
 

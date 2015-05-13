@@ -28,7 +28,10 @@ module.exports = function(config) {
       'bower_components/jquery/dist/jquery.js',
 
       // Component under test
-      'src/jquery.scrollable.js',
+      'src/_1_wrapper.js',
+      'src/_2_lib.js',
+      //'src/_3_core_A.js',
+      'src/_3_core_B.js',
 
       // Test helpers
       'spec/helpers/**/*.js',

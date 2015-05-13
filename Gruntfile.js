@@ -54,7 +54,7 @@ module.exports = function (grunt) {
       options: {
         banner: "<%= meta.banner %>",
         mangle: {
-          except: ['jQuery', 'Backbone', '_']
+          except: ['jQuery', 'Zepto', 'Backbone', '_']
         },
         sourceMap: true
       },
@@ -91,6 +91,8 @@ module.exports = function (grunt) {
           globals: {
             // Add vars which are shared between various sub-components
             // (before concatenation makes them local)
+            core: true,
+            lib: true
           }
         }, grunt.file.readJSON('.jshintrc')),
         files: {

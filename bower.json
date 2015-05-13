@@ -46,6 +46,7 @@
   ],
   "devDependencies": {},
   "dependencies": {
-    "jquery": ">=1.7.0 <2.2"
+    "jquery": ">=1.7.0 <2.2",
+    "jquery.documentsize": "^1.0.2"
   }
 }
