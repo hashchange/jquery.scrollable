@@ -43,10 +43,10 @@ var core = {
      * @param {Object} [options]
      */
     function scrollTo ( $container, position, options ) {
-        // todo what about horizontal scrolling?!
-        // todo handle position with unit (just remove px; calculate % from scrollHeight/width)
+        options = lib.normalizeOptions( options, position );
         $container = lib.normalizeContainer( $container );
-        position = lib.limitToScrollRange( position, $container );
+        position = lib.normalizePosition( position, $container, options );
+
         if ( $.isWindow( $container[0] ) ) options = lib.bindAnimationCallbacks( options, $container[0] );
         // todo offer `append` option to append to previous scroll actions, otherwise clear the scroll queue first
         core.animateScroll( $container, position, options );

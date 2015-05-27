@@ -46,7 +46,7 @@
         if ( $.isWindow( $container[0] ) ) {
             animateWindowScroll( $scrollable, position, options );
         } else {
-            lib.addAnimation( $scrollable, { scrollTop: position }, options );
+            lib.addScrollAnimation( $scrollable, position, options );
         }
 
     };
@@ -74,7 +74,7 @@
         } );
 
         // Run the animation.
-        lib.addAnimation( $scrollable, { scrollTop: position }, options );
+        lib.addScrollAnimation( $scrollable, position, options );
 
     }
 

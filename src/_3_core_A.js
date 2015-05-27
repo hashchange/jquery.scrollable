@@ -45,7 +45,7 @@
         options || ( options = {} );
         if ( !options.queue && options.queue !== false ) options.queue = core.queueName;
 
-        lib.addAnimation( $scrollable, { scrollTop: position }, options );
+        lib.addScrollAnimation( $scrollable, position, options );
     };
 
     /**
