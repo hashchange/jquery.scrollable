@@ -91,7 +91,7 @@
      * @param {jQuery}               $container
      * @param {Object}               options     must have the axis property set (which is the case in a normalized
      *                                           options object)
-     * @returns {number|Object}
+     * @returns {Coordinates}
      */
     lib.normalizePosition = function ( position, $container, options ) {
 
@@ -362,12 +362,12 @@
      *
      * Delegates to lib.addAnimation otherwise. See there for more.
      *
-     * @param {jQuery} $elem
-     * @param {Object} position   the normalized position
-     * @param {Object} [options]  animation options
+     * @param {jQuery}      $elem
+     * @param {Coordinates} position   the normalized position
+     * @param {Object}      [options]  animation options
      */
     lib.addScrollAnimation = function ( $elem, position, options ) {
-        var posX = position[ lib.HORIZONTAL],
+        var posX = position[ lib.HORIZONTAL ],
             posY = position[ lib.VERTICAL ],
             hasPosX = posX !== lib.IGNORE_AXIS,
             hasPosY = posY !== lib.IGNORE_AXIS,
