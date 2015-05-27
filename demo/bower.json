@@ -24,7 +24,8 @@
     "jquery": "^1",
     "requirejs": "~2.1.16",
     "foundation": "~5.5.1",
-    "modernizr": "~2.8.3"
+    "modernizr": "~2.8.3",
+    "underscore": "~1.8.3"
   },
   "resolutions": {
     "jquery": "^1"
