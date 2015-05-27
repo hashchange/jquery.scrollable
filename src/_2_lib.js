@@ -104,7 +104,7 @@
 
         if ( $.isPlainObject( position ) ) {
 
-            position = normalizeAxis( position );
+            position = normalizeAxisProperty( position );
             normalized[ lib.HORIZONTAL ] = axis === lib.VERTICAL ? lib.IGNORE_AXIS : lib.normalizePosition( position[ lib.HORIZONTAL ], $container, { axis: lib.HORIZONTAL } )[ lib.HORIZONTAL ];
             normalized[ lib.VERTICAL ] = axis === lib.HORIZONTAL ? lib.IGNORE_AXIS : lib.normalizePosition( position[ lib.VERTICAL ], $container, { axis: lib.VERTICAL } )[ lib.VERTICAL ];
 
@@ -131,20 +131,20 @@
                 if ( position.slice( -2 ) === "px" ) {
                     position = parseFloat( position.slice( 0, -2 ) );
                 } else if ( position.slice( -1 ) === "%" ) {
-                    position = parseFloat( position.slice( 0, -1 ) ) * getScrollMaximum( $container, axis ) / 100;
+                    position = parseFloat( position.slice( 0, -1 ) ) * lib.getScrollMaximum( $container, axis ) / 100;
                 } else {
 
                     // Resolve position strings
                     if ( axis === lib.HORIZONTAL ) {
 
                         if ( position === "left" ) position = 0;
-                        if ( position === "right" ) position = getScrollMaximum( $container, axis );
+                        if ( position === "right" ) position = lib.getScrollMaximum( $container, axis );
                         if ( position === "top" || position === "bottom" ) throw new Error( "Desired position " + position + "is inconsistent with axis option " + axis );
 
                     } else {
 
                         if ( position === "top" ) position = 0;
-                        if ( position === "bottom" ) position = getScrollMaximum( $container, axis );
+                        if ( position === "bottom" ) position = lib.getScrollMaximum( $container, axis );
                         if ( position === "left" || position === "right" ) throw new Error( "Desired position " + position + "is inconsistent with axis option " + axis );
 
                     }
@@ -205,10 +205,10 @@
         var hasX, hasY,
             axisDefault = defaults.axis;
 
-        options = options ? normalizeAxis( options ) : {};
+        options = options ? normalizeAxisProperty( options ) : {};
 
         if ( $.isPlainObject( position ) ) {
-            position = normalizeAxis( position );
+            position = normalizeAxisProperty( position );
             hasX = !isUndefinedPositionValue( position[ lib.HORIZONTAL ] ) && position[ lib.HORIZONTAL ] !== lib.IGNORE_AXIS;
             hasY = !isUndefinedPositionValue( position[ lib.VERTICAL ] ) && position[ lib.VERTICAL ] !== lib.IGNORE_AXIS;
 
@@ -216,6 +216,75 @@
         }
 
         return $.extend( {}, defaults, { axis: axisDefault }, options );
+
+    };
+
+    /**
+     * Accepts any of the recognized names for an axis and returns the canonical axis name.
+     *
+     * Throws an error if the argument is not recognized as an axis name.
+     *
+     * @param   {string} name
+     * @returns {string}
+     */
+    lib.normalizeAxisName = function ( name ) {
+
+        if ( isInArray( name, altAxisNamesV ) ) {
+            name = lib.VERTICAL;
+        } else if ( isInArray( name, altAxisNamesH ) ) {
+            name = lib.HORIZONTAL;
+        } else if ( isInArray( name, altAxisNamesBoth ) ) {
+            name = lib.BOTH_AXES;
+        }
+
+        if ( ! ( name === lib.VERTICAL || name === lib.HORIZONTAL || name === lib.BOTH_AXES ) ) throw new Error( "Invalid axis name " + name );
+
+        return name;
+
+    };
+
+    /**
+     * Returns the maximum position which can be scrolled to on a given axis. The container element is expected to be
+     * normalized.
+     *
+     * When a single axis is queried, the result is returned as a number. When both axes are queried, a hash of both
+     * axes is returned: { horizontal: ..., vertical: ... }.
+     *
+     * @param   {jQuery} $container
+     * @param   {string} axis        "vertical", "horizontal", or "both"
+     * @returns {number|Coordinates}
+     */
+    lib.getScrollMaximum = function ( $container, axis ) {
+
+        var max, containerSize, contentSize,
+            container = $container[0],
+            _document = container.ownerDocument || container.document,
+            isWindow = $.isWindow( container );
+
+        if ( axis === lib.BOTH_AXES ) {
+
+            max = {};
+            max[ lib.HORIZONTAL ] = lib.getScrollMaximum( $container, lib.HORIZONTAL );
+            max[ lib.VERTICAL ] = lib.getScrollMaximum( $container, lib.VERTICAL );
+
+        } else {
+
+            // We are measuring the true inner size of the container, excluding a horizontal or vertical scroll bar. The
+            // appropriate property, for a window container as well as an ordinary element, is clientHeight/clientWidth.
+            if ( axis === lib.HORIZONTAL ) {
+                containerSize = isWindow ? _document.documentElement.clientWidth : container.clientWidth;
+                contentSize = isWindow ? $.documentWidth( _document ) : container.scrollWidth;
+            } else if ( axis === lib.VERTICAL ) {
+                containerSize = isWindow ? _document.documentElement.clientHeight : container.clientHeight;
+                contentSize = isWindow ? $.documentHeight( _document ) : container.scrollHeight;
+            } else {
+                throw new Error( "Unrecognized axis argument " + axis );
+            }
+
+            max = Math.max( contentSize - containerSize, 0 );
+        }
+
+        return max;
 
     };
 
@@ -356,39 +425,10 @@
      */
     function limitToScrollRange ( position, $container, axis ) {
 
-        position = Math.min( position, getScrollMaximum( $container, axis ) );
+        position = Math.min( position, lib.getScrollMaximum( $container, axis ) );
         position = Math.max( position, 0 );
 
         return position;
-
-    }
-
-    /**
-     * Returns the maximum position which can be scrolled to on a given axis. The container element is expected to be
-     * normalized.
-     *
-     * @param   {jQuery} $container
-     * @param   {string} axis        "vertical" or "horizontal"
-     * @returns {number}
-     */
-    function getScrollMaximum ( $container, axis ) {
-
-        var containerSize, contentSize,
-            container = $container[0],
-            _document = container.ownerDocument || container.document,
-            isWindow = $.isWindow( container );
-
-        // We are measuring the true inner size of the container, excluding a horizontal or vertical scroll bar. The
-        // appropriate property, for a window container as well as an ordinary element, is clientHeight/clientWidth.
-        if ( axis === lib.HORIZONTAL ) {
-            containerSize = isWindow ? _document.documentElement.clientWidth : container.clientWidth;
-            contentSize = isWindow ? $.documentWidth( _document ) : container.scrollWidth;
-        } else {
-            containerSize = isWindow ? _document.documentElement.clientHeight : container.clientHeight;
-            contentSize = isWindow ? $.documentHeight( _document ) : container.scrollHeight;
-        }
-
-        return Math.max( contentSize - containerSize, 0 );
 
     }
 
@@ -430,42 +470,18 @@
      * @param   {Object} inputHash
      * @returns {Object}
      */
-    function normalizeAxis ( inputHash ) {
+    function normalizeAxisProperty ( inputHash ) {
         var normalized = {};
 
         $.each( inputHash, function ( key, value ) {
             if ( isInArray( key, altAxisNames ) ) {
-                normalized[getNormalizedAxisName(key)] = value;
+                normalized[ lib.normalizeAxisName(key) ] = value;
             } else {
-                normalized[key] = value;
+                normalized[ key ] = value;
             }
         } );
 
         return normalized;
-    }
-
-    /**
-     * Accepts any of the recognized names for an axis and returns the canonical axis name.
-     *
-     * Throws an error if the argument is not recognized as an axis name.
-     *
-     * @param   {string} name
-     * @returns {string}
-     */
-    function getNormalizedAxisName( name ) {
-
-        if ( isInArray( name, altAxisNamesV ) ) {
-            name = lib.VERTICAL;
-        } else if ( isInArray( name, altAxisNamesH ) ) {
-            name = lib.HORIZONTAL;
-        } else if ( isInArray( name, altAxisNamesBoth ) ) {
-            name = lib.BOTH_AXES;
-        }
-
-        if ( ! ( name === lib.VERTICAL || name === lib.HORIZONTAL || name === lib.BOTH_AXES ) ) throw new Error( "Invalid axis name " + name );
-
-        return name;
-
     }
 
     /**
@@ -492,5 +508,19 @@
     function isInArray( value, arr ) {
         return $.inArray( value, arr ) !== -1;
     }
+
+    /**
+     * Custom types.
+     *
+     * For easier documentation and type inference.
+     */
+
+    /**
+     * @name  Coordinates
+     * @type  {Object}
+     *
+     * @property {number}  horizontal
+     * @property {number}  vertical
+     */
 
 } )( lib );

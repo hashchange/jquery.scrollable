@@ -15,6 +15,10 @@ var core = {
         return getScrollable( this );
     };
 
+    $.fn.scrollRange = function ( axis ) {
+        return getScrollRange( this, axis );
+    };
+
     $.fn.scrollTo = function ( position, options ) {
         scrollTo( this, position, options );
         return this;
@@ -29,6 +33,20 @@ var core = {
     function getScrollable ( $container ) {
         $container = lib.normalizeContainer( $container );
         return core.getScrollable( $container );
+    }
+
+    /**
+     * Does the actual work of $.fn.scrollRange.
+     *
+     * @param   {jQuery} $container
+     * @param   {string} axis
+     * @returns {number|Object}
+     */
+    function getScrollRange( $container, axis ) {
+        $container = lib.normalizeContainer( $container );
+        axis = axis ? lib.normalizeAxisName( axis ) : lib.BOTH_AXES;
+
+        return lib.getScrollMaximum( $container, axis );
     }
 
     /**
