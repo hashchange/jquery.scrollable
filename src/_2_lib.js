@@ -158,7 +158,9 @@
 
             if ( isNumber( position ) ) {
 
-                position = basePosition + sign * position;
+                // Calculate the absolute position. Explicit rounding is required because scrollTop/scrollLeft cuts off
+                // fractional pixels, rather than rounding them.
+                position = Math.round( basePosition + sign * position );
                 normalized[ axis ] = limitToScrollRange( position, $container, axis );
 
             } else if ( isUndefinedPositionValue( position ) ) {
