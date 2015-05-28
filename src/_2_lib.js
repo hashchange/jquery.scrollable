@@ -443,27 +443,7 @@
      * @returns {number}
      */
     function getCurrentScrollPosition( $container, axis ) {
-        var position,
-            container = $container[0],
-            isHorizontal = axis === lib.HORIZONTAL,
-            queryProp = isHorizontal ? "scrollLeft": "scrollTop",
-            windowQueryProp = isHorizontal ? "pageXOffset" : "pageYOffset";
-
-        if ( $.isWindow( container ) ) {
-            position = container[ windowQueryProp ];
-
-            // In IE < 9, window.pageXOffset/window.pageYOffset is not defined (see MDN, https://goo.gl/pZLgfK). Perhaps
-            // some odd mobile browsers lack support, too. If the query failed, fall back to checking body and document
-            // element. Simply check both and take the maximum - the irrelevant one reports 0 anyway.
-            if ( position === undefined ) {
-                position = Math.max( container.document.body[ queryProp ], container.document.documentElement[ queryProp ] );
-            }
-
-        } else {
-            position = container[ queryProp ];
-        }
-
-        return isNumber( position ) ? position :  parseFloat( position );
+        return axis === lib.HORIZONTAL ? $container.scrollLeft() : $container.scrollTop();
     }
 
     /**
