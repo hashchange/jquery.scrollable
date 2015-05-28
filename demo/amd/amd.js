@@ -68,6 +68,11 @@ require( [
             $window.scrollTo( {
                 x: $elem.data( "x" ),
                 y: $elem.data( "y" )
+            }, {
+                duration: 2000,
+                append: true            // In the demo, we complete each scroll animation before we start the next one.
+                                        // (We could also drop `append` and use `jumpToTargetPosition: true`instead -
+                                        // completes the ongoing animation in an instant when asked to do a new one.)
             } );
 
         } );
