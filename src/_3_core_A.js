@@ -32,19 +32,15 @@
     };
 
     /**
-     * Animates the scroll movement. The container element is expected to be normalized.
+     * Animates the scroll movement. Container element and options are expected to be normalized.
      *
      * @param {jQuery} $container
      * @param {number} position
-     * @param {Object} [options]
+     * @param {Object} options
      */
     core.animateScroll = function ( $container, position, options ) {
 
         var $scrollable = core.getScrollable( $container );
-
-        options || ( options = {} );
-        if ( !options.queue && options.queue !== false ) options.queue = core.queueName;
-
         lib.addScrollAnimation( $scrollable, position, options );
     };
 

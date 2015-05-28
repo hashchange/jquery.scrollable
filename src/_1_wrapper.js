@@ -1,7 +1,4 @@
-var core = {
-        queueName: "scrollableQueue"
-        //queueName: "fx"
-    },
+var core = {},
     lib = {};
 
 ( function ( core, lib ) {
@@ -21,6 +18,11 @@ var core = {
 
     $.fn.scrollTo = function ( position, options ) {
         scrollTo( this, position, options );
+        return this;
+    };
+
+    $.fn.stopScroll = function ( options ) {
+        stopScroll( this, options );
         return this;
     };
 
@@ -66,11 +68,24 @@ var core = {
         position = lib.normalizePosition( position, $container, options );
 
         if ( $.isWindow( $container[0] ) ) options = lib.bindAnimationCallbacks( options, $container[0] );
-        // todo offer `append` option to append to previous scroll actions, otherwise clear the scroll queue first
+
+        if ( ! options.append ) stopScroll( $container, options );
         core.animateScroll( $container, position, options );
         // todo enforce final jump as a safety measure (by creating a new, aggregate done callback) - see Pagination.Views
     }
 
-    // todo add stopScroll method which clears the scroll queue
+    /**
+     * Does the actual work of $.fn.stopScroll.
+     *
+     * @param {jQuery}         $container
+     * @param {Object}         [options]
+     * @param {boolean}        [options.jumpToTargetPosition=false]
+     * @param {string|boolean} [options.queue]                       usually not required, set to the scroll queue by default
+     */
+    function stopScroll( $container, options ) {
+        $container = lib.normalizeContainer( $container );
+        options = lib.normalizeOptions( options );
+        lib.stopScrollAnimation( core.getScrollable( $container ), options );
+    }
 
 } )( core, lib );

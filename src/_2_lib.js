@@ -18,7 +18,8 @@
 
         /** @type {Object}  default scroll options */
         defaults = {
-            axis: "vertical"
+            axis: "vertical",
+            queue: "scrollableQueue"
         };
 
     /** @type {string}  canonical name for the vertical axis */
@@ -193,13 +194,15 @@
      * The options hash is normalized in the following ways:
      *
      * - It is converted to canonical axis names.
+     * - The `queue` property is filled in with its default value, unless a queue is provided explicitly.
      *
      * Does not touch the original hash, returns a separate object instead.
      *
      * If no options hash is provided, the defaults are returned.
      *
      * @param   {Object|undefined}      options
-     * @param   {number|string|Object}  position
+     * @param   {number|string|Object}  [position]  you can omit the position when not dealing with axes, e.g. when
+     *                                              handling stopScroll options
      * @returns {Object}
      */
     lib.normalizeOptions = function ( options, position ) {
@@ -207,8 +210,10 @@
         var hasX, hasY,
             axisDefault = defaults.axis;
 
+        // Normalize the axis property names
         options = options ? normalizeAxisProperty( options ) : {};
 
+        // Determine the axis default value
         if ( $.isPlainObject( position ) ) {
             position = normalizeAxisProperty( position );
             hasX = !isUndefinedPositionValue( position[ lib.HORIZONTAL ] ) && position[ lib.HORIZONTAL ] !== lib.IGNORE_AXIS;
@@ -217,6 +222,7 @@
             axisDefault = ( hasX && hasY ) ? lib.BOTH_AXES : hasX ? lib.HORIZONTAL : lib.VERTICAL;
         }
 
+        // Apply defaults where applicable
         return $.extend( {}, defaults, { axis: axisDefault }, options );
 
     };
@@ -414,6 +420,58 @@
         // another animation finishes, it won't be waiting at index 0. That position is occupied by the sentinel of the
         // previous, ongoing animation.
         if ( isCustomQueue && $elem.queue( queueName )[1] === sentinel ) $elem.dequeue( queueName );
+    };
+
+    /**
+     * Stops an ongoing scroll animation and clears the queue of scroll animations. Optionally jumps to the targeted
+     * position, rather than just stopping the scroll animation wherever it happens to be.
+     *
+     * Requires the actual scrollable element, as returned by $.fn.scrollable(). The options must have been normalized.
+     *
+     * Scroll animation queue
+     * ----------------------
+     *
+     * The scrollTo animations use an animation queue of their own. For that reason, calling the generic jQuery method
+     * $elem.stop() does not stop ongoing or queued scroll animations. You must use $elem.stopScroll() for these.
+     *
+     * Conversely, clearing the scroll animation queue does not affect other, non-scroll animations.
+     *
+     * Custom queues of your own
+     * -------------------------
+     *
+     * If you have forced scrollTo to use a specific custom queue of your own, having called it with a `queue: "foo"`
+     * option, then stopScroll must know about that queue. Pass the same `queue` option to stopScroll.
+     *
+     * If you have forced scrollTo to use the standard animation queue ("fx"), you must provide that option here, too.
+     * In that case, stopScroll will stop and clear *all* animations in the default queue, not just scroll-related ones.
+     *
+     * @param {jQuery}         $scrollable
+     * @param {Object}         [options]
+     * @param {boolean}        [options.jumpToTargetPosition=false]
+     * @param {string|boolean} [options.queue]
+     */
+    lib.stopScrollAnimation = function ( $scrollable, options ) {
+        options = $.extend( { jumpToTargetPosition: false }, options );
+
+        if ( options.queue === false ) {
+            // Edge case: queue = false
+            //
+            // The original scroll animation may have been run outside of a queue context with { queue: false }. If the
+            // same `queue: false` option is passed in here, just stop the currently ongoing animation, whatever that
+            // may be.
+            //
+            // We can't target a scroll animation specifically, so it is a bit of a gamble - but the queue option
+            // shouldn't have been set to false in the first place.
+            //
+            // Stick to the standard scroll queue as a best practice (ie, simply don't specify a queue, and all will be
+            // well). Manage that queue implicitly with the `append` option of $.fn.scrollTo, or perhaps call
+            // $.fn.stopScroll explicitly when really necessary, and leave it at that.
+
+            $scrollable.stop( true, options.jumpToTargetPosition );
+        } else {
+            $scrollable.stop( options.queue, true, options.jumpToTargetPosition );
+        }
+
     };
 
     /**
