@@ -27,7 +27,7 @@ body {
 
 .feedback {
     position: fixed;
-    width: 300px;
+    min-width: 125px;
     top: 1.25rem;
     right: 1.25rem;
 }

@@ -63,6 +63,8 @@ require( [
         $controls.click( function ( event ) {
             var $elem = $( this );
 
+            event.preventDefault();
+
             $window.scrollTo( {
                 x: $elem.data( "x" ),
                 y: $elem.data( "y" )
@@ -79,12 +81,19 @@ require( [
                 range = $window.scrollRange();
 
             $feedbackX_px.text( posX + "px" );
-            $feedbackX_percent.text( ( posX * 100 / range.horizontal )+ "%" );
+            $feedbackX_percent.text( toPercent( posX, range.horizontal, 4 ) + "%" );
 
             $feedbackY_px.text( posY + "px" );
-            $feedbackY_percent.text( ( posY * 100 / range.vertical )+ "%" );
+            $feedbackY_percent.text( toPercent( posY, range.vertical, 4 ) + "%" );
         }
 
     } );
+
+    function toPercent ( pos, scrollRange, decimals ) {
+        var percentage = pos * 100 / scrollRange,
+            shift = Math.pow( 10, decimals || 0 );
+
+        return Math.round( percentage * shift ) / shift;
+    }
 
 } );
