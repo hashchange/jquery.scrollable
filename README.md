@@ -86,6 +86,10 @@ Again, you can also use **percentages** and **keywords**.
 $elem.scrollTo( { x: "50%" } );
 $elem.scrollTo( { x: "left" } );   // same as 0
 $elem.scrollTo( { x: "right" } );  // same as "100%"
+
+// You can omit the axis if it is obvious from the target
+$elem.scrollTo( "left" );
+$elem.scrollTo( "right" );
 ```
 
 ### Scrolling to a fixed position on both axes

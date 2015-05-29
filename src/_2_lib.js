@@ -187,6 +187,8 @@
      * The requested scroll position is required as an argument because the axis default depends on the position format:
      *
      * - If the position is passed in as a primitive (single axis), the axis defaults to "vertical".
+     * - If the position is passed in as a primitive but has an implicit axis, that axis becomes the default (positions
+     *   "top", "bottom", "left", "right")
      * - If the position is passed in as a hash, with both axes specified, the axis defaults to "both".
      * - If the position is passed in as a hash with just one axis specified, the axis defaults to "vertical" or
      *   "horizontal", depending on the position property.
@@ -215,11 +217,23 @@
 
         // Determine the axis default value
         if ( $.isPlainObject( position ) ) {
+
             position = normalizeAxisProperty( position );
             hasX = !isUndefinedPositionValue( position[ lib.HORIZONTAL ] ) && position[ lib.HORIZONTAL ] !== lib.IGNORE_AXIS;
             hasY = !isUndefinedPositionValue( position[ lib.VERTICAL ] ) && position[ lib.VERTICAL ] !== lib.IGNORE_AXIS;
 
             axisDefault = ( hasX && hasY ) ? lib.BOTH_AXES : hasX ? lib.HORIZONTAL : lib.VERTICAL;
+
+        } else if ( isString( position ) ) {
+
+            position = position.toLowerCase();
+
+            if ( position === "top" || position === "bottom" ) {
+                axisDefault = lib.VERTICAL;
+            } else if ( position === "left" || position === "right" ) {
+                axisDefault = lib.HORIZONTAL;
+            }
+
         }
 
         // Apply defaults where applicable
