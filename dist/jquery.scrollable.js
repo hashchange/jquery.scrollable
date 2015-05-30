@@ -1,4 +1,4 @@
-// jQuery.scrollable, v0.1.0
+// jQuery.scrollable, v0.1.1
 // Copyright (c)2015 Michael Heim, Zeilenwechsel.de
 // Distributed under MIT license
 // http://github.com/hashchange/jquery.scrollable
@@ -118,7 +118,7 @@
             /** @type {Object}  default scroll options */
             defaults = {
                 axis: "vertical",
-                queue: "scrollableQueue"
+                queue: "internal.jquery.scrollable"
             };
     
         /** @type {string}  canonical name for the vertical axis */
@@ -286,6 +286,8 @@
          * The requested scroll position is required as an argument because the axis default depends on the position format:
          *
          * - If the position is passed in as a primitive (single axis), the axis defaults to "vertical".
+         * - If the position is passed in as a primitive but has an implicit axis, that axis becomes the default (positions
+         *   "top", "bottom", "left", "right")
          * - If the position is passed in as a hash, with both axes specified, the axis defaults to "both".
          * - If the position is passed in as a hash with just one axis specified, the axis defaults to "vertical" or
          *   "horizontal", depending on the position property.
@@ -314,11 +316,23 @@
     
             // Determine the axis default value
             if ( $.isPlainObject( position ) ) {
+    
                 position = normalizeAxisProperty( position );
                 hasX = !isUndefinedPositionValue( position[ lib.HORIZONTAL ] ) && position[ lib.HORIZONTAL ] !== lib.IGNORE_AXIS;
                 hasY = !isUndefinedPositionValue( position[ lib.VERTICAL ] ) && position[ lib.VERTICAL ] !== lib.IGNORE_AXIS;
     
                 axisDefault = ( hasX && hasY ) ? lib.BOTH_AXES : hasX ? lib.HORIZONTAL : lib.VERTICAL;
+    
+            } else if ( isString( position ) ) {
+    
+                position = position.toLowerCase();
+    
+                if ( position === "top" || position === "bottom" ) {
+                    axisDefault = lib.VERTICAL;
+                } else if ( position === "left" || position === "right" ) {
+                    axisDefault = lib.HORIZONTAL;
+                }
+    
             }
     
             // Apply defaults where applicable
@@ -488,14 +502,14 @@
         };
     
         /**
-         * Sets up an animation for an element. Makes sure a custom queue works just as well as the default "fx" queue, ie
-         * it auto-starts when necessary.
+         * Sets up an animation for an element. Makes sure the internal custom queue works just as well as the default "fx"
+         * queue, ie it auto-starts when necessary.
          *
-         * If using a custom queue, all animations destined for that queue must be added with this method. It is safest to
-         * simply add all animations with this method. It can process unqueued, immediate animations as well.
+         * When using an internal custom queue, all animations destined for that queue must be added with this method. It is
+         * safest to simply add all animations with this method. It can process unqueued, immediate animations as well.
          *
-         * DO NOT START A CUSTOM QUEUE MANUALLY (by calling dequeue()) WHEN USING THIS METHOD. That would dequeue and
-         * execute the next queued item prematurely.
+         * DO NOT START THE INTERNAL CUSTOM QUEUE MANUALLY (by calling dequeue()) WHEN USING THIS METHOD. That would dequeue
+         * and execute the next queued item prematurely.
          *
          * @param {jQuery} $elem
          * @param {Object} properties  the animated property or properties, and their target value(s)
@@ -503,22 +517,22 @@
          */
         lib.addAnimation = function ( $elem, properties, options ) {
             var queueName = options && options.queue,
-                isCustomQueue = isString( queueName ) && queueName !== "fx",
+                isInternalCustomQueue = queueName === defaults.queue && queueName !== "fx",
                 sentinel = function ( next ) { next(); };
     
             $elem.animate( properties, options );
     
-            // In a custom queue, add a sentinel function as the next item to the queue, in order to track the queue
-            // progress.
-            if ( isCustomQueue ) $elem.queue( queueName, sentinel );
+            // In the internal custom queue, add a sentinel function as the next item to the queue, in order to track the
+            // queue progress.
+            if ( isInternalCustomQueue ) $elem.queue( queueName, sentinel );
     
-            // Auto-start a custom queue if it is stuck.
+            // Auto-start the internal custom queue if it is stuck.
             //
             // The telltale sign is that the new animation is still in the queue at index 0, hence its associated sentinel
             // is at index 1. That only happens if the queue is stuck. If the animation is merely waiting in line until
             // another animation finishes, it won't be waiting at index 0. That position is occupied by the sentinel of the
             // previous, ongoing animation.
-            if ( isCustomQueue && $elem.queue( queueName )[1] === sentinel ) $elem.dequeue( queueName );
+            if ( isInternalCustomQueue && $elem.queue( queueName )[1] === sentinel ) $elem.dequeue( queueName );
         };
     
         /**
