@@ -164,6 +164,38 @@ But in that custom queue, it is no longer possible to differentiate between scro
 
 My advice would be to stick to the standard scroll queue as a best practice – ie, simply don't specify a queue, and all will be well. Manage that queue implicitly with the `append` option of `scrollTo()`, or perhaps call `stopScroll()` explicitly when really necessary, and leave it at that. If you need to link up with other, non-scroll animations, callbacks like `complete` give you the means to do so.
 
+### Retrieving the maximum scrollable distance inside an element
+
+You can query the maximum distance that the content of an element can be scrolled, in case you need it for some calculations of your own. That value is the size of the content minus the inner size of the element or window. 
+
+Coming up with that value is an easy task, but there are some pitfalls when dealing with a window in particular. Hence there is `$elem.scrollRange()`, which takes care of the quirks.
+
+```js
+// For a single axis, scrollRange() returns a number
+v = $elem.scrollRange( "vertical" );
+v = $elem.scrollRange( "v" );
+v = $elem.scrollRange( "y" );
+
+h = $elem.scrollRange( "horizontal" );
+h = $elem.scrollRange( "h" );
+h = $elem.scrollRange( "x" );
+
+// For both axes, scrollRange() returns a hash of the results
+// in the format { vertical: ..., horizontal: ... }
+hash = $elem.scrollRange( "both" );
+hash = $elem.scrollRange( "all" );
+hash = $elem.scrollRange( "vh" );   // or "hv"
+hash = $elem.scrollRange( "xy" );   // or "yx"
+
+// When called without an axis argument, scrollRange() defaults 
+// to both axes and returns a hash
+hash = $elem.scrollRange();
+```
+
+As always, you can use the vertical axis names `"vertical"`, `"v"`, `"y"` interchangeably. For the horizontal axis, `"horizontal"`, `"h"` and `"x"` are equally valid. For both axes at once, you can use `"both"`, `"all"`, `"vh"` or `"hv"`, `"xy"` or `"yx"`, or you can just omit the axis argument altogether.
+
+Please remember that despite all that flexibility with names during input, when the result is returned as a hash, its properties are named `horizontal` and `vertical`.
+
 ### Getting the scrollable element
 
 Well, finally there is the method which gave the plugin its name. A call to `$elem.scrollable()` returns the element – or set of elements – used for the scroll animation.
