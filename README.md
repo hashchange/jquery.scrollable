@@ -129,6 +129,14 @@ $elem.scrollTo( { x: "-=25%" } );
 
 This scrolls 25% of the _total_ scroll range in `$elem`. If you are closer than that to the left edge, the amount is reduced accordingly.
 
+### Animation options
+
+Besides `axis` and `append`, you can use [every option available to `jQuery.animate()`][jQuery-animate]. Set up `progress` or `complete` callbacks, specify a `duration` etc. Add what you need to the options object that you pass to `scrollTo()`:
+
+```js
+$elem.scrollTo( 1200, { axis: "x", duration: 800 );
+```
+
 ### Stopping scroll animations
 
 Scroll animations run in their own, dedicated queue, so they don't interfere with other animations which may be going on at the same time. As a result, you can't and shouldn't stop scroll movements with the [generic jQuery `$elem.stop()` command][jquery-stop]. Use `$elem.stopScroll()` instead:
@@ -146,21 +154,13 @@ Please be aware that **you don't have to call `stopScroll()` before scrolling in
 
 Rather, you have to act if you _don't_ want to stop the current scroll movement. Use the `append` option then ([see above][scrolling-both-axes]).
 
-### Animation options
-
-Besides `axis` and `append`, you can use [every option available to `jQuery.animate()`][jQuery-animate]. Set up `progress` or `complete` callbacks, specify a `duration` etc. Add what you need to the options object that you pass to `scrollTo()`:
-
-```js
-$elem.scrollTo( 1200, { axis: "x", duration: 800 );
-```
-
 ### Custom queues
 
 If you want to get really fancy with your animations, you can merge scrolling and other animations in a custom queue, but in most cases you shouldn't.
 
-Sure enough, you can pass a custom queue name to `scrollTo()`, in standard jQuery fashion with the `queue` option. If you do that and you ever call `stopScroll()`, you need to provide the same queue name there, too. Again, it is passed as an option – call `$elem.stopScroll( { queue: "foo" } )`.
+Sure enough, you can pass a custom queue name to `scrollTo()`, in standard jQuery fashion with the `queue` option. If you do that and you ever call `stopScroll()`, you need to provide the same queue name there, too. Again, it is passed as an option: call `$elem.stopScroll( { queue: "foo" } )`.
 
-But in that custom queue, it is no longer possible to differentiate between scroll and non-scroll animations. A new invocation of `scrollTo()` stops _all_ animations in that queue, regardless of type, unless you use the `append` option (in which case nothing stops at all). And `stopScroll()` works just the same as [jQuery's `$elem.stop( true )`][jquery-stop].
+But in that custom queue, it is no longer possible to differentiate between scroll and non-scroll animations. A new invocation of `scrollTo()` stops _all_ animations in that queue, regardless of type, unless you use [the `append` option][scrolling-both-axes] (in which case nothing stops at all). And `stopScroll()` now works just the same as [jQuery's `$elem.stop( true )`][jquery-stop].
 
 My advice would be to stick to the standard scroll queue as a best practice – ie, simply don't specify a queue, and all will be well. Manage that queue implicitly with the `append` option of `scrollTo()`, or perhaps call `stopScroll()` explicitly when really necessary, and leave it at that. If you need to link up with other, non-scroll animations, callbacks like `complete` give you the means to do so.
 
