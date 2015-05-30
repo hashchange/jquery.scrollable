@@ -13,7 +13,9 @@ var core = {},
     };
 
     $.fn.scrollRange = function ( axis ) {
-        return getScrollRange( this, axis );
+        var $container = lib.normalizeContainer( this );
+        axis = axis ? lib.normalizeAxisName( axis ): lib.BOTH_AXES;
+        return getScrollRange( $container, axis );
     };
 
     $.fn.scrollTo = function ( position, options ) {
