@@ -12,7 +12,7 @@ The stable version of jQuery.scrollable is available in the `dist` directory ([d
 
 On the face of it, animated scrolling is such a trivial task with jQuery that you'd be forgiven to think a plugin is foolish. Doesn't a one liner get you there? Is a call along the lines of `$elem.animate( { scrollTop: 1200 } )` not enough?
 
-Yes. And no - because you'll soon discover that your animations end rather abruptly when your target position is beyond the scrollable distance, so you need to check and adjust for that. And then, the most common object to scroll is `window`, which unfortunately can't be scrolled with `animate`. Turns out you need to target either `body` or `documentElement`, depending on the browser.
+Yes. And no – because you'll soon discover that your animations end rather abruptly when your target position is beyond the scrollable distance, so you need to check and adjust for that. And then, the most common object to scroll is `window`, which unfortunately can't be scrolled with `animate`. Turns out you need to target either `body` or `documentElement`, depending on the browser.
 
 Now you suddenly have to feature-test the browser for the right element, which involves injecting a test iframe that needs to be [designed rather carefully][so-comment-iframe-setup]. Or else you can animate both elements, with `$( "html, body" ).animate(...)`, which sounds great until you use animation callbacks (`complete`, `step` etc). They fire twice as often as they should because you animated two elements rather than one, so you find yourself filtering callback calls, which isn't [quite as easy][so-comment-callback-filtering] as it looks at first glance, and ... I'll stop here. You get the picture.
 
@@ -140,11 +140,11 @@ $elem.stopScroll( { jumpToTargetPosition: true } );
 
 With the option `jumpToTargetPosition`, the window or container element jumps to the target position as the animation is aborted. By default, the scroll animation just stops wherever it happens to be.
 
-Calling `stopScroll()` also removes queued scroll animations, should there be any. But it does not affect other, non-scroll animations and their queues - they proceed as normal.
+Calling `stopScroll()` also removes queued scroll animations, should there be any. But it does not affect other, non-scroll animations and their queues – they proceed as normal.
 
-Please be aware that **you don't have to call `stopScroll()` before scrolling into a new direction**, ie when you call `scrollTo()` on the same container (e.g. the window). Ongoing scroll movements are stopped automatically for you.
+Please be aware that **you don't have to call `stopScroll()` before scrolling into a new direction**. When you call `scrollTo()` for a second time on the same container (e.g. the window), ongoing scroll movements are stopped automatically for you.
 
-Rather, you have to act if you _don't_ want to stop the current scroll movement and put the new one in the queue instead. Use the `append` option then ([see above][scrolling-both-axes]).
+Rather, you have to act if you _don't_ want to stop the current scroll movement. Use the `append` option then ([see above][scrolling-both-axes]).
 
 ### Animation options
 
@@ -158,17 +158,17 @@ $elem.scrollTo( 1200, { axis: "x", duration: 800 );
 
 If you want to get really fancy with your animations, you can merge scrolling and other animations in a custom queue, but in most cases you shouldn't.
 
-Sure enough, you can pass a custom queue name to `scrollTo()`, in standard jQuery fashion with the `queue` option. If you do and you ever call `stopScroll()`, you need to provide the same queue name there, too. Again, it is an option - call `$elem.stopScroll( { queue: "foo" } )`.
+Sure enough, you can pass a custom queue name to `scrollTo()`, in standard jQuery fashion with the `queue` option. If you do that and you ever call `stopScroll()`, you need to provide the same queue name there, too. Again, it is passed as an option – call `$elem.stopScroll( { queue: "foo" } )`.
 
 But in that custom queue, it is no longer possible to differentiate between scroll and non-scroll animations. A new invocation of `scrollTo()` stops _all_ animations in that queue, regardless of type, unless you use the `append` option (in which case nothing stops at all). And `stopScroll()` works just the same as [jQuery's `$elem.stop( true )`][jquery-stop].
 
-My advice would be to stick to the standard scroll queue as a best practice - ie, simply don't specify a queue, and all will be well. Manage that queue implicitly with the `append` option of `scrollTo()`, or perhaps call `stopScroll()` explicitly when really necessary, and leave it at that. If you need to link up with other, non-scroll animations, callbacks like `complete` give you the means to do so.
+My advice would be to stick to the standard scroll queue as a best practice – ie, simply don't specify a queue, and all will be well. Manage that queue implicitly with the `append` option of `scrollTo()`, or perhaps call `stopScroll()` explicitly when really necessary, and leave it at that. If you need to link up with other, non-scroll animations, callbacks like `complete` give you the means to do so.
 
 ### Getting the scrollable element
 
-Well, finally there is the method which gave the plugin its name. A call to `$elem.scrollable()` returns the element - or set of elements - used for the scroll animation.
+Well, finally there is the method which gave the plugin its name. A call to `$elem.scrollable()` returns the element – or set of elements – used for the scroll animation.
 
-For an ordinary HTML element, that is the element itself. The only even remotely interesting use case is for `body`/`html`/`window`, where `scrollable()` returns either a jQuery set consisting of both `body` and `documentElement` (current implementation), or just one of them - the one which truly is the correct one to animate (alternative implementation, based on feature testing, but not used at the moment).
+For an ordinary HTML element, that is the element itself. The only even remotely interesting use case is for `body`/`html`/`window`, where `scrollable()` returns either a jQuery set consisting of both `body` and `documentElement` (current implementation), or just one of them – the one which truly is the correct one to animate (alternative implementation, based on feature testing, but not used at the moment).
 
 ## Build process and tests
 
@@ -234,8 +234,8 @@ Copyright (c) 2015 Michael Heim.
 [jQuery]: http://jquery.com/ "jQuery"
 [jQuery.documentSize]: https://github.com/hashchange/jquery.documentsize "jQuery.documentSize"
 
-[so-comment-iframe-setup]: http://stackoverflow.com/questions/8149155/animate-scrolltop-not-working-in-firefox/21583714#comment46979441_21583714 "Stack Overflow: Animate scrollTop not working in firefox - Comment by @hashchange"
-[so-comment-callback-filtering]: http://stackoverflow.com/questions/8790752/callback-of-animate-gets-called-twice-jquery/8791175#comment48499212_8791175 "Stack Overflow: Callback of .animate() gets called twice jquery - Comment by @hashchange"
+[so-comment-iframe-setup]: http://stackoverflow.com/questions/8149155/animate-scrolltop-not-working-in-firefox/21583714#comment46979441_21583714 "Stack Overflow: Animate scrollTop not working in firefox – Comment by @hashchange"
+[so-comment-callback-filtering]: http://stackoverflow.com/questions/8790752/callback-of-animate-gets-called-twice-jquery/8791175#comment48499212_8791175 "Stack Overflow: Callback of .animate() gets called twice jquery – Comment by @hashchange"
 [jQuery-animate]: http://api.jquery.com/animate/ "jQuery API Documentation: .animate()"
 [jquery-stop]: http://api.jquery.com/stop/ "jQuery API Documentation: .stop()"
 
@@ -245,6 +245,6 @@ Copyright (c) 2015 Michael Heim.
 [Bower]: http://bower.io/ "Bower: a package manager for the web"
 [npm]: https://npmjs.org/ "npm: Node Packaged Modules"
 [Grunt]: http://gruntjs.com/ "Grunt: The JavaScript Task Runner"
-[Karma]: http://karma-runner.github.io/ "Karma - Spectacular Test Runner for Javascript"
+[Karma]: http://karma-runner.github.io/ "Karma – Spectacular Test Runner for Javascript"
 [Jasmine]: http://jasmine.github.io/ "Jasmine: Behavior-Driven JavaScript"
 [JSHint]: http://www.jshint.com/ "JSHint, a JavaScript Code Quality Tool"
