@@ -83,7 +83,7 @@
         </ul>
 
         <ul class="button-group even-3">
-            <!-- Relative movement, vertical and horizontal -->
+            <!-- Relative movement, vertical and horizontal simultaneously -->
 
             <!-- number -->
             <li><a class="button shift" data-x="+=100" data-y="+=100" href="#">↘<br>100</a></li>
@@ -91,6 +91,18 @@
             <li><a class="button shift" data-x="+=1000px" data-y="+=1000px" href="#">↘<br>1000px</a></li>
             <!-- percentage -->
             <li><a class="button shift" data-x="+=25%" data-y="+=25%" href="#">↘<br>25%</a></li>
+
+        </ul>
+
+        <ul class="button-group even-3">
+            <!-- Chained, relative vertical and horizontal movements in a circle -->
+
+            <!-- number -->
+            <li><a class="button shift" data-chain=",+=100|+=100,|,-=100|-=100," href="#">↳↰<br>100</a></li>
+            <!-- px unit -->
+            <li><a class="button shift" data-chain=",+=1000px|+=1000px,|,-=1000px|-=1000px," href="#">↳↰<br>1000px</a></li>
+            <!-- percentage -->
+            <li><a class="button shift" data-chain=",+=25%|+=25%,|,-=25%|-=25%," href="#">↳↰<br>25%</a></li>
 
         </ul>
 

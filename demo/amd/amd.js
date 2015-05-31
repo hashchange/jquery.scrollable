@@ -61,19 +61,39 @@ require( [
         } );
 
         $controls.click( function ( event ) {
-            var $elem = $( this );
+            var chain,
+                $elem = $( this ),
+                chainData = $elem.data( "chain" ),
+
+                config = {
+                    duration: 2000,
+                    append: true            // In the demo, we complete each scroll animation before we start the next one.
+                                            // (We could also drop `append` and use `jumpToTargetPosition: true`instead -
+                                            // completes the ongoing animation in an instant when asked to do a new one.)
+                };
 
             event.preventDefault();
 
-            $window.scrollTo( {
-                x: $elem.data( "x" ),
-                y: $elem.data( "y" )
-            }, {
-                duration: 2000,
-                append: true            // In the demo, we complete each scroll animation before we start the next one.
-                                        // (We could also drop `append` and use `jumpToTargetPosition: true`instead -
-                                        // completes the ongoing animation in an instant when asked to do a new one.)
-            } );
+            if ( chainData ) {
+
+                chain = chainData.split( "|" );
+                chain = $.map( chain, function ( stepData ) {
+                    var coords = stepData.split( "," );
+                    return { x: coords[0], y: coords[1] };
+                } );
+
+                $.each( chain, function ( index, position ) {
+                    $window.scrollTo( position, config );
+                } );
+
+            } else {
+
+                $window.scrollTo( {
+                    x: $elem.data( "x" ),
+                    y: $elem.data( "y" )
+                }, config );
+
+            }
 
         } );
 
