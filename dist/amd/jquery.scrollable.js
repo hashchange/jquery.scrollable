@@ -1,4 +1,4 @@
-// jQuery.scrollable, v0.1.1
+// jQuery.scrollable, v0.1.2
 // Copyright (c)2015 Michael Heim, Zeilenwechsel.de
 // Distributed under MIT license
 // http://github.com/hashchange/jquery.scrollable
@@ -27,10 +27,11 @@
     ;( function( $ ) {
         "use strict";
     
-        var core = {},
-            lib = {};
+        var mgr = {},
+            lib = {},
+            core = {};
         
-        ( function ( core, lib ) {
+        ( function ( mgr, lib ) {
             "use strict";
         
             /**
@@ -63,7 +64,7 @@
              */
             function getScrollable ( $container ) {
                 $container = lib.normalizeContainer( $container );
-                return core.getScrollable( $container );
+                return mgr.getScrollable( $container );
             }
         
             /**
@@ -77,30 +78,23 @@
                 $container = lib.normalizeContainer( $container );
                 axis = axis ? lib.normalizeAxisName( axis ) : lib.BOTH_AXES;
         
-                return lib.getScrollMaximum( $container, axis );
+                return mgr.getScrollRange( $container, axis );
             }
         
             /**
              * Does the actual work of $.fn.scrollTo.
              *
-             * In jQuery fashion, animation callbacks (such as "start", "complete", etc) are bound to the animated element.
-             * Please note that for window animations, the `this` of the callbacks is always set to the window, not the real
-             * scrollable element (document element or body).
-             *
-             * @param {jQuery} $container
-             * @param {number} position
-             * @param {Object} [options]
+             * @param {jQuery}               $container
+             * @param {number|string|Object} position
+             * @param {Object}               [options]
              */
             function scrollTo ( $container, position, options ) {
                 options = lib.normalizeOptions( options, position );
                 $container = lib.normalizeContainer( $container );
-                position = lib.normalizePosition( position, $container, options );
+                // In contrast to other arguments, the position is not normalized here. That has to wait because we need control
+                // over the exact moment when the position is frozen into absolute numbers.
         
-                if ( $.isWindow( $container[0] ) ) options = lib.bindAnimationCallbacks( options, $container[0] );
-        
-                if ( ! options.append ) stopScroll( $container, options );
-                core.animateScroll( $container, position, options );
-                // todo enforce final jump as a safety measure (by creating a new, aggregate done callback) - see Pagination.Views
+                mgr.scrollTo( $container, position, options );
             }
         
             /**
@@ -114,10 +108,123 @@
             function stopScroll( $container, options ) {
                 $container = lib.normalizeContainer( $container );
                 options = lib.normalizeOptions( options );
-                lib.stopScrollAnimation( core.getScrollable( $container ), options );
+                mgr.stopScroll( $container, options );
             }
         
-        } )( core, lib );
+        } )( mgr, lib );
+        ( function ( mgr, lib, core ) {
+            "use strict";
+        
+            /**
+             * In here, $container and $options are expected to be normalized when they are passed to a function.
+             */
+        
+            /**
+             * @param   {jQuery} $container  must be normalized
+             * @returns {jQuery}
+             */
+            mgr.getScrollable = function ( $container ) {
+                return core.getScrollable( $container );
+            };
+        
+            /**
+             * @param   {jQuery} $container  must be normalized
+             * @param   {string} axis        must be normalized
+             * @returns {number|Object}
+             */
+            mgr.getScrollRange = function ( $container, axis ) {
+                return lib.getScrollMaximum( $container, axis );
+            };
+        
+            /**
+             * @param {jQuery}               $container  must be normalized
+             * @param {number|string|Object} position    must NOT be normalized yet (has to happen later, timing is important)
+             * @param {Object}               options     must be normalized
+             */
+            mgr.scrollTo = function ( $container, position, options ) {
+                var queueLength;
+        
+                if ( options.append )  {
+                    // The new animation call must be delayed if movements happen in sequence (`append` flag) and other
+                    // animations are still lined up or executing ahead of the new one.
+                    //
+                    // `$.fn.animate()` asks for the final position of the scroll, in absolute terms. Yet the position argument
+                    // allows users to define the position in relative terms ("+=100px"). Because the `append` flag is set,
+                    // animations are supposed to be chained. A relative position is based on the final destination of the
+                    // preceding animation.
+                    //
+                    // Hence, we have to wait for the preceding animation to finish before we can resolve the position and set
+                    // up the animation itself. We put a proxy into the queue instead.
+                    queueLength = mgr.getScrollable( $container ).queue( options.queue ).length;
+        
+                    if ( queueLength ) {
+                        proxyScrollTo( $container, position, options );
+                    } else {
+                        // Empty queue, no need to delay
+                        executeScrollTo( $container, position, options );
+                    }
+                } else {
+                    executeScrollTo( $container, position, options );
+                }
+            };
+        
+            /**
+             * @param {jQuery}         $container                            must be normalized
+             * @param {Object}         options                               must be normalized
+             * @param {string|boolean} options.queue                         set during options normalization if not provided explicitly
+             * @param {boolean}        [options.jumpToTargetPosition=false]
+             */
+            mgr.stopScroll = function ( $container, options ) {
+                var $scrollable = mgr.getScrollable( $container );
+                lib.stopScrollAnimation( $scrollable, options );
+            };
+        
+            /**
+             * Puts a proxy for a scroll animation into the queue. It acts as a placeholder for the animation. The proxy wraps
+             * the actual animation call, allowing us to delay the call until the proxy executes.
+             *
+             * When the proxy is dequeued, it places the animation at the front of the queue so that it executes next.
+             *
+             * @param {jQuery}               $container  must be normalized
+             * @param {number|string|Object} position    must NOT be normalized yet (has to happen later, timing is important)
+             * @param {Object}               options     must be normalized
+             */
+            function proxyScrollTo ( $container, position, options ) {
+                var $scrollable = mgr.getScrollable( $container );
+        
+                // Flag the presence of a proxy in the queue. Later on, lib.addAnimation responds to it.
+                options._proxyIsQueued = true;
+        
+                // Create the proxy. Note that the queued "payload" function is not $.fn.animate, but executeScrollTo - ie, a
+                // function which in turn will put $.fn.animate into the queue.
+                lib.addToQueue( {
+                    $elem: $scrollable,
+                    func: executeScrollTo,
+                    args: [ $container, position, options ],
+                    isAnimation: false,
+                    queue: options.queue
+                } );
+            }
+        
+            /**
+             * Resolves (normalizes) the position argument and puts a scroll animation into the queue.
+             *
+             * @param {jQuery}               $container  must be normalized
+             * @param {number|string|Object} position    must NOT be normalized yet (is done here)
+             * @param {Object}               options     must be normalized
+             */
+            function executeScrollTo ( $container, position, options ) {
+                position = lib.normalizePosition( position, $container, options );
+        
+                // Callbacks for window animations are bound to the window, not the animated element
+                if ( $.isWindow( $container[0] ) ) options = lib.bindAnimationCallbacks( options, $container[0] );
+        
+                if ( ! options.append ) mgr.stopScroll( $container, options );
+                core.animateScroll( $container, position, options );
+                // todo enforce final jump as a safety measure (by creating a new, aggregate done callback) - see Pagination.Views
+            }
+        
+        } )( mgr, lib, core );
         ( function ( lib ) {
             "use strict";
         
@@ -502,7 +609,7 @@
              *
              * Turns the position hash into a hash of properties to animate. The position is expected to be normalized.
              *
-             * Delegates to lib.addAnimation otherwise. See there for more.
+             * Delegates to lib.addAnimation and, implicitly, to lib.addToQueue otherwise. See there for more.
              *
              * @param {jQuery}      $elem
              * @param {Coordinates} position   the normalized position
@@ -519,29 +626,90 @@
                 if ( hasPosY ) animated.scrollTop = posY;
         
                 if ( hasPosX || hasPosY ) lib.addAnimation( $elem, animated, options );
-        
             };
         
             /**
-             * Sets up an animation for an element. Makes sure the internal custom queue works just as well as the default "fx"
-             * queue, ie it auto-starts when necessary.
+             * Sets up an animation for an element.
              *
-             * When using an internal custom queue, all animations destined for that queue must be added with this method. It is
-             * safest to simply add all animations with this method. It can process unqueued, immediate animations as well.
-             *
-             * DO NOT START THE INTERNAL CUSTOM QUEUE MANUALLY (by calling dequeue()) WHEN USING THIS METHOD. That would dequeue
-             * and execute the next queued item prematurely.
+             * Delegates to lib.addToQueue - see there for more.
              *
              * @param {jQuery} $elem
              * @param {Object} properties  the animated property or properties, and their target value(s)
              * @param {Object} [options]   animation options
              */
             lib.addAnimation = function ( $elem, properties, options ) {
-                var queueName = options && options.queue,
+                var config = {
+                    $elem: $elem,
+                    func: $.fn.animate,
+                    args: [ properties, options ],
+                    isAnimation: true,
+                    queue: options.queue
+                };
+        
+                if ( options._proxyIsQueued ) {
+                    // A proxy for the animation has already been waiting in the queue. Its turn has come and it is executing
+                    // now, setting up the real animation. So run the animation next, don't send it back to the end of the
+                    // queue. (See proxyScrollTo in _2_mgr.js.)
+                    lib.runNextInQueue( config );
+                } else {
+                    lib.addToQueue( config );
+                }
+        
+            };
+        
+            /**
+             * Adds a function to a queue. Makes sure the internal custom queue for scrolling works just as well as the default
+             * "fx" queue, ie it auto-starts when necessary.
+             *
+             * When using the internal custom queue, all animations destined for that queue must be added with this method. It
+             * is safest to simply add **all** animations with this method. It can process unqueued, immediate animations as
+             * well.
+             *
+             * DO NOT START THE INTERNAL CUSTOM QUEUE MANUALLY (by calling dequeue()) WHEN USING THIS METHOD. That is taken care
+             * of here. Manual intervention would dequeue and execute the next queued item prematurely.
+             *
+             * ATTN Arguments format:
+             *
+             * There is just one valid format for animation arguments here: `.animate( properties, options )`. The options
+             * argument cannot be omitted, and it must be normalized. In other words, config.args must be set to
+             * `[ properties, options ]`.
+             *
+             * The alternative `.animate()` syntax, `.animate( properties [, duration] [, easing] [, complete] )`, is not
+             * supported here.
+             *
+             * For non-animations (config.isAnimation = false), arguments can be whatever you like.
+             *
+             * @param {Object}   config
+             * @param {jQuery}   config.$elem         the animated element which the queue is attached to
+             * @param {Function} config.func          the "payload" function to be executed; invoked in the context of config.$elem
+             * @param {Array}    config.args          of config.func
+             * @param {boolean}  config.isAnimation   whether or not config.func is an animation (or an ordinary, unqueued function)
+             * @param {string}   [config.queue="fx"]
+             */
+            lib.addToQueue = function ( config ) {
+        
+                var $elem = config.$elem,
+                    func = config.func,
+                    args = config.args,
+        
+                    queueName = config.queue !== undefined ? config.queue : "fx",
                     isInternalCustomQueue = queueName === defaults.queue && queueName !== "fx",
+        
                     sentinel = function ( next ) { next(); };
         
-                $elem.animate( properties, options );
+                if ( config.isAnimation ) {
+                    // Force the animation to use the specified queue (in case there is an inconsistency)
+                    $.extend( args[1], { queue: queueName } );
+        
+                    // Then just run the animation, it is added to the queue automatically
+                    func.apply( $elem, args );
+                } else {
+                    // The "payload" is an ordinary function, so create a wrapper to put the function into the queue
+                    $elem.queue( queueName, function ( next ) {
+                        func.apply( $elem, args );
+                        next();
+                    } );
+                }
         
                 // In the internal custom queue, add a sentinel function as the next item to the queue, in order to track the
                 // queue progress.
@@ -554,6 +722,87 @@
                 // another animation finishes, it won't be waiting at index 0. That position is occupied by the sentinel of the
                 // previous, ongoing animation.
                 if ( isInternalCustomQueue && $elem.queue( queueName )[1] === sentinel ) $elem.dequeue( queueName );
+        
+            };
+        
+            /**
+             * Adds a function to the queue so that it will be executed next. If another queue item is currently in process, the
+             * added function runs as soon as the current one has finished.
+             *
+             * @param {Object}   config
+             * @param {jQuery}   config.$elem         the animated element which the queue is attached to
+             * @param {Function} config.func          the "payload" function to be executed; invoked in the context of config.$elem
+             * @param {Array}    config.args          of config.func
+             * @param {boolean}  config.isAnimation   whether or not config.func is an animation (or an ordinary, unqueued function)
+             * @param {string}   [config.queue="fx"]
+             */
+            lib.runNextInQueue = function ( config ) {
+        
+                var insertAt, isNext, queueContent, moveThis,
+                    $elem = config.$elem,
+                    queueName = config.queue !== undefined ? config.queue : "fx",
+        
+                    isFxQueue = queueName === "fx",
+                    isInternalCustomQueue = queueName === defaults.queue && !isFxQueue,
+                    queueLength = $elem.queue( queueName ).length;
+        
+                // Check where the next slot in the queue would be, after having accounted for the currently running animation
+                // (if any) and sentinel placeholders.
+                //
+                // - In the fx queue, the first item is always the one in progress. (An "inprogress" placeholder shows up in the
+                //   queue.) The next queue slot is either 0 (empty queue, no animation running) or 1 (queue not empty,
+                //   animation in progress).
+                //
+                // - A custom queue behaves differently. The animation in progress is not visible in the queue. Hence, in an
+                //   unmanaged custom queue, the next slot is always 0.
+                //
+                // - In the internal (managed) custom queue, additions to the queue appear in pairs. The animation (or other
+                //   "payload") is always accompanied by a sentinel, which aids tracking the queue progress.
+                //
+                //   If an animation is in progress, it has popped off the queue (custom queue behaviour), and slot 0 is
+                //   occupied by the associated sentinel. The next queue slot is either 0 (empty queue, no animation running) or
+                //   1 (queue not empty, animation in progress). In that regard, the managed queue behaves the same as the fx
+                //   queue.
+                //
+                // That's reasonably straightforward so far. In a custom queue, though, we might run into a scenario where the
+                // queue is stuck (because it does not start automatically). Lets look at the implications.
+                //
+                // - The stuck animation should be considered "in progress but derailed". With runNextInQueue, we don't want to
+                //   jump ahead of an animation which is (or at least should be considered to be) already in progress. The slot
+                //   we are targeting is actually behind the stuck animation, not in front of it.
+                //
+                // - The internal, managed queue never gets stuck, though. All additions are run through lib.addToQueue, which
+                //   implements auto start.
+                //
+                // - A user-defined custom queue might get stuck, but we have no way of knowing whether it is. Without sentinels,
+                //   we can't tell if an animation in slot 0 is derailed and stuck or orderly waiting in a progressing queue. It
+                //   is up to the user to keep the queue going, and we just have to assume that he or she didn't screw up.
+                //
+                // In a nutshell: we don't have to deal with a stuck queue here.
+                //
+                // (A demo for inspecting the behaviour of queues is at http://output.jsbin.com/tudufi/2/)
+        
+                insertAt = ( isFxQueue || isInternalCustomQueue ) ? Math.min( queueLength, 1 ) : 0;
+        
+                // Check if the new function would be up next anyway. In that case, we can simply append it to the queue and
+                // skip the whole queue rearrangement dance.
+                isNext = queueLength < ( insertAt + 1 );
+        
+                // Append the animation or function to the queue, so that we can extract the corresponding queue items (with
+                // queue wrappers around the actual payload).
+                lib.addToQueue( config );
+        
+                // Rearrange the queue if necessary
+                if ( ! isNext ) {
+                    queueContent = $elem.queue( queueName );
+        
+                    // In the internal custom queue, we must move the associated sentinel as well
+                    moveThis = isInternalCustomQueue ? queueContent.splice( - 2 ) : queueContent.splice( -1 );
+                    insertArrayIntoArray( queueContent, moveThis, insertAt );
+        
+                    $elem.queue( queueName, queueContent );
+                }
+        
             };
         
             /**
@@ -656,6 +905,18 @@
                 } );
         
                 return normalized;
+            }
+        
+            /**
+             * Inserts the items in one array into another array, at a specified index. Does NOT return the result, but rather
+             * MODIFIES the target array IN PLACE!
+             *
+             * @param {Array}  insertInto  the target array
+             * @param {Array}  insertThis  the array containing the items which are to be inserted
+             * @param {number} insertAt    index
+             */
+            function insertArrayIntoArray ( insertInto, insertThis, insertAt ) {
+                insertInto.splice.apply( insertInto, [ insertAt, 0 ].concat( insertThis ) );
             }
         
             /**
