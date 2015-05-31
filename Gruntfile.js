@@ -91,8 +91,9 @@ module.exports = function (grunt) {
           globals: {
             // Add vars which are shared between various sub-components
             // (before concatenation makes them local)
-            core: true,
-            lib: true
+            mgr: true,
+            lib: true,
+            core: true
           }
         }, grunt.file.readJSON('.jshintrc')),
         files: {

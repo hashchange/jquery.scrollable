@@ -1,7 +1,8 @@
-var core = {},
-    lib = {};
+var mgr = {},
+    lib = {},
+    core = {};
 
-( function ( core, lib ) {
+( function ( mgr, lib ) {
     "use strict";
 
     /**
@@ -13,9 +14,7 @@ var core = {},
     };
 
     $.fn.scrollRange = function ( axis ) {
-        var $container = lib.normalizeContainer( this );
-        axis = axis ? lib.normalizeAxisName( axis ): lib.BOTH_AXES;
-        return getScrollRange( $container, axis );
+        return getScrollRange( this, axis );
     };
 
     $.fn.scrollTo = function ( position, options ) {
@@ -36,7 +35,7 @@ var core = {},
      */
     function getScrollable ( $container ) {
         $container = lib.normalizeContainer( $container );
-        return core.getScrollable( $container );
+        return mgr.getScrollable( $container );
     }
 
     /**
@@ -50,30 +49,23 @@ var core = {},
         $container = lib.normalizeContainer( $container );
         axis = axis ? lib.normalizeAxisName( axis ) : lib.BOTH_AXES;
 
-        return lib.getScrollMaximum( $container, axis );
+        return mgr.getScrollRange( $container, axis );
     }
 
     /**
      * Does the actual work of $.fn.scrollTo.
      *
-     * In jQuery fashion, animation callbacks (such as "start", "complete", etc) are bound to the animated element.
-     * Please note that for window animations, the `this` of the callbacks is always set to the window, not the real
-     * scrollable element (document element or body).
-     *
-     * @param {jQuery} $container
-     * @param {number} position
-     * @param {Object} [options]
+     * @param {jQuery}               $container
+     * @param {number|string|Object} position
+     * @param {Object}               [options]
      */
     function scrollTo ( $container, position, options ) {
         options = lib.normalizeOptions( options, position );
         $container = lib.normalizeContainer( $container );
-        position = lib.normalizePosition( position, $container, options );
+        // In contrast to other arguments, the position is not normalized here. That has to wait because we need control
+        // over the exact moment when the position is frozen into absolute numbers.
 
-        if ( $.isWindow( $container[0] ) ) options = lib.bindAnimationCallbacks( options, $container[0] );
-
-        if ( ! options.append ) stopScroll( $container, options );
-        core.animateScroll( $container, position, options );
-        // todo enforce final jump as a safety measure (by creating a new, aggregate done callback) - see Pagination.Views
+        mgr.scrollTo( $container, position, options );
     }
 
     /**
@@ -87,7 +79,7 @@ var core = {},
     function stopScroll( $container, options ) {
         $container = lib.normalizeContainer( $container );
         options = lib.normalizeOptions( options );
-        lib.stopScrollAnimation( core.getScrollable( $container ), options );
+        mgr.stopScroll( $container, options );
     }
 
-} )( core, lib );
+} )( mgr, lib );
