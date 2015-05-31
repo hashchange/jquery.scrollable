@@ -137,6 +137,12 @@ Besides `axis` and `append`, you can use [every option available to `jQuery.anim
 $elem.scrollTo( 1200, { axis: "x", duration: 800 );
 ```
 
+##### A note on animation callbacks
+
+In jQuery fashion, animation callbacks such as `start`, `complete`, etc are bound to the animated element. 
+
+But there is an exception: window scroll animations are bound to the appropriate `window`. Ie, inside the callbacks, the `this` keyword represents the window object, not the real scrollable element (`documentElement` or `body`).
+
 ### Stopping scroll animations
 
 Scroll animations run in their own, dedicated queue, so they don't interfere with other animations which may be going on at the same time. As a result, you can't and shouldn't stop scroll movements with the [generic jQuery `$elem.stop()` command][jquery-stop]. Use `$elem.stopScroll()` instead:
@@ -164,7 +170,7 @@ But in that custom queue, it is no longer possible to differentiate between scro
 
 My advice would be to stick to the standard scroll queue as a best practice – ie, simply don't specify a queue, and all will be well. Manage that queue implicitly with the `append` option of `scrollTo()`, or perhaps call `stopScroll()` explicitly when really necessary, and leave it at that. If you need to link up with other, non-scroll animations, callbacks like `complete` give you the means to do so.
 
-### Retrieving the maximum scrollable distance inside an element
+### Retrieving the maximum scrollable distance within an element
 
 You can query the maximum distance that the content of an element can be scrolled, in case you need it for some calculations of your own. That value is the size of the content minus the inner size of the element or window. 
 
