@@ -31,8 +31,7 @@ module.exports = function(config) {
       'src/_1_wrapper.js',
       'src/_2_mgr.js',
       'src/_3_lib.js',
-      //'src/_4_core_A.js',
-      'src/_4_core_B.js',
+      'src/_4_core.js',
 
       // Test helpers
       'spec/helpers/**/*.js',

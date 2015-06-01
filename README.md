@@ -204,9 +204,11 @@ Please remember that despite all that flexibility with names during input, when 
 
 ### Getting the scrollable element
 
-Well, finally there is the method which gave the plugin its name. A call to `$elem.scrollable()` returns the element – or set of elements – used for the scroll animation.
+Well, finally there is the method which gave the plugin its name. A call to `$elem.scrollable()` returns the element used for the scroll animation. 
 
-For an ordinary HTML element, that is the element itself. The only even remotely interesting use case is for `body`/`html`/`window`, where `scrollable()` returns either a jQuery set consisting of both `body` and `documentElement` (current implementation), or just one of them – the one which truly is the correct one to animate (alternative implementation, based on feature testing, but not used at the moment).
+When called on an ordinary HTML element, the result is uninteresting - all you get back is the element itself. For `body`/`html`/`window`, either `body` or `documentElement` is returned, depending on the browser. The result is wrapped in a jQuery object.
+
+(It should go without saying that the result is established with feature testing, not browser sniffing, and is based on the actual behaviour of the browser.)
 
 ## Build process and tests
 
