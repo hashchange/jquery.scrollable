@@ -37,7 +37,9 @@ require( [
             $feedbackX_px = $( ".x-px", $feedbackPane ),
             $feedbackX_percent = $( ".x-percent", $feedbackPane ),
             $feedbackY_px = $( ".y-px", $feedbackPane ),
-            $feedbackY_percent = $( ".y-percent", $feedbackPane );
+            $feedbackY_percent = $( ".y-percent", $feedbackPane ),
+
+            $log = $( "#log", $feedbackPane );
 
         // Make sure the document body is larger than the window by at least 2000px in each dimension
         $body
@@ -64,12 +66,16 @@ require( [
             var chain,
                 $elem = $( this ),
                 chainData = $elem.data( "chain" ),
+                actionLabel = $elem.text(),
 
                 config = {
                     duration: 2000,
-                    append: true            // In the demo, we complete each scroll animation before we start the next one.
+                    append: true,           // In the demo, we complete each scroll animation before we start the next one.
                                             // (We could also drop `append` and use `jumpToTargetPosition: true`instead -
                                             // completes the ongoing animation in an instant when asked to do a new one.)
+                    done: function () {
+                        updateLog( actionLabel + " done.", true );
+                    }
                 };
 
             event.preventDefault();
@@ -83,6 +89,11 @@ require( [
                 } );
 
                 $.each( chain, function ( index, position ) {
+                    config.done = function () {
+                        var isLastSubscroll = index === chain.length - 1;
+                        updateLog( [ actionLabel, " (", index + 1, ") done for { x: ", position.x, ", y: ", position.y, " }." ], isLastSubscroll );
+                    };
+
                     $window.scrollTo( position, config );
                 } );
 
@@ -110,6 +121,18 @@ require( [
 
             $feedbackY_px.text( posY + "px" );
             $feedbackY_percent.text( toPercent( posY, range.vertical, 4 ) + "%" );
+        }
+
+        function updateLog ( message, addSeparator ) {
+            var $entry = $( "<li/>" );
+
+            if ( $.isArray( message ) ) message = message.join( "" );
+
+            if ( addSeparator ) $entry.addClass( "done" );
+            $entry.text( message ).appendTo( $log );
+
+            console.log( message );
+            if ( addSeparator ) console.log( "-------" );
         }
 
     } );

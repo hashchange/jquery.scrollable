@@ -32,6 +32,23 @@ body {
     right: 1.25rem;
 }
 
+#log {
+    max-width: 350px;
+    max-height: 300px;
+    margin: 0;
+    overflow-y: scroll;
+}
+
+#log li {
+    box-sizing: border-box;
+    width: 100%;
+    text-align: left;
+}
+
+#log li.done {
+    border-bottom: 1px dotted grey;
+}
+
 .gradient {
     background: -moz-linear-gradient(-45deg, rgba(41,154,11,0.05) 0%, rgba(41,153,11,0.05) 1%, rgba(6,91,0,1) 100%); /* FF3.6+ */
     background: -webkit-gradient(linear, left top, right bottom, color-stop(0%,rgba(41,154,11,0.05)), color-stop(1%,rgba(41,153,11,0.05)), color-stop(100%,rgba(6,91,0,1))); /* Chrome,Safari4+ */
