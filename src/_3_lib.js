@@ -20,7 +20,25 @@
         defaults = {
             axis: "vertical",
             queue: "internal.jquery.scrollable"
-        };
+        },
+
+        /** @type {Function[]}  jQuery effects functions which have a custom queue option and take the options hash as first argument */
+        jqEffectsWithOptionsArg1 = getJQueryFunctions( [
+            "fadeIn", "fadeOut", "fadeToggle", "hide", "show", "slideDown", "slideToggle", "slideUp", "toggle"
+        ] ),
+
+        /** @type {Function[]}  jQuery effects functions which have a custom queue option and take the options hash as second argument */
+        jqEffectsWithOptionsArg2 = getJQueryFunctions( [ "animate" ] ),
+
+        /** @type {Function[]}  jQuery effects functions which have a custom queue option and take the options name (string) as second argument */
+        jqEffectsWithStringArg2 = getJQueryFunctions( [ "delay" ] ),
+
+        /** @type {Function[]}  jQuery effects functions which don't have a custom queue option */
+        jqEffectsFxQueueOnly = getJQueryFunctions( [ "fadeTo" ] ),
+
+        /** @type {Function[]}  jQuery effects functions which add themselves to the queue automatically */
+        jQueryEffects = jqEffectsWithOptionsArg1.concat( jqEffectsWithOptionsArg2, jqEffectsWithStringArg2, jqEffectsFxQueueOnly );
+
 
     /** @type {string}  canonical name for the vertical axis */
     lib.VERTICAL = "vertical";
@@ -443,20 +461,16 @@
      *
      * ATTN Arguments format:
      *
-     * There is just one valid format for animation arguments here: `.animate( properties, options )`. The options
-     * argument cannot be omitted, and it must be normalized. In other words, config.args must be set to
-     * `[ properties, options ]`.
+     * Some built-in jQuery effects functions accept arguments in more than one format. Only the format using an options
+     * hash is supported here, e.g `.animate( properties, options )`. The options argument cannot be omitted, and it
+     * must be normalized. For `animate`, that means that config.args must be set to `[ properties, options ]`.
      *
-     * The alternative `.animate()` syntax, `.animate( properties [, duration] [, easing] [, complete] )`, is not
-     * supported here.
-     *
-     * For non-animations (config.isAnimation = false), arguments can be whatever you like.
+     * For functions which are not jQuery effects, arguments can be whatever you like.
      *
      * @param {Object}   config
      * @param {jQuery}   config.$elem         the animated element which the queue is attached to
      * @param {Function} config.func          the "payload" function to be executed; invoked in the context of config.$elem
      * @param {Array}    config.args          of config.func
-     * @param {boolean}  config.isAnimation   whether or not config.func is an animation (or an ordinary, unqueued function)
      * @param {string}   [config.queue="fx"]
      */
     lib.addToQueue = function ( config ) {
@@ -470,9 +484,22 @@
 
             sentinel = function ( next ) { next(); };
 
-        if ( config.isAnimation ) {
-            // Force the animation to use the specified queue (in case there is an inconsistency)
-            $.extend( args[1], { queue: queueName } );
+        if ( isQueueable( func ) ) {
+            // Dealing with an animation-related jQuery function which adds itself to the queue automatically.
+            //
+            // First, force it to use the specified queue (in case there is an inconsistency). Choose the right
+            // arguments format for the function at hand.
+            if ( isInArray( func, jqEffectsWithOptionsArg1 ) ) {
+                $.extend( args[0], { queue: queueName } );
+            } else if ( isInArray( func, jqEffectsWithOptionsArg2 ) ) {
+                $.extend( args[1], { queue: queueName } );
+            } else if ( isInArray( func, jqEffectsWithStringArg2 ) ) {
+                args[1] = queueName;
+            } else {
+                // Dealing with an effects function which only works in the "fx" queue. (At the time of writing, that
+                // was $.fn.fadeTo only.)
+                if ( queueName !== "fx" ) throw new Error( "Can't use a custom queue (queue name: '" + queueName + "') with the provided animation function" );
+            }
 
             // Then just run the animation, it is added to the queue automatically
             func.apply( $elem, args );
@@ -506,7 +533,6 @@
      * @param {jQuery}   config.$elem         the animated element which the queue is attached to
      * @param {Function} config.func          the "payload" function to be executed; invoked in the context of config.$elem
      * @param {Array}    config.args          of config.func
-     * @param {boolean}  config.isAnimation   whether or not config.func is an animation (or an ordinary, unqueued function)
      * @param {string}   [config.queue="fx"]
      */
     lib.runNextInQueue = function ( config ) {
@@ -703,6 +729,39 @@
      */
     function isUndefinedPositionValue ( positionValue ) {
         return positionValue === undefined || positionValue === null || positionValue === false || positionValue === "";
+    }
+
+    /**
+     * Returns an array of jQuery functions, based on their names.
+     *
+     * The result contains only functions which actually exist in the loaded version of jQuery.
+     *
+     * @param   {string[]} names
+     * @returns {Function[]}
+     */
+    function getJQueryFunctions ( names ) {
+        return $.grep(
+
+            $.map( names, function ( name ) {
+                return $.fn[name];
+            } ),
+
+            function ( func ) { return !!func; }
+
+        );
+    }
+
+    /**
+     * Returns whether a function adds itself to a queue automatically. That is the case for $.fn.animate or other
+     * jQuery animation functions, such as $.fn.delay, $.fn.show etc.
+     *
+     * The list of recognized functions has to be maintained by hand, there is no generic approach here.
+     *
+     * @param   {Function} func
+     * @returns {boolean}
+     */
+    function isQueueable ( func ) {
+        return isInArray( func, jQueryEffects );
     }
 
     function isString ( value ) {
