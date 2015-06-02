@@ -1,8 +1,10 @@
 var mgr = {},
+    norm = {},
+    queue = {},
     lib = {},
     core = {};
 
-( function ( mgr, lib ) {
+( function ( mgr, norm ) {
     "use strict";
 
     /**
@@ -34,7 +36,7 @@ var mgr = {},
      * @returns {jQuery}
      */
     function getScrollable ( $container ) {
-        $container = lib.normalizeContainer( $container );
+        $container = norm.normalizeContainer( $container );
         return mgr.getScrollable( $container );
     }
 
@@ -46,8 +48,8 @@ var mgr = {},
      * @returns {number|Object}
      */
     function getScrollRange( $container, axis ) {
-        $container = lib.normalizeContainer( $container );
-        axis = axis ? lib.normalizeAxisName( axis ) : lib.BOTH_AXES;
+        $container = norm.normalizeContainer( $container );
+        axis = axis ? norm.normalizeAxisName( axis ) : norm.BOTH_AXES;
 
         return mgr.getScrollRange( $container, axis );
     }
@@ -60,8 +62,8 @@ var mgr = {},
      * @param {Object}               [options]
      */
     function scrollTo ( $container, position, options ) {
-        options = lib.normalizeOptions( options, position );
-        $container = lib.normalizeContainer( $container );
+        options = norm.normalizeOptions( options, position );
+        $container = norm.normalizeContainer( $container );
         // In contrast to other arguments, the position is not normalized here. That has to wait because we need control
         // over the exact moment when the position is frozen into absolute numbers.
 
@@ -77,9 +79,9 @@ var mgr = {},
      * @param {string|boolean} [options.queue]                       usually not required, set to the scroll queue by default
      */
     function stopScroll( $container, options ) {
-        $container = lib.normalizeContainer( $container );
-        options = lib.normalizeOptions( options );
+        $container = norm.normalizeContainer( $container );
+        options = norm.normalizeOptions( options );
         mgr.stopScroll( $container, options );
     }
 
-} )( mgr, lib );
+} )( mgr, norm );

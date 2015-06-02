@@ -30,8 +30,10 @@ module.exports = function(config) {
       // Component under test
       'src/_1_wrapper.js',
       'src/_2_mgr.js',
-      'src/_3_lib.js',
-      'src/_4_core.js',
+      'src/_3_norm.js',
+      'src/_4_queue.js',
+      'src/_5_lib.js',
+      'src/_6_core.js',
 
       // Test helpers
       'spec/helpers/**/*.js',

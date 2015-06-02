@@ -92,6 +92,8 @@ module.exports = function (grunt) {
             // Add vars which are shared between various sub-components
             // (before concatenation makes them local)
             mgr: true,
+            norm: true,
+            queue: true,
             lib: true,
             core: true
           }

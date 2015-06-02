@@ -1,4 +1,4 @@
-( function ( mgr, lib, core ) {
+( function ( mgr, lib, core, queue ) {
     "use strict";
 
     /**
@@ -83,7 +83,7 @@
 
         // Create the proxy. Note that the queued "payload" function is not $.fn.animate, but executeScrollTo - ie, a
         // function which in turn will put $.fn.animate into the queue.
-        lib.addToQueue( {
+        queue.addToQueue( {
             $elem: $scrollable,
             func: executeScrollTo,
             args: [ $container, position, options ],
@@ -109,4 +109,4 @@
         core.animateScroll( $container, position, options );
     }
 
-} )( mgr, lib, core );
+} )( mgr, lib, core, queue );
