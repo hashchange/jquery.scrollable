@@ -70,20 +70,46 @@
      *
      * Returns an empty object if the animation options are undefined, or if no callbacks are present in there.
      *
-     * @param   {Object} [animationOptions]
-     * @returns {Object|undefined}
+     * @param   {Object|undefined} [animationOptions]
+     * @returns {Callbacks}
      */
     lib.extractCallbacks = function ( animationOptions ) {
         var callbacks = {};
 
         if ( animationOptions ) {
+
             $.each( animationCallbacks, function ( index, name ) {
                 var callback = animationOptions[name];
-                if ( animationOptions[name] ) {
+                if ( callback ) {
                     callbacks[name] = callback;
                     delete animationOptions[name];
                 }
             } );
+
+        }
+
+        return callbacks;
+    };
+
+    /**
+     * Expects an object of animation options and returns a new object consisting only of the callbacks. Does not modify
+     * the input object.
+     *
+     * Returns an empty object if the animation options don't define any callbacks, or if the options are undefined.
+     *
+     * @param   {Object}    [animationOptions]
+     * @returns {Callbacks}
+     */
+    lib.getCallbacks = function ( animationOptions ) {
+        var callbacks = {};
+
+        if ( animationOptions ) {
+
+            $.each( animationCallbacks, function ( index, name ) {
+                var callback = animationOptions[name];
+                if ( callback ) callbacks[name] = callback;
+            } );
+
         }
 
         return callbacks;
@@ -132,12 +158,16 @@
             posY = position[ norm.VERTICAL ],
             hasPosX = posX !== norm.IGNORE_AXIS,
             hasPosY = posY !== norm.IGNORE_AXIS,
-            animated = {};
+            animated = {},
+            animationInfo = {
+                position: position,
+                callbacks: lib.getCallbacks( options )
+            };
 
         if ( hasPosX ) animated.scrollLeft = posX;
         if ( hasPosY ) animated.scrollTop = posY;
 
-        if ( hasPosX || hasPosY ) lib.addAnimation( $elem, animated, options );
+        if ( hasPosX || hasPosY ) lib.addAnimation( $elem, animated, options, animationInfo );
     };
 
     /**
@@ -145,27 +175,22 @@
      *
      * Delegates to queue.addToQueue - see there for more.
      *
-     * @param {jQuery} $elem
-     * @param {Object} properties  the animated property or properties, and their target value(s)
-     * @param {Object} [options]   animation options
+     * @param {jQuery}        $elem
+     * @param {Object}        properties       the animated property or properties, and their target value(s)
+     * @param {Object}        [options]        animation options
+     * @param {AnimationInfo} [animationInfo]  info describing a scroll animation: the resolved, absolute target scroll
+     *                                         position of the animation, and the animation callbacks
      */
-    lib.addAnimation = function ( $elem, properties, options ) {
+    lib.addAnimation = function ( $elem, properties, options, animationInfo ) {
         var config = {
             $elem: $elem,
             func: $.fn.animate,
             args: [ properties, options ],
-            isAnimation: true,
+            info: animationInfo,
             queue: options.queue
         };
 
-        if ( options._proxyIsQueued ) {
-            // A proxy for the animation has already been waiting in the queue. Its turn has come and it is executing
-            // now, setting up the real animation. So run the animation next, don't send it back to the end of the
-            // queue. (See proxyScrollTo in _2_mgr.js.)
-            queue.runNextInQueue( config );
-        } else {
-            queue.addToQueue( config );
-        }
+        queue.addToQueue( config );
 
     };
 
@@ -232,5 +257,33 @@
     lib.isInArray = function ( value, arr ) {
         return $.inArray( value, arr ) !== -1;
     };
+
+
+    /**
+     * Custom types.
+     *
+     * For easier documentation and type inference.
+     */
+
+    /**
+     * @name Callbacks
+     * @type {Object}
+     *
+     * @property {Function} [start]
+     * @property {Function} [complete]
+     * @property {Function} [done]
+     * @property {Function} [fail]
+     * @property {Function} [always]
+     * @property {Function} [step]
+     * @property {Function} [progress]
+     */
+
+    /**
+     * @name AnimationInfo
+     * @type {Object}
+     *
+     * @property {Coordinates} position
+     * @property {Callbacks}   callbacks
+     */
 
 } )( lib, norm, queue );

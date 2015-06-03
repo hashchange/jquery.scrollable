@@ -64,8 +64,7 @@ var mgr = {},
     function scrollTo ( $container, position, options ) {
         options = norm.normalizeOptions( options, position );
         $container = norm.normalizeContainer( $container );
-        // In contrast to other arguments, the position is not normalized here. That has to wait because we need control
-        // over the exact moment when the position is frozen into absolute numbers.
+        position = norm.normalizePosition( position, $container, mgr.getScrollable( $container ), options );
 
         mgr.scrollTo( $container, position, options );
     }

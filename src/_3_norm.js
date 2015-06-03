@@ -1,4 +1,4 @@
-( function ( norm, lib ) {
+( function ( norm, lib, queue ) {
     "use strict";
 
     /** @type {string[]}  non-canonical but recognized names for the vertical axis */
@@ -29,6 +29,12 @@
         axis: norm.VERTICAL,
         queue: "internal.jquery.scrollable"
     };
+
+    /** @type {string}  "replace" mode flag for chained scrollTo calls */
+    norm.MODE_REPLACE = "replace";
+
+    /** @type {string}  "append" mode flag for chained scrollTo calls */
+    norm.MODE_APPEND = "append";
 
 
     /**
@@ -80,31 +86,35 @@
      * - A string "top" or "left" is converted to 0.
      * - A string "bottom", "right" is converted to the maximum scroll value on the respective axis.
      * - A string prefixed with "+=" or "-=", which means that the position is relative to the current scroll position,
-     *   is turned into an absolute position.
+     *   is turned into an absolute position. If the scroll is appended or merged, the move is based on the position
+     *   which the preceding scroll will arrive at, rather than the current position.
      * - Hash properties "v"/"h", "y"/"x" are converted into "vertical"/"horizontal" properties.
      * - Hash property values are converted according to the rules for primitives.
      * - Missing hash properties are filled in with norm.IGNORE_AXIS.
      *
      * @param {number|string|Object} position
      * @param {jQuery}               $container
-     * @param {Object}               options     must have the axis property set (which is the case in a normalized
-     *                                           options object)
+     * @param {jQuery}               $scrollable
+     * @param {Object}               options     must have the axis and queue property set (which is the case in a
+     *                                           normalized options object)
      * @returns {Coordinates}
      */
-    lib.normalizePosition = function ( position, $container, options ) {
+    norm.normalizePosition = function ( position, $container, $scrollable, options ) {
 
         var otherAxis, prefix,
             origPositionArg = position,
             basePosition = 0,
             sign = 1,
             axis = options.axis,
+            queueName = options.queue,
+            scrollMode = getScrollMode( options ),
             normalized = {};
 
         if ( $.isPlainObject( position ) ) {
 
             position = normalizeAxisProperty( position );
-            normalized[ norm.HORIZONTAL ] = axis === norm.VERTICAL ? norm.IGNORE_AXIS : lib.normalizePosition( position[ norm.HORIZONTAL ], $container, { axis: norm.HORIZONTAL } )[ norm.HORIZONTAL ];
-            normalized[ norm.VERTICAL ] = axis === norm.HORIZONTAL ? norm.IGNORE_AXIS : lib.normalizePosition( position[ norm.VERTICAL ], $container, { axis: norm.VERTICAL } )[ norm.VERTICAL ];
+            normalized[ norm.HORIZONTAL ] = axis === norm.VERTICAL ? norm.IGNORE_AXIS : norm.normalizePosition( position[ norm.HORIZONTAL ], $container, $scrollable, $.extend( {}, options, { axis: norm.HORIZONTAL } ) )[ norm.HORIZONTAL ];
+            normalized[ norm.VERTICAL ] = axis === norm.HORIZONTAL ? norm.IGNORE_AXIS : norm.normalizePosition( position[ norm.VERTICAL ], $container, $scrollable, $.extend( {}, options, { axis: norm.VERTICAL } ) )[ norm.VERTICAL ];
 
         } else {
 
@@ -122,7 +132,7 @@
                 if ( prefix === "+=" || prefix === "-=" ) {
                     position = position.slice( 2 );
                     sign = prefix === "+=" ? 1 : -1;
-                    basePosition = getCurrentScrollPosition( $container, axis );
+                    basePosition = getStartScrollPosition( $container, $scrollable, axis, queueName, scrollMode );
                 }
 
                 // Resolve px, % units
@@ -293,6 +303,58 @@
     }
 
     /**
+     * Returns the start position for a new scroll movement, on a given axis.
+     *
+     * Usually, that is the current scroll position. In append mode, the final target position of preceding animations
+     * is returned, if any such animations exist.
+     *
+     * @param   {jQuery} $container
+     * @param   {jQuery} $scrollable  the element the queue is attached to
+     * @param   {string} axis         "horizontal" or "vertical"
+     * @param   {string} queueName
+     * @param   {string} scrollMode   "replace" or "append"
+     * @returns {number}
+     */
+    function getStartScrollPosition ( $container, $scrollable, axis, queueName, scrollMode ) {
+        var position;
+
+        // We only care about the final scroll target of preceding scrolls if we have to base a new scroll on it (append
+        // mode)
+        if ( scrollMode === norm.MODE_APPEND ) position = getLastPositionInfo( $scrollable, axis, queueName );
+
+        if ( position === undefined ) position = getCurrentScrollPosition( $container, axis );
+
+        return position;
+    }
+
+    /**
+     * Returns the last position info for a given axis which can be retrieved from the queue. This is the position which
+     * all preceding scroll movements eventually arrive at.
+     *
+     * If there is no info for that axis (because the queue is empty or animations target the other axis only),
+     * undefined is returned.
+     *
+     * @param   {jQuery} $scrollable  the element the queue is attached to
+     * @param   {string} axis         "horizontal" or "vertical"
+     * @param   {string} queueName
+     * @returns {number|undefined}
+     */
+    function getLastPositionInfo ( $scrollable, axis, queueName ) {
+        var retrieved, last,
+            infoEntries = queue.getInfo( $scrollable, queueName );
+
+        // Extract the last position info for the given axis which is not norm.IGNORE_AXIS
+        $.each( infoEntries, function ( index, info ) {
+            if ( info.position ) {
+                retrieved = info.position[axis];
+                if ( retrieved !== undefined && retrieved !== norm.IGNORE_AXIS ) last = retrieved;
+            }
+        } );
+
+        return last;
+    }
+
+    /**
      * Takes a hash of options or positions and returns a copy, with axis names normalized.
      *
      * @param   {Object} inputHash
@@ -310,6 +372,16 @@
         } );
 
         return normalized;
+    }
+
+    /**
+     * Returns the scroll mode after examining the animation options.
+     *
+     * @param   {Object} animationOptions
+     * @returns {string}
+     */
+    function getScrollMode ( animationOptions ) {
+        return animationOptions.append ? norm.MODE_APPEND : norm.MODE_REPLACE;
     }
 
     /**
@@ -332,12 +404,12 @@
      */
 
     /**
-     * @name  Coordinates
-     * @type  {Object}
+     * @name Coordinates
+     * @type {Object}
      *
-     * @property {number}  horizontal
-     * @property {number}  vertical
+     * @property {number} horizontal
+     * @property {number} vertical
      */
 
-} )( norm, lib );
+} )( norm, lib, queue );
 
