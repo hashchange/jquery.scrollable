@@ -147,7 +147,7 @@
      *
      * Turns the position hash into a hash of properties to animate. The position is expected to be normalized.
      *
-     * Delegates to lib.addAnimation and, implicitly, to queue.addToQueue otherwise. See there for more.
+     * Delegates to lib.addAnimation and, implicitly, to queueWrapper.addToQueue otherwise. See there for more.
      *
      * @param {jQuery}      $elem
      * @param {Coordinates} position   the normalized position
@@ -173,7 +173,7 @@
     /**
      * Sets up an animation for an element.
      *
-     * Delegates to queue.addToQueue - see there for more.
+     * Delegates to queueWrapper.addToQueue - see there for more.
      *
      * @param {jQuery}        $elem
      * @param {Object}        properties       the animated property or properties, and their target value(s)
@@ -182,15 +182,14 @@
      *                                         position of the animation, and the animation callbacks
      */
     lib.addAnimation = function ( $elem, properties, options, animationInfo ) {
-        var config = {
-            $elem: $elem,
+        var queueWrapper = new queue.QueueWrapper( $elem, options.queue ),
+            config = {
             func: $.fn.animate,
             args: [ properties, options ],
-            info: animationInfo,
-            queue: options.queue
+            info: animationInfo
         };
 
-        queue.addToQueue( config );
+        queueWrapper.addToQueue( config );
 
     };
 

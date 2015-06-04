@@ -20,6 +20,17 @@
 
 
     /**
+     * @param {jQuery} $elem
+     * @param {string} [queueName]  defaults to the internal default queue
+     * @constructor
+     */
+    queue.QueueWrapper = function ( $elem, queueName ) {
+        this._$elem = $elem;
+        this._queueName = queueName !== undefined ? queueName : norm.defaults.queue;
+        this._isInternalCustomQueue = isInternalCustomQueue( this._queueName );
+    };
+
+    /**
      * Adds a function to a queue. Makes sure the internal custom queue for scrolling works just as well as the default
      * "fx" queue, ie it auto-starts when necessary.
      *
@@ -39,20 +50,17 @@
      * For functions which are not jQuery effects, arguments can be whatever you like.
      *
      * @param {Object}   config
-     * @param {jQuery}   config.$elem         the animated element which the queue is attached to
      * @param {Function} config.func          the "payload" function to be executed; invoked in the context of config.$elem
      * @param {Array}    config.args          of config.func
      * @param {Object}   [config.info]        info to be attached to the sentinel, in an `info` property
-     * @param {string}   [config.queue="fx"]
      */
-    queue.addToQueue = function ( config ) {
+    queue.QueueWrapper.prototype.addToQueue = function ( config ) {
 
-        var $elem = config.$elem,
-            func = config.func,
+        var func = config.func,
             args = config.args,
 
-            queueName = config.queue !== undefined ? config.queue : "fx",
-            _isInternalCustomQueue = isInternalCustomQueue( queueName ),
+            $elem = this._$elem,
+            queueName = this._queueName,
 
             sentinel = function ( next ) { next(); };
 
@@ -88,7 +96,7 @@
 
         // In the internal custom queue, add a sentinel function as the next item to the queue, in order to track the
         // queue progress.
-        if ( _isInternalCustomQueue ) $elem.queue( queueName, sentinel );
+        if ( this._isInternalCustomQueue ) $elem.queue( queueName, sentinel );
 
         // Auto-start the internal custom queue if it is stuck.
         //
@@ -96,7 +104,7 @@
         // is at index 1. That only happens if the queue is stuck. If the animation is merely waiting in line until
         // another animation finishes, it won't be waiting at index 0. That position is occupied by the sentinel of the
         // previous, ongoing animation.
-        if ( _isInternalCustomQueue && $elem.queue( queueName )[1] === sentinel ) $elem.dequeue( queueName );
+        if ( this._isInternalCustomQueue && this.getContent()[1] === sentinel ) $elem.dequeue( queueName );
 
     };
 
@@ -105,19 +113,26 @@
      *
      * Info objects are attached to sentinels and hold information about the corresponding (scroll) animation.
      *
-     * @param   {jQuery} $elem
-     * @param   {string} queueName
      * @returns {Object[]}
      */
-    queue.getInfo = function ( $elem, queueName ) {
+    queue.QueueWrapper.prototype.getInfo = function () {
         var info = [],
-            queueContent = getQueueContent( $elem, queueName );
+            queueContent = this.getContent();
 
         $.each( queueContent, function ( index, entry ) {
             if ( entry.isSentinel && entry.info ) info.push( entry.info );
         } );
 
         return info;
+    };
+
+    /**
+     * Returns the queue content as an array.
+     *
+     * @returns {Function[]}
+     */
+    queue.QueueWrapper.prototype.getContent = function () {
+        return this._$elem.queue( this._queueName );
     };
 
     /**
@@ -151,17 +166,6 @@
      */
     function isQueueable ( func ) {
         return lib.isInArray( func, jQueryEffects );
-    }
-
-    /**
-     * Returns the queue content as an array.
-     *
-     * @param   {jQuery} $elem
-     * @param   {string} queueName
-     * @returns {Function[]}
-     */
-    function getQueueContent ( $elem, queueName ) {
-        return $elem.queue( queueName );
     }
 
     /**

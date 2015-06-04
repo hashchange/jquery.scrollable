@@ -101,92 +101,137 @@
      */
     norm.normalizePosition = function ( position, $container, $scrollable, options ) {
 
+        var queueWrapper = new queue.QueueWrapper( $scrollable, options.queue );
+
+        if ( $.isPlainObject( position ) ) {
+            return normalizePositionForHash( position, $container, options, queueWrapper );
+        } else {
+            return normalizePositionForAxis( position, $container, options, queueWrapper );
+        }
+    };
+
+    /**
+     * Normalizes a position hash.
+     *
+     * Delegates to normalizePositionForAxis(). For info, see norm.normalizePosition().
+     *
+     * @param   {Object}             position
+     * @param   {jQuery}             $container
+     * @param   {Object}             options       must have the axis property set (which is the case in a normalized
+     *                                             options object)
+     * @param   {queue.QueueWrapper} queueWrapper
+     * @returns {Coordinates}
+     */
+    function normalizePositionForHash ( position, $container, options, queueWrapper ) {
+
+        var axis = options.axis,
+            pos = normalizeAxisProperty( position ),
+            posX = pos[norm.HORIZONTAL],
+            posY = pos[norm.VERTICAL],
+            optionsX = $.extend( {}, options, { axis: norm.HORIZONTAL } ),
+            optionsY = $.extend( {}, options, { axis: norm.VERTICAL } ),
+            normalized = {};
+
+        normalized[norm.HORIZONTAL] = axis === norm.VERTICAL ?
+                                      norm.IGNORE_AXIS :
+                                      normalizePositionForAxis( posX, $container, optionsX, queueWrapper )[norm.HORIZONTAL];
+        normalized[norm.VERTICAL] = axis === norm.HORIZONTAL ?
+                                    norm.IGNORE_AXIS :
+                                    normalizePositionForAxis( posY, $container, optionsY, queueWrapper )[norm.VERTICAL];
+
+        return normalized;
+    }
+
+    /**
+     * Normalizes a numeric or string position.
+     *
+     * For info, see norm.normalizePosition().
+     *
+     * @param   {number|string}      position
+     * @param   {jQuery}             $container
+     * @param   {Object}             options       must have the axis property set (which is the case in a normalized
+     *                                             options object)
+     * @param   {queue.QueueWrapper} queueWrapper
+     * @returns {Coordinates}
+     */
+    function normalizePositionForAxis ( position, $container, options, queueWrapper ) {
+
         var otherAxis, prefix,
             origPositionArg = position,
             basePosition = 0,
             sign = 1,
             axis = options.axis,
-            queueName = options.queue,
             scrollMode = getScrollMode( options ),
             normalized = {};
 
-        if ( $.isPlainObject( position ) ) {
 
-            position = normalizeAxisProperty( position );
-            normalized[ norm.HORIZONTAL ] = axis === norm.VERTICAL ? norm.IGNORE_AXIS : norm.normalizePosition( position[ norm.HORIZONTAL ], $container, $scrollable, $.extend( {}, options, { axis: norm.HORIZONTAL } ) )[ norm.HORIZONTAL ];
-            normalized[ norm.VERTICAL ] = axis === norm.HORIZONTAL ? norm.IGNORE_AXIS : norm.normalizePosition( position[ norm.VERTICAL ], $container, $scrollable, $.extend( {}, options, { axis: norm.VERTICAL } ) )[ norm.VERTICAL ];
+        // Working in one dimension only. We need a precise statement of the axis (axis: "both" is not enough here -
+        // we need to know which one).
+        if ( !( axis === norm.HORIZONTAL || axis === norm.VERTICAL ) ) throw new Error( "Axis option not defined, or not defined unambiguously, with current value " + axis );
 
-        } else {
+        // Convert string input to number
+        if ( lib.isString( position ) ) {
 
-            // Working in one dimension only. We need a precise statement of the axis (axis: "both" is not enough here -
-            // we need to know which one).
-            if ( ! ( axis === norm.HORIZONTAL || axis === norm.VERTICAL ) ) throw new Error( "Axis option not defined, or not defined unambiguously, with current value " + axis );
+            position = position.toLowerCase();
 
-            // Convert string input to number
-            if ( lib.isString( position ) ) {
+            // Deal with +=, -= relative position prefixes
+            prefix = position.slice( 0, 2 );
+            if ( prefix === "+=" || prefix === "-=" ) {
+                position = position.slice( 2 );
+                sign = prefix === "+=" ? 1 : -1;
+                basePosition = getStartScrollPosition( $container, queueWrapper, axis, scrollMode );
+            }
 
-                position = position.toLowerCase();
+            // Resolve px, % units
+            if ( position.slice( -2 ) === "px" ) {
+                position = parseFloat( position.slice( 0, -2 ) );
+            } else if ( position.slice( -1 ) === "%" ) {
+                position = parseFloat( position.slice( 0, -1 ) ) * lib.getScrollMaximum( $container, axis ) / 100;
+            } else {
 
-                // Deal with +=, -= relative position prefixes
-                prefix = position.slice( 0, 2 );
-                if ( prefix === "+=" || prefix === "-=" ) {
-                    position = position.slice( 2 );
-                    sign = prefix === "+=" ? 1 : -1;
-                    basePosition = getStartScrollPosition( $container, $scrollable, axis, queueName, scrollMode );
-                }
+                // Resolve position strings
+                if ( axis === norm.HORIZONTAL ) {
 
-                // Resolve px, % units
-                if ( position.slice( -2 ) === "px" ) {
-                    position = parseFloat( position.slice( 0, -2 ) );
-                } else if ( position.slice( -1 ) === "%" ) {
-                    position = parseFloat( position.slice( 0, -1 ) ) * lib.getScrollMaximum( $container, axis ) / 100;
+                    if ( position === "left" ) position = 0;
+                    if ( position === "right" ) position = lib.getScrollMaximum( $container, axis );
+                    if ( position === "top" || position === "bottom" ) throw new Error( "Desired position " + position + "is inconsistent with axis option " + axis );
+
                 } else {
 
-                    // Resolve position strings
-                    if ( axis === norm.HORIZONTAL ) {
-
-                        if ( position === "left" ) position = 0;
-                        if ( position === "right" ) position = lib.getScrollMaximum( $container, axis );
-                        if ( position === "top" || position === "bottom" ) throw new Error( "Desired position " + position + "is inconsistent with axis option " + axis );
-
-                    } else {
-
-                        if ( position === "top" ) position = 0;
-                        if ( position === "bottom" ) position = lib.getScrollMaximum( $container, axis );
-                        if ( position === "left" || position === "right" ) throw new Error( "Desired position " + position + "is inconsistent with axis option " + axis );
-
-                    }
+                    if ( position === "top" ) position = 0;
+                    if ( position === "bottom" ) position = lib.getScrollMaximum( $container, axis );
+                    if ( position === "left" || position === "right" ) throw new Error( "Desired position " + position + "is inconsistent with axis option " + axis );
 
                 }
 
-                // Convert any remaining numeric string (e.g. "100") to a number
-                if ( lib.isString( position ) && $.isNumeric( position ) ) position = parseFloat( position );
-
             }
 
-            if ( lib.isNumber( position ) ) {
-
-                // Calculate the absolute position. Explicit rounding is required because scrollTop/scrollLeft cuts off
-                // fractional pixels, rather than rounding them.
-                position = Math.round( basePosition + sign * position );
-                normalized[ axis ] = limitToScrollRange( position, $container, axis );
-
-            } else if ( isUndefinedPositionValue( position ) ) {
-                normalized[ axis ] = norm.IGNORE_AXIS;
-            } else {
-                // Invalid position value
-                throw new Error( "Invalid position argument " + origPositionArg );
-            }
-
-            // Single axis here, hence the other axis is not dealt with - set to "ignore axis"
-            otherAxis = axis === norm.HORIZONTAL ? norm.VERTICAL : norm.HORIZONTAL;
-            normalized[ otherAxis ] = norm.IGNORE_AXIS;
+            // Convert any remaining numeric string (e.g. "100") to a number
+            if ( lib.isString( position ) && $.isNumeric( position ) ) position = parseFloat( position );
 
         }
 
+        if ( lib.isNumber( position ) ) {
+
+            // Calculate the absolute position. Explicit rounding is required because scrollTop/scrollLeft cuts off
+            // fractional pixels, rather than rounding them.
+            position = Math.round( basePosition + sign * position );
+            normalized[axis] = limitToScrollRange( position, $container, axis );
+
+        } else if ( isUndefinedPositionValue( position ) ) {
+            normalized[axis] = norm.IGNORE_AXIS;
+        } else {
+            // Invalid position value
+            throw new Error( "Invalid position argument " + origPositionArg );
+        }
+
+        // Single axis here, hence the other axis is not dealt with - set to "ignore axis"
+        otherAxis = axis === norm.HORIZONTAL ? norm.VERTICAL : norm.HORIZONTAL;
+        normalized[otherAxis] = norm.IGNORE_AXIS;
+
         return normalized;
 
-    };
+    }
 
     /**
      * Normalizes the options hash and applies the defaults. Does NOT expect the position argument to be normalized.
@@ -226,8 +271,8 @@
         if ( $.isPlainObject( position ) ) {
 
             position = normalizeAxisProperty( position );
-            hasX = !isUndefinedPositionValue( position[ norm.HORIZONTAL ] ) && position[ norm.HORIZONTAL ] !== norm.IGNORE_AXIS;
-            hasY = !isUndefinedPositionValue( position[ norm.VERTICAL ] ) && position[ norm.VERTICAL ] !== norm.IGNORE_AXIS;
+            hasX = !isUndefinedPositionValue( position[norm.HORIZONTAL] ) && position[norm.HORIZONTAL] !== norm.IGNORE_AXIS;
+            hasY = !isUndefinedPositionValue( position[norm.VERTICAL] ) && position[norm.VERTICAL] !== norm.IGNORE_AXIS;
 
             axisDefault = ( hasX && hasY ) ? norm.BOTH_AXES : hasX ? norm.HORIZONTAL : norm.VERTICAL;
 
@@ -266,7 +311,7 @@
             name = norm.BOTH_AXES;
         }
 
-        if ( ! ( name === norm.VERTICAL || name === norm.HORIZONTAL || name === norm.BOTH_AXES ) ) throw new Error( "Invalid axis name " + name );
+        if ( !( name === norm.VERTICAL || name === norm.HORIZONTAL || name === norm.BOTH_AXES ) ) throw new Error( "Invalid axis name " + name );
 
         return name;
 
@@ -298,7 +343,7 @@
      * @param   {string} axis        "vertical" or "horizontal"
      * @returns {number}
      */
-    function getCurrentScrollPosition( $container, axis ) {
+    function getCurrentScrollPosition ( $container, axis ) {
         return axis === norm.HORIZONTAL ? $container.scrollLeft() : $container.scrollTop();
     }
 
@@ -308,19 +353,18 @@
      * Usually, that is the current scroll position. In append mode, the final target position of preceding animations
      * is returned, if any such animations exist.
      *
-     * @param   {jQuery} $container
-     * @param   {jQuery} $scrollable  the element the queue is attached to
-     * @param   {string} axis         "horizontal" or "vertical"
-     * @param   {string} queueName
-     * @param   {string} scrollMode   "replace" or "append"
+     * @param   {jQuery}             $container
+     * @param   {queue.QueueWrapper} queueWrapper
+     * @param   {string}             axis          "horizontal" or "vertical"
+     * @param   {string}             scrollMode    "replace" or "append"
      * @returns {number}
      */
-    function getStartScrollPosition ( $container, $scrollable, axis, queueName, scrollMode ) {
+    function getStartScrollPosition ( $container, queueWrapper, axis, scrollMode ) {
         var position;
 
         // We only care about the final scroll target of preceding scrolls if we have to base a new scroll on it (append
         // mode)
-        if ( scrollMode === norm.MODE_APPEND ) position = getLastPositionInfo( $scrollable, axis, queueName );
+        if ( scrollMode === norm.MODE_APPEND ) position = getLastPositionInfo( queueWrapper, axis );
 
         if ( position === undefined ) position = getCurrentScrollPosition( $container, axis );
 
@@ -334,14 +378,13 @@
      * If there is no info for that axis (because the queue is empty or animations target the other axis only),
      * undefined is returned.
      *
-     * @param   {jQuery} $scrollable  the element the queue is attached to
-     * @param   {string} axis         "horizontal" or "vertical"
-     * @param   {string} queueName
+     * @param   {queue.QueueWrapper} queueWrapper
+     * @param   {string}             axis          "horizontal" or "vertical"
      * @returns {number|undefined}
      */
-    function getLastPositionInfo ( $scrollable, axis, queueName ) {
+    function getLastPositionInfo ( queueWrapper, axis ) {
         var retrieved, last,
-            infoEntries = queue.getInfo( $scrollable, queueName );
+            infoEntries = queueWrapper.getInfo();
 
         // Extract the last position info for the given axis which is not norm.IGNORE_AXIS
         $.each( infoEntries, function ( index, info ) {
@@ -365,9 +408,9 @@
 
         $.each( inputHash, function ( key, value ) {
             if ( lib.isInArray( key, altAxisNames ) ) {
-                normalized[ norm.normalizeAxisName(key) ] = value;
+                normalized[norm.normalizeAxisName( key )] = value;
             } else {
-                normalized[ key ] = value;
+                normalized[key] = value;
             }
         } );
 
