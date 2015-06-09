@@ -26,6 +26,7 @@ module.exports = function(config) {
     files: [
       // Component dependencies
       'bower_components/jquery/dist/jquery.js',
+      'bower_components/jquery.documentsize/dist/jquery.documentsize.js',
 
       // Component under test
       'src/_1_wrapper.js',
@@ -34,6 +35,9 @@ module.exports = function(config) {
       'src/_4_queue.js',
       'src/_5_lib.js',
       'src/_6_core.js',
+
+      // Test dependencies
+      'node_modules/underscore/underscore.js',
 
       // Test helpers
       'spec/helpers/**/*.js',
@@ -77,12 +81,12 @@ module.exports = function(config) {
     // - Firefox
     // - Opera
     // - Safari
-    // - PhantomJS
+    // - PhantomJS (NOT suitable for window scroll testing!)
     // - SlimerJS
     // - IE (Windows only)
     //
     // ATTN Interactive debugging in PhpStorm/WebStorm doesn't work with PhantomJS. Use Firefox or Chrome instead.
-    browsers: ['PhantomJS'],
+    browsers: ['Chrome'],
 
 
     // If browser does not capture in given timeout [ms], kill it
