@@ -158,28 +158,17 @@
 
             describe( 'Callbacks', function () {
 
-                /** @type {Object}  collects info about callback calls, populated by functions which are created with getCallbackLogger */
-                var callbacks, callbackCalls, targetPx;
+                /** @type {Object}  holds animation callback functions of all types; functions are created with getCallbackLogger */
+                var callbacks,
+
+                    /** @type {Object}  collects info about callback calls, populated by functions which are created with getCallbackLogger */
+                    callbackCalls,
+
+                    targetPx;
 
                 beforeEach( function ( done ) {
                     callbackCalls = {};
-                    callbacks = {
-                        start: getCallbackLogger( "start", callbackCalls, $window ),
-                        step: getCallbackLogger( "step", callbackCalls, $window ),
-                        progress: getCallbackLogger( "progress", callbackCalls, $window ),
-                        done: getCallbackLogger( "done", callbackCalls, $window ),
-                        complete: getCallbackLogger( "complete", callbackCalls, $window ),
-                        fail: getCallbackLogger( "fail", callbackCalls, $window ),
-                        always: getCallbackLogger( "always", callbackCalls, $window )
-                    };
-
-                    spyOn( callbacks, 'start' ).and.callThrough();
-                    spyOn( callbacks, 'step' ).and.callThrough();
-                    spyOn( callbacks, 'progress' ).and.callThrough();
-                    spyOn( callbacks, 'done' ).and.callThrough();
-                    spyOn( callbacks, 'complete' ).and.callThrough();
-                    spyOn( callbacks, 'fail' ).and.callThrough();
-                    spyOn( callbacks, 'always' ).and.callThrough();
+                    callbacks = createObservedCallbacks( callbackCalls, $window );
 
                     targetPx = 100;
                     $window.scrollTo( targetPx, callbacks );
@@ -291,28 +280,17 @@
 
             describe( 'Callbacks', function () {
 
-                /** @type {Object}  collects info about callback calls, populated by functions which are created with getCallbackLogger */
-                var callbacks, callbackCalls, targetPx;
+                /** @type {Object}  holds animation callback functions of all types; functions are created with getCallbackLogger */
+                var callbacks,
+
+                    /** @type {Object}  collects info about callback calls, populated by functions which are created with getCallbackLogger */
+                    callbackCalls,
+
+                    targetPx;
 
                 beforeEach( function ( done ) {
                     callbackCalls = {};
-                    callbacks = {
-                        start: getCallbackLogger( "start", callbackCalls, $window ),
-                        step: getCallbackLogger( "step", callbackCalls, $window ),
-                        progress: getCallbackLogger( "progress", callbackCalls, $window ),
-                        done: getCallbackLogger( "done", callbackCalls, $window ),
-                        complete: getCallbackLogger( "complete", callbackCalls, $window ),
-                        fail: getCallbackLogger( "fail", callbackCalls, $window ),
-                        always: getCallbackLogger( "always", callbackCalls, $window )
-                    };
-
-                    spyOn( callbacks, 'start' ).and.callThrough();
-                    spyOn( callbacks, 'step' ).and.callThrough();
-                    spyOn( callbacks, 'progress' ).and.callThrough();
-                    spyOn( callbacks, 'done' ).and.callThrough();
-                    spyOn( callbacks, 'complete' ).and.callThrough();
-                    spyOn( callbacks, 'fail' ).and.callThrough();
-                    spyOn( callbacks, 'always' ).and.callThrough();
+                    callbacks = createObservedCallbacks( callbackCalls, $window );
 
                     targetPx = 100;
                     $window.scrollTo( { x: targetPx }, callbacks );
@@ -424,28 +402,17 @@
 
             describe( 'Callbacks', function () {
 
-                /** @type {Object}  collects info about callback calls, populated by functions which are created with getCallbackLogger */
-                var callbacks, callbackCalls, xTargetPx, yTargetPx;
+                /** @type {Object}  holds animation callback functions of all types; functions are created with getCallbackLogger */
+                var callbacks,
+
+                    /** @type {Object}  collects info about callback calls, populated by functions which are created with getCallbackLogger */
+                    callbackCalls,
+
+                    xTargetPx, yTargetPx;
 
                 beforeEach( function ( done ) {
                     callbackCalls = {};
-                    callbacks = {
-                        start: getCallbackLogger( "start", callbackCalls, $window ),
-                        step: getCallbackLogger( "step", callbackCalls, $window ),
-                        progress: getCallbackLogger( "progress", callbackCalls, $window ),
-                        done: getCallbackLogger( "done", callbackCalls, $window ),
-                        complete: getCallbackLogger( "complete", callbackCalls, $window ),
-                        fail: getCallbackLogger( "fail", callbackCalls, $window ),
-                        always: getCallbackLogger( "always", callbackCalls, $window )
-                    };
-
-                    spyOn( callbacks, 'start' ).and.callThrough();
-                    spyOn( callbacks, 'step' ).and.callThrough();
-                    spyOn( callbacks, 'progress' ).and.callThrough();
-                    spyOn( callbacks, 'done' ).and.callThrough();
-                    spyOn( callbacks, 'complete' ).and.callThrough();
-                    spyOn( callbacks, 'fail' ).and.callThrough();
-                    spyOn( callbacks, 'always' ).and.callThrough();
+                    callbacks = createObservedCallbacks( callbackCalls, $window );
 
                     xTargetPx = 100;
                     yTargetPx = 150;

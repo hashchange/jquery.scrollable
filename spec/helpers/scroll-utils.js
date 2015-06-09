@@ -9,6 +9,16 @@ function afterScroll ( testFunc, duration ) {
 }
 
 /**
+ * Delays the execution of a function long enough to let a programmatic scroll action go half way.
+ *
+ * @param {Function} func
+ * @param {number}   [duration]  defaults to half of the jQuery default duration, which usually equates to 200ms
+ */
+function inMidScroll ( func, duration ) {
+    _.delay( func, _.isUndefined( duration ) ? Math.ceil( $.fx.speeds._default / 2 )  : duration );
+}
+
+/**
  * Returns a function which captures information about scroll callback calls.
  *
  * Expects the name of the animation callback, a hash for collecting data, and the scroll container as arguments.
@@ -39,6 +49,40 @@ function getCallbackLogger( callbackName, callsCollector, $scrollContainer ) {
         // Scroll state is logged for last invocation of the callback.
         collector.scrollState = { x: $scrollContainer.scrollLeft(), y: $scrollContainer.scrollTop() };
     }
+}
+
+/**
+ * Creates a set of observed animation callbacks. The callbacks report call data in a hash, and are monitored with
+ * Jasmine spies in addition.
+ *
+ * Expects a hash for collecting data, and the scroll container as arguments.
+ *
+ * See getCallbackLogger for more on the observed data.
+ *
+ * @param   {Object} callsCollector
+ * @param   {jQuery} $scrollContainer
+ * @returns {{start: Function, step: Function, progress: Function, done: Function, complete: Function, fail: Function, always: Function}}
+ */
+function createObservedCallbacks ( callsCollector, $scrollContainer ) {
+    var callbacks = {
+        start: getCallbackLogger( "start", callsCollector, $scrollContainer ),
+        step: getCallbackLogger( "step", callsCollector, $scrollContainer ),
+        progress: getCallbackLogger( "progress", callsCollector, $scrollContainer ),
+        done: getCallbackLogger( "done", callsCollector, $scrollContainer ),
+        complete: getCallbackLogger( "complete", callsCollector, $scrollContainer ),
+        fail: getCallbackLogger( "fail", callsCollector, $scrollContainer ),
+        always: getCallbackLogger( "always", callsCollector, $scrollContainer )
+    };
+
+    spyOn( callbacks, 'start' ).and.callThrough();
+    spyOn( callbacks, 'step' ).and.callThrough();
+    spyOn( callbacks, 'progress' ).and.callThrough();
+    spyOn( callbacks, 'done' ).and.callThrough();
+    spyOn( callbacks, 'complete' ).and.callThrough();
+    spyOn( callbacks, 'fail' ).and.callThrough();
+    spyOn( callbacks, 'always' ).and.callThrough();
+
+    return callbacks;
 }
 
 
