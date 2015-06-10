@@ -9,6 +9,19 @@ function afterScroll ( testFunc, duration ) {
 }
 
 /**
+ * Delays the execution of a (test) function long enough to let a number of programmatic scroll action take place. The
+ * duration of these scrolls must have been left at the default.
+ *
+ * Also adds a "padding" of 10% to the total scroll time.
+ *
+ * @param {Function} testFunc
+ * @param {number}   factor    number of scroll animations to wait for. Fractions are ok, too.
+ */
+function afterScrolls ( factor, testFunc ) {
+    afterScroll( testFunc, Math.ceil( $.fx.speeds._default * factor * 1.1 ) );
+}
+
+/**
  * Delays the execution of a function long enough to let a programmatic scroll action go half way.
  *
  * @param {Function} func
