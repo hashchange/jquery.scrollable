@@ -28,6 +28,7 @@
         this._$elem = $elem;
         this._queueName = queueName !== undefined ? queueName : norm.defaults.queue;
         this._isInternalCustomQueue = isInternalCustomQueue( this._queueName );
+        this._isOtherCustomQueue = isOtherCustomQueue( this._queueName );
     };
 
     /**
@@ -95,8 +96,11 @@
         }
 
         // In the internal custom queue, add a sentinel function as the next item to the queue, in order to track the
-        // queue progress.
-        if ( this._isInternalCustomQueue ) $elem.queue( queueName, sentinel );
+        // queue progress. Sentinels also serve as a store for animation info (scroll target position, callbacks).
+        //
+        // The sentinel must be added to any other queue as well. Sentinels are not needed for tracking progress there
+        // (no auto start management for those queues), but we must have the animation info around.
+        $elem.queue( queueName, sentinel );
 
         // Auto-start the internal custom queue if it is stuck.
         //
@@ -177,6 +181,16 @@
      */
     function isInternalCustomQueue ( queueName ) {
         return queueName === norm.defaults.queue && queueName !== "fx";
+    }
+
+    /**
+     * Checks if the queue name refers to a custom queue other than the internal queue used for scrolling.
+     *
+     * @param   {string} queueName
+     * @returns {boolean}
+     */
+    function isOtherCustomQueue ( queueName ) {
+        return lib.isString( queueName ) && queueName !== "" && queueName !== norm.defaults.queue && queueName !== "fx";
     }
 
 } )( queue, lib, norm );
