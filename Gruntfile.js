@@ -71,7 +71,8 @@ module.exports = function (grunt) {
     karma: {
       options: {
         configFile: 'karma.conf.js',
-        browsers: ['PhantomJS'],
+        // NB PhantomJS is not capable of window scroll testing.
+        browsers: ['Chrome'],
         port: KARMA_PORT
       },
       test: {
