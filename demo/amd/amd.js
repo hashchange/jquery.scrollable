@@ -31,7 +31,8 @@ require( [
             $body = $( document.body ),
 
             $controlsPane = $( ".scroll-controls" ),
-            $controls = $( "a", $controlsPane ),
+            $modeControls = $( "a.mode", $controlsPane ),
+            $movementControls = $( "a.shift, a.jump", $controlsPane ),
 
             $feedbackPane = $( ".feedback" ),
             $feedbackX_px = $( ".x-px", $feedbackPane ),
@@ -62,17 +63,17 @@ require( [
             $controlsPane.show();
         } );
 
-        $controls.click( function ( event ) {
+        $movementControls.click( function ( event ) {
             var chain,
                 $elem = $( this ),
                 chainData = $elem.data( "chain" ),
+                scrollMode = chainData ? "append" : getScrollMode(),
                 actionLabel = $elem.text(),
 
                 config = {
                     duration: 2000,
-                    append: true,           // In the demo, we complete each scroll animation before we start the next one.
-                                            // (We could also drop `append` and use `jumpToTargetPosition: true`instead -
-                                            // completes the ongoing animation in an instant when asked to do a new one.)
+                    append: scrollMode === "append",
+                    merge: scrollMode === "merge",
                     done: function () {
                         updateLog( actionLabel + " done.", true );
                     }
@@ -108,6 +109,16 @@ require( [
 
         } );
 
+        $modeControls.click( function ( event ) {
+            var $elem = $ ( this );
+
+            event.preventDefault();
+            $modeControls.not( $elem ).removeClass( "active" ).addClass( "info" );
+            $elem.addClass( "active" ).removeClass( "info" );
+        } );
+
+        $modeControls.filter( ".default" ).click();
+
         $window.scroll( _.throttle( updateFeedback, 100 ) );
         updateFeedback();
 
@@ -133,6 +144,10 @@ require( [
 
             console.log( message );
             if ( addSeparator ) console.log( "-------" );
+        }
+
+        function getScrollMode () {
+            return $modeControls.filter( ".active" ).data( "mode" );
         }
 
     } );

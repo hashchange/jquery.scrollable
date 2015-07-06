@@ -35,6 +35,20 @@
     <section class="scroll-controls">
 
         <ul class="button-group even-3">
+            <!-- Chaining mode -->
+
+            <!-- number -->
+            <li><a class="button mode default" data-mode="replace" href="#">replace</a></li>
+            <!-- px unit -->
+            <li><a class="button mode" data-mode="append" href="#">append</a></li>
+            <!-- percentage -->
+            <li><a class="button mode" data-mode="merge" href="#">merge</a></li>
+
+        </ul>
+
+        <hr>
+
+        <ul class="button-group even-3">
             <!-- Relative movement, vertical down -->
 
             <!-- number -->
@@ -95,18 +109,6 @@
         </ul>
 
         <ul class="button-group even-3">
-            <!-- Chained, relative vertical and horizontal movements in a circle -->
-
-            <!-- number -->
-            <li><a class="button shift" data-chain=",+=100|+=100,|,-=100|-=100," href="#">↳↰<br>100</a></li>
-            <!-- px unit -->
-            <li><a class="button shift" data-chain=",+=1000px|+=1000px,|,-=1000px|-=1000px," href="#">↳↰<br>1000px</a></li>
-            <!-- percentage -->
-            <li><a class="button shift" data-chain=",+=25%|+=25%,|,-=25%|-=25%," href="#">↳↰<br>25%</a></li>
-
-        </ul>
-
-        <ul class="button-group even-3">
             <!-- Absolute movement, up or left -->
 
             <!-- number -->
@@ -127,6 +129,21 @@
             <li><a class="button jump" data-x="right" href="#">⇒</a></li>
             <!-- percentage -->
             <li><a class="button jump" data-x="right" data-y="bottom" href="#">⇘</a></li>
+
+        </ul>
+
+        <hr>
+
+        <ul class="button-group even-3">
+            <!-- Chained, relative vertical and horizontal movements in a circle -->
+            <!-- not affected by the scroll mode settings, always in mode "append" -->
+
+            <!-- number -->
+            <li><a class="button shift" data-chain=",+=100|+=100,|,-=100|-=100," href="#">↳↰<br>100</a></li>
+            <!-- px unit -->
+            <li><a class="button shift" data-chain=",+=1000px|+=1000px,|,-=1000px|-=1000px," href="#">↳↰<br>1000px</a></li>
+            <!-- percentage -->
+            <li><a class="button shift" data-chain=",+=25%|+=25%,|,-=25%|-=25%," href="#">↳↰<br>25%</a></li>
 
         </ul>
 
