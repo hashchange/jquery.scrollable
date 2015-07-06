@@ -302,7 +302,7 @@
 
                 } );
 
-                describe( 'For the second scrollTo call', function () {
+                describe( 'For the third scrollTo call', function () {
 
                     it( 'the "done" callback has not fired', function () {
                         expect( callbacks_3.done ).not.toHaveBeenCalled();
@@ -322,7 +322,7 @@
 
                 } );
 
-                describe( 'Before the new movement starts', function () {
+                describe( 'Before the final movement starts', function () {
 
                     it( 'it fires the "start" callback', function () {
                         expect( callbacks_4.start ).toHaveBeenCalled();
@@ -332,7 +332,7 @@
 
                 } );
 
-                describe( 'Until the new movement is complete', function () {
+                describe( 'Until the final movement is complete', function () {
 
                     it( 'it fires the "step" callback repeatedly', function () {
                         expect( callbacks_4.step ).toHaveBeenCalled();
@@ -348,7 +348,7 @@
 
                 } );
 
-                describe( 'When the new movement is complete', function () {
+                describe( 'When the final movement is complete', function () {
 
                     it( 'it fires the "done" callback', function () {
                         expect( callbacks_4.done ).toHaveBeenCalled();
