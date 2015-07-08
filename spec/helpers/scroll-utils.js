@@ -2,23 +2,26 @@
  * Delays the execution of a (test) function long enough to let a programmatic scroll action take place.
  *
  * @param {Function} testFunc
- * @param {number}   [duration]  defaults to the jQuery default duration + 10% "padding", which usually equates to 404ms
+ * @param {number}   [duration]  defaults to the jQuery default duration + a "padding" of 10% (at least 10ms), which
+ *                               usually equates to 410ms
  */
 function afterScroll ( testFunc, duration ) {
-    _.delay( testFunc, _.isUndefined( duration ) ? Math.ceil( $.fx.speeds._default * 1.1 )  : duration );
+    if ( _.isUndefined( duration ) ) duration = Math.max( $.fx.speeds._default + 10, Math.ceil( $.fx.speeds._default * 1.1 ) );
+    _.delay( testFunc, duration );
 }
 
 /**
  * Delays the execution of a (test) function long enough to let a number of programmatic scroll action take place. The
  * duration of these scrolls must have been left at the default.
  *
- * Also adds a "padding" of 10% to the total scroll time.
+ * Also adds a "padding" of 10% (at least 10ms) to the total scroll time.
  *
  * @param {Function} testFunc
  * @param {number}   factor    number of scroll animations to wait for. Fractions are ok, too.
  */
 function afterScrolls ( factor, testFunc ) {
-    afterScroll( testFunc, Math.ceil( $.fx.speeds._default * factor * 1.1 ) );
+    var duration = Math.max( $.fx.speeds._default * factor + 10, Math.ceil( $.fx.speeds._default * factor * 1.1 ) );
+    afterScroll( testFunc, duration );
 }
 
 /**

@@ -370,15 +370,15 @@
                     it( 'it fires the "complete" callback', function () {
                         expect( callbacks_4.complete ).toHaveBeenCalled();
                         expect( callbackCalls_4.complete.callCount ).toEqual( 1 );
-                        expect( callbackCalls_4.done.scrollState.x ).toEqual( targetPxX_4 );
-                        expect( callbackCalls_4.done.scrollState.y ).toEqual( targetPxY_3 );
+                        expect( callbackCalls_4.complete.scrollState.x ).toEqual( targetPxX_4 );
+                        expect( callbackCalls_4.complete.scrollState.y ).toEqual( targetPxY_3 );
                     } );
 
                     it( 'it fires the "always" callback', function () {
                         expect( callbacks_4.always ).toHaveBeenCalled();
                         expect( callbackCalls_4.always.callCount ).toEqual( 1 );
-                        expect( callbackCalls_4.done.scrollState.x ).toEqual( targetPxX_4 );
-                        expect( callbackCalls_4.done.scrollState.y ).toEqual( targetPxY_3 );
+                        expect( callbackCalls_4.always.scrollState.x ).toEqual( targetPxX_4 );
+                        expect( callbackCalls_4.always.scrollState.y ).toEqual( targetPxY_3 );
                     } );
 
                     it( 'it has not fired the fail callback', function () {
