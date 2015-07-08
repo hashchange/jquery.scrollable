@@ -28,7 +28,7 @@
             $window.scrollTop( 0 ).scrollLeft( 0 );
 
             // Reduce the default duration for animations in order to speed up the tests
-            $.fx.speeds._default = 100;
+            $.fx.speeds._default = 250;
         } );
 
         afterEach( function () {
