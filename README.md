@@ -129,6 +129,40 @@ $elem.scrollTo( { x: "-=25%" } );
 
 This scrolls 25% of the _total_ scroll range in `$elem`. If you are closer than that to the left edge, the amount is reduced accordingly.
 
+### Starting a scroll movement while another one is still in progress
+
+In an event-driven system, `scrollTo` calls can overlap. Suppose a scroll animation is triggered while another one is still in progress. What happens next? You have a choice.
+
+- **Replace** mode (default):
+
+  The new `scrollTo` call cancels preceding ones. An ongoing scroll movement is stopped in its tracks immediately, and the new animation starts from there. [Relative scroll movements][relative-scrolling] are based on that location.
+
+  This is what happens by default.
+
+- **Append** mode:
+
+  The new scroll animation is queued and executes when the preceding ones have finished.
+
+  You get this behaviour with the `append` option: `$elem.scrollTo( "+=100", { append: true } )`. [See above.][scrolling-both-axes]
+
+- **Merge** mode:
+
+  The new scroll animation replaces preceding ones, taking their target positions into account. 
+
+  Preceding `scrollTo` calls are cancelled, an ongoing animation is stopped, and a new scroll movement is started.  The targets of preceding scroll movements are merged into the new one. In case of a conflict, the last target  position wins. (Conflicts are resolved for each axis individually.)
+
+  Suppose an animation is in the process of scrolling down to the middle of the page. Now, a new scroll animation should move the page down another 25%, and to the right by 50%. In merge mode, the ongoing scroll movement is stopped, and a new one initiated which will end up 75% down the page, and 50% to the right.
+ 
+  You get this type of behaviour with the `merge` option: `$elem.scrollTo( "+=100", { merge: true } )`.
+
+##### Which callbacks are called?
+
+In replace mode and merge mode, preceding animations are cancelled when a new one comes along. 
+
+If an animation is cancelled while it is in progress, its `fail` and `always` callbacks run. However, if an animation had just been waiting in the queue when it was cancelled, none of its callbacks are called.
+
+In append mode, preceding animations run their course, and their callbacks are called as usual.
+
 ### Animation options
 
 Besides `axis` and `append`, you can use [every option available to `jQuery.animate()`][jQuery-animate]. Set up `progress` or `complete` callbacks, specify a `duration` etc. Add what you need to the options object that you pass to `scrollTo()`:
@@ -137,7 +171,7 @@ Besides `axis` and `append`, you can use [every option available to `jQuery.anim
 $elem.scrollTo( 1200, { axis: "x", duration: 800 );
 ```
 
-##### A note on animation callbacks
+##### A note on callbacks
 
 In jQuery fashion, animation callbacks such as `start`, `complete`, etc are bound to the animated element. 
 
@@ -260,6 +294,18 @@ In case anything about the test and build process needs to be changed, have a lo
 
 New test files in the `spec` directory are picked up automatically, no need to edit the configuration for that.
 
+## Release Notes
+
+### v0.3.0
+
+- Added merge mode
+- Enabled use of merge, append modes in any queue
+- Fleshed out the test suite
+
+### v0.1.0 - 0.2.1
+
+- Initial development, documentation
+
 ## License
 
 MIT.
@@ -280,6 +326,7 @@ Copyright (c) 2015 Michael Heim.
 [jquery-stop]: http://api.jquery.com/stop/ "jQuery API Documentation: .stop()"
 
 [scrolling-both-axes]: #scrolling-to-a-fixed-position-on-both-axes
+[relative-scrolling]: #relative-scrolling
 
 [Node.js]: http://nodejs.org/ "Node.js"
 [Bower]: http://bower.io/ "Bower: a package manager for the web"
