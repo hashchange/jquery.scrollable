@@ -302,9 +302,31 @@ New test files in the `spec` directory are picked up automatically, no need to e
 - Enabled use of merge, append modes in any queue
 - Fleshed out the test suite
 
-### v0.1.0 - 0.2.1
+### v0.2.1
 
-- Initial development, documentation
+- Got rid of queue reordering in favour of info entries on sentinels
+- Reorganized the plugin code
+
+### v0.2.0
+
+- Switched cores, now using feature testing
+- Improved demo
+
+### v0.1.2
+
+- Fixed appended animations with relative targets
+- Fixed $.fn.scrollRange(), added default for axis argument
+- Improved readme, demo
+
+### v0.1.1
+
+- Made axis specification obsolete when target is obvious
+- Removed auto start for user-defined custom queues
+- Fixed readme
+
+### v0.1.0
+
+- Initial development, documentation, demo
 
 ## License
 
