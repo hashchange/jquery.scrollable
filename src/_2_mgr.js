@@ -32,8 +32,14 @@
         // Callbacks for window animations are bound to the window, not the animated element
         if ( $.isWindow( $container[0] ) ) options = lib.bindAnimationCallbacks( options, $container[0] );
 
-        if ( ! options.append ) mgr.stopScroll( $container, options );
-        core.animateScroll( $container, position, options );
+        // Skip animation if the base position already matches the target position.
+        if ( ! lib.isRedundantTarget( position, lib.getScrollStartPosition( $container, options ) ) ) {
+
+            if ( ! options.append ) mgr.stopScroll( $container, options );
+
+            core.animateScroll( $container, position, options );
+
+        }
     };
 
     /**

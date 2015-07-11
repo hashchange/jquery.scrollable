@@ -141,10 +141,10 @@
         // NB Merge mode: if an axis is ignored in the current scroll operation, a target may nevertheless be inherited
         // from previous, unfinished scrollTo commands. Read it from the queue then.
         normalized[norm.HORIZONTAL] = ignoreX ?
-                                      ( options.merge ? getLastPositionInfo( queueWrapper, norm.HORIZONTAL ) : norm.IGNORE_AXIS ) :
+                                      ( options.merge ? lib.getLastTarget_QW( queueWrapper, norm.HORIZONTAL ) : norm.IGNORE_AXIS ) :
                                       normalizePositionForAxis( posX, $container, optionsX, queueWrapper )[norm.HORIZONTAL];
         normalized[norm.VERTICAL] = ignoreY ?
-                                    ( options.merge ? getLastPositionInfo( queueWrapper, norm.VERTICAL ) : norm.IGNORE_AXIS ) :
+                                    ( options.merge ? lib.getLastTarget_QW( queueWrapper, norm.VERTICAL ) : norm.IGNORE_AXIS ) :
                                     normalizePositionForAxis( posY, $container, optionsY, queueWrapper )[norm.VERTICAL];
 
         return normalized;
@@ -169,7 +169,7 @@
             basePosition = 0,
             sign = 1,
             axis = options.axis,
-            scrollMode = getScrollMode( options ),
+            scrollMode = norm.getScrollMode( options ),
             normalized = {};
 
 
@@ -187,7 +187,7 @@
             if ( prefix === "+=" || prefix === "-=" ) {
                 position = position.slice( 2 );
                 sign = prefix === "+=" ? 1 : -1;
-                basePosition = getStartScrollPosition( $container, queueWrapper, axis, scrollMode );
+                basePosition = lib.getScrollStartPosition_QW( $container, queueWrapper, axis, scrollMode );
             }
 
             // Resolve px, % units
@@ -228,7 +228,7 @@
 
         } else if ( isUndefinedPositionValue( position ) ) {
             // Ignore axis, unless we are in merge mode and a previous target value can be extracted from the queue.
-            normalized[axis] = scrollMode === norm.MODE_MERGE ? getLastPositionInfo( queueWrapper, axis ) : norm.IGNORE_AXIS;
+            normalized[axis] = scrollMode === norm.MODE_MERGE ? lib.getLastTarget_QW( queueWrapper, axis ) : norm.IGNORE_AXIS;
         } else {
             // Invalid position value
             throw new Error( "Invalid position argument " + origPositionArg );
@@ -327,6 +327,16 @@
     };
 
     /**
+     * Returns the scroll mode after examining the animation options.
+     *
+     * @param   {Object} animationOptions
+     * @returns {string}
+     */
+    norm.getScrollMode = function ( animationOptions ) {
+        return animationOptions.append ? norm.MODE_APPEND : animationOptions.merge ? norm.MODE_MERGE : norm.MODE_REPLACE;
+    };
+
+    /**
      * Makes sure the position is within the range which can be scrolled to. The container element is expected to be
      * normalized.
      *
@@ -342,78 +352,6 @@
 
         return position;
 
-    }
-
-    /**
-     * Returns the current scroll position for a container on a given axis. The container element is expected to be
-     * normalized.
-     *
-     * @param   {jQuery} $container
-     * @param   {string} axis        "vertical" or "horizontal"
-     * @returns {number}
-     */
-    function getCurrentScrollPosition ( $container, axis ) {
-        return axis === norm.HORIZONTAL ? $container.scrollLeft() : $container.scrollTop();
-    }
-
-    /**
-     * Returns the start position for a new scroll movement, on a given axis.
-     *
-     * Usually, that is the current scroll position. In append or merge mode, the final target position of preceding
-     * animations is returned, if any such animations exist.
-     *
-     * @param   {jQuery}             $container
-     * @param   {queue.QueueWrapper} queueWrapper
-     * @param   {string}             axis          "horizontal" or "vertical"
-     * @param   {string}             scrollMode    "replace", "append", "merge"
-     * @returns {number}
-     */
-    function getStartScrollPosition ( $container, queueWrapper, axis, scrollMode ) {
-        var position;
-
-        // We only care about the final scroll target of preceding scrolls if we have to base a new scroll on it (append
-        // mode)
-        if ( scrollMode === norm.MODE_APPEND || scrollMode === norm.MODE_MERGE ) position = getLastPositionInfo( queueWrapper, axis );
-
-        if ( position === undefined || position === norm.IGNORE_AXIS ) position = getCurrentScrollPosition( $container, axis );
-
-        return position;
-    }
-
-    /**
-     * Returns the last position info which can be retrieved from the queue, for one or both axes. This is the position
-     * which all preceding scroll movements eventually arrive at.
-     *
-     * The result is returned as a hash { vertical: ..., horizontal: ... } by default, or as a number if the query is
-     * restricted to a single axis.
-     *
-     * Values are absolute, fully resolved target positions and numeric. If there is no info for an axis (because the
-     * queue is empty or animations target the other axis only), norm.IGNORE_AXIS is returned for it.
-     *
-     * @param   {queue.QueueWrapper} queueWrapper
-     * @param   {string}             [axis="both"]  "horizontal", "vertical", "both"
-     * @returns {Coordinates|number}
-     */
-    function getLastPositionInfo ( queueWrapper, axis ) {
-        var retrievedX, retrievedY,
-            returnBothAxes = !axis || axis === norm.BOTH_AXES,
-            last = {},
-            infoEntries = queueWrapper.getInfo();
-
-        // Set the default return value if there is no info for an axis
-        last[norm.HORIZONTAL] = last[norm.VERTICAL] = norm.IGNORE_AXIS;
-
-        // Extract the last position info for each axis which is not norm.IGNORE_AXIS
-        $.each( infoEntries, function ( index, info ) {
-            if ( info.position ) {
-                retrievedX = info.position[norm.HORIZONTAL];
-                retrievedY = info.position[norm.VERTICAL];
-                if ( retrievedX !== undefined && retrievedX !== norm.IGNORE_AXIS ) last[norm.HORIZONTAL] = retrievedX;
-                if ( retrievedY !== undefined && retrievedY !== norm.IGNORE_AXIS ) last[norm.VERTICAL] = retrievedY;
-            }
-        } );
-
-        return returnBothAxes ? last : last[axis];
     }
 
     /**
@@ -434,16 +372,6 @@
         } );
 
         return normalized;
-    }
-
-    /**
-     * Returns the scroll mode after examining the animation options.
-     *
-     * @param   {Object} animationOptions
-     * @returns {string}
-     */
-    function getScrollMode ( animationOptions ) {
-        return animationOptions.append ? norm.MODE_APPEND : animationOptions.merge ? norm.MODE_MERGE : norm.MODE_REPLACE;
     }
 
     /**

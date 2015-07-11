@@ -16,8 +16,8 @@ function afterScroll ( testFunc, duration ) {
  *
  * Also adds a "padding" of 10% (at least 10ms) to the total scroll time.
  *
- * @param {Function} testFunc
  * @param {number}   factor    number of scroll animations to wait for. Fractions are ok, too.
+ * @param {Function} testFunc
  */
 function afterScrolls ( factor, testFunc ) {
     var duration = Math.max( $.fx.speeds._default * factor + 10, Math.ceil( $.fx.speeds._default * factor * 1.1 ) );
@@ -31,7 +31,18 @@ function afterScrolls ( factor, testFunc ) {
  * @param {number}   [duration]  defaults to half of the jQuery default duration, which usually equates to 200ms
  */
 function inMidScroll ( func, duration ) {
-    _.delay( func, _.isUndefined( duration ) ? Math.ceil( $.fx.speeds._default / 2 )  : duration );
+    _.delay( func, _.isUndefined( duration ) ? Math.ceil( $.fx.speeds._default / 2 ) : duration );
+}
+
+/**
+ * Delays the execution of a function long enough to let a programmatic scroll action begin. After 10% of the scroll
+ * duration have passed, the callback executes.
+ *
+ * @param {Function} func
+ * @param {number}   [duration]  defaults to 10% of the jQuery default duration, which usually equates to 40ms
+ */
+function earlyInMidScroll ( func, duration ) {
+    _.delay( func, _.isUndefined( duration ) ? Math.ceil( $.fx.speeds._default / 10 ) : duration );
 }
 
 /**

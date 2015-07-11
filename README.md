@@ -16,7 +16,7 @@ Yes. And no – because you'll soon discover that your animations end rather abr
 
 Now you suddenly have to feature-test the browser for the right element, which involves injecting a test iframe that needs to be [designed rather carefully][so-comment-iframe-setup]. Or else you can animate both elements, with `$( "html, body" ).animate(...)`, which sounds great until you use animation callbacks (`complete`, `step` etc). They fire twice as often as they should because you animated two elements rather than one, so you find yourself filtering callback calls, which isn't [quite as easy][so-comment-callback-filtering] as it looks at first glance, and ... I'll stop here. You get the picture.
 
-And we haven't even started implementing convenience options, or moved scrolling to a dedicated animation queue so as not to interfere with other animations on the page, and so on.
+And we haven't even started implementing [convenience][scrolling-both-axes] [options][relative-scrolling], handled [overlapping calls][overlapping-calls], or moved scrolling to a dedicated animation queue so as not to interfere with other animations on the page, and so on.
 
 See? That's why you get a plugin for such a trivial task. 
 
@@ -157,15 +157,35 @@ In an event-driven system, `scrollTo` calls can overlap. Suppose a scroll animat
 
 ##### Which callbacks are called?
 
-In replace mode and merge mode, preceding animations are cancelled when a new one comes along. 
+In **replace** mode and **merge** mode, preceding animations are cancelled when a new one comes along. 
 
-If an animation is cancelled while it is in progress, its `fail` and `always` callbacks run. However, if an animation had just been waiting in the queue when it was cancelled, none of its callbacks are called.
+If an animation is cancelled while it is in progress, its `fail` and `always` callbacks run. However, if an animation is cancelled while it is still waiting in the queue, it simply disappears, and none of its callbacks are called.
 
-In append mode, preceding animations run their course, and their callbacks are called as usual.
+In **append** mode, preceding animations always run their course, and their callbacks are called as usual.
+
+##### What happens if the new call is redundant because it aims for the same position?
+
+If `scrollTo` targets the exact same position it starts from, the call is ignored. There is no animation, and animation callbacks don't run, either. This policy manifests in a number of ways, with subtle differences.
+
+- The first case is obvious. Suppose the browser is at rest, without another scroll animation in progress. If a `scrollTo` call is targeting a position which has already been reached, the call is ignored. The scroll mode (replace, append, merge) does not matter in this case.
+
+- Now suppose another scroll movement is in progress when `scrollTo` is called. In **append** or **merge** mode, the new movement is compared to ongoing and queued animations. If those animations end up in the position which the new `scrollTo` call is aiming for, the new call is ignored.
+
+  Example: 
+
+  ```js
+  $elem.scrollTo( 150 )
+       .scrollTo( "-=50", { append: true } )  // queued, ending up 100px from the top
+       .scrollTo( 100, { append: true } );    // same target, call is ignored
+  ```
+
+- In **replace** mode, things are different. If a scroll animation is under way when `scrollTo` is called with the same target, the original animation is stopped (replaced), and a new animation begins, completing the move.
+
+  If you don't want that to happen and rather have the original animation complete uninterrupted, use merge mode instead.
 
 ### Animation options
 
-Besides `axis` and `append`, you can use [every option available to `jQuery.animate()`][jQuery-animate]. Set up `progress` or `complete` callbacks, specify a `duration` etc. Add what you need to the options object that you pass to `scrollTo()`:
+We have already talked about the options `axis`, `append`, and `merge`. In addition, you can use [every option available to `jQuery.animate()`][jQuery-animate]. Set up `progress` or `complete` callbacks, specify a `duration` etc. Add what you need to the options object that you pass to `scrollTo()`:
 
 ```js
 $elem.scrollTo( 1200, { axis: "x", duration: 800 );
@@ -196,13 +216,15 @@ Rather, you have to act if you _don't_ want to stop the current scroll movement.
 
 ### Custom queues
 
-If you want to get really fancy with your animations, you can merge scrolling and other animations in a custom queue, but in most cases you shouldn't.
+As already mentioned above, scroll animations run in their own, dedicated queue, so they don't interfere with other animations which may be going on at the same time. That all happens behind the scenes, and you don't have to do anything to manage that process.  
 
-Sure enough, you can pass a custom queue name to `scrollTo()`, in standard jQuery fashion with the `queue` option. If you do that and you ever call `stopScroll()`, you need to provide the same queue name there, too. Again, it is passed as an option: call `$elem.stopScroll( { queue: "foo" } )`.
+However, if you want to get really fancy with your animations, you can merge scrolling and other animations in a custom queue of your own. But in most cases, you shouldn't.
+
+Sure enough, you can pass a custom queue name to `scrollTo()`. That is done in standard jQuery fashion: with the `queue` option. If you use it and you ever call `stopScroll()`, you need to provide the same queue name there, too. Call it as `$elem.stopScroll( { queue: "foo" } )`.
 
 But in that custom queue, it is no longer possible to differentiate between scroll and non-scroll animations. A new invocation of `scrollTo()` stops _all_ animations in that queue, regardless of type, unless you use [the `append` option][scrolling-both-axes] (in which case nothing stops at all). And `stopScroll()` now works just the same as [jQuery's `$elem.stop( true )`][jquery-stop].
 
-My advice would be to stick to the standard scroll queue as a best practice – ie, simply don't specify a queue, and all will be well. Manage that queue implicitly with the `append` option of `scrollTo()`, or perhaps call `stopScroll()` explicitly when really necessary, and leave it at that. If you need to link up with other, non-scroll animations, callbacks like `complete` give you the means to do so.
+My advice would be to stick to the standard scroll queue as a best practice – ie, simply don't specify a queue, and all will be well. Manage that queue implicitly with the [`append` and `merge` options][overlapping-calls] of `scrollTo()`, or perhaps call `stopScroll()` explicitly when really necessary, and leave it at that. If you need to link up with other, non-scroll animations, callbacks like `complete` give you the means to do so.
 
 ### Retrieving the maximum scrollable distance within an element
 
@@ -296,6 +318,10 @@ New test files in the `spec` directory are picked up automatically, no need to e
 
 ## Release Notes
 
+### v0.3.1
+
+- Made scrollTo skip redundant animations (start and target positions being the same)
+
 ### v0.3.0
 
 - Added merge mode
@@ -349,6 +375,7 @@ Copyright (c) 2015 Michael Heim.
 
 [scrolling-both-axes]: #scrolling-to-a-fixed-position-on-both-axes
 [relative-scrolling]: #relative-scrolling
+[overlapping-calls]: #starting-a-scroll-movement-while-another-one-is-still-in-progress
 
 [Node.js]: http://nodejs.org/ "Node.js"
 [Bower]: http://bower.io/ "Bower: a package manager for the web"
