@@ -36,7 +36,6 @@
         if ( ! lib.isRedundantTarget( position, lib.getScrollStartPosition( $container, options ) ) ) {
 
             if ( ! options.append ) mgr.stopScroll( $container, options );
-
             core.animateScroll( $container, position, options );
 
         }

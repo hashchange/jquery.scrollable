@@ -165,7 +165,7 @@ In **append** mode, preceding animations always run their course, and their call
 
 ##### What happens if the new call is redundant because it aims for the same position?
 
-If `scrollTo` targets the exact same position it starts from, the call is ignored. There is no animation, and animation callbacks don't run, either. This policy manifests in a number of ways, with subtle differences.
+If `scrollTo` targets the exact same position it starts from, the call is ignored. There is no animation, and animation callbacks don't run, either. This policy manifests itself in a number of ways, with subtle differences.
 
 - The first case is obvious. Suppose the browser is at rest, without another scroll animation in progress. If a `scrollTo` call is targeting a position which has already been reached, the call is ignored. The scroll mode (replace, append, merge) does not matter in this case.
 

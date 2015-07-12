@@ -151,7 +151,7 @@
      *
      * @param {jQuery}      $elem
      * @param {Coordinates} position   the normalized position
-     * @param {Object}      [options]  animation options
+     * @param {Object}      options    normalized animation options
      */
     lib.addScrollAnimation = function ( $elem, position, options ) {
         var posX = position[ norm.HORIZONTAL ],
@@ -177,7 +177,7 @@
      *
      * @param {jQuery}        $elem
      * @param {Object}        properties       the animated property or properties, and their target value(s)
-     * @param {Object}        [options]        animation options
+     * @param {Object}        options          animation options
      * @param {AnimationInfo} [animationInfo]  info describing a scroll animation: the resolved, absolute target scroll
      *                                         position of the animation, and the animation callbacks
      */
@@ -190,7 +190,6 @@
         };
 
         queueWrapper.addToQueue( config );
-
     };
 
     /**
@@ -217,9 +216,9 @@
      * In that case, stopScroll will stop and clear *all* animations in the default queue, not just scroll-related ones.
      *
      * @param {jQuery}         $scrollable
-     * @param {Object}         [options]
+     * @param {Object}         options
+     * @param {string|boolean} options.queue
      * @param {boolean}        [options.jumpToTargetPosition=false]
-     * @param {string|boolean} [options.queue]
      */
     lib.stopScrollAnimation = function ( $scrollable, options ) {
         options = $.extend( { jumpToTargetPosition: false }, options );
