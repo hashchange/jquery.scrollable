@@ -366,6 +366,8 @@
         $.each( inputHash, function ( key, value ) {
             if ( lib.isInArray( key, altAxisNames ) ) {
                 normalized[norm.normalizeAxisName( key )] = value;
+            } else if ( key === "axis" ) {
+                normalized[key] = norm.normalizeAxisName( value );
             } else {
                 normalized[key] = value;
             }
