@@ -1,12 +1,29 @@
 /**
+ * Sets the default duration for animations during the tests. The duration is reduced in order to speed up the tests.
+ *
+ * NB Reducing the duration too far makes the tests less reliable. Tests start failing randomly if the duration is too
+ * short, relative to the distances scrolled (ie, relative to the size of the browser window).
+ */
+function reduceDefaultDurationForAnimations () {
+    $.fx.speeds._default = 300;
+}
+
+/**
+ * Restores the jQuery default duration for animations (400ms).
+ */
+function restoreDefaultDurationForAnimations () {
+    $.fx.speeds._default = 400;
+}
+
+/**
  * Delays the execution of a (test) function long enough to let a programmatic scroll action take place.
  *
  * @param {Function} testFunc
- * @param {number}   [duration]  defaults to the jQuery default duration + a "padding" of 10% (at least 10ms), which
- *                               usually equates to 410ms
+ * @param {number}   [duration]  defaults to the jQuery default duration + a "padding" defined in _getPaddingMultiplier
+ *                               (but at least 10ms)
  */
 function afterScroll ( testFunc, duration ) {
-    if ( _.isUndefined( duration ) ) duration = Math.max( $.fx.speeds._default + 10, Math.ceil( $.fx.speeds._default * 1.1 ) );
+    if ( _.isUndefined( duration ) ) duration = Math.max( $.fx.speeds._default + 10, Math.ceil( $.fx.speeds._default * _getPaddingMultiplier() ) );
     _.delay( testFunc, duration );
 }
 
@@ -14,13 +31,14 @@ function afterScroll ( testFunc, duration ) {
  * Delays the execution of a (test) function long enough to let a number of programmatic scroll action take place. The
  * duration of these scrolls must have been left at the default.
  *
- * Also adds a "padding" of 10% (at least 10ms) to the total scroll time.
+ * Also adds a "padding" to the total scroll time. The padding percentage is defined in _getPaddingMultiplier; it is at
+ * least 10ms.
  *
  * @param {number}   factor    number of scroll animations to wait for. Fractions are ok, too.
  * @param {Function} testFunc
  */
 function afterScrolls ( factor, testFunc ) {
-    var duration = Math.max( $.fx.speeds._default * factor + 10, Math.ceil( $.fx.speeds._default * factor * 1.1 ) );
+    var duration = Math.max( $.fx.speeds._default * factor + 10, Math.ceil( $.fx.speeds._default * factor * _getPaddingMultiplier() ) );
     afterScroll( testFunc, duration );
 }
 
@@ -43,6 +61,16 @@ function inMidScroll ( func, duration ) {
  */
 function earlyInMidScroll ( func, duration ) {
     _.delay( func, _.isUndefined( duration ) ? Math.ceil( $.fx.speeds._default / 10 ) : duration );
+}
+
+/**
+ * Returns the multiplier used for padding the scroll timeouts (for afterScroll etc).
+ *
+ * @returns {number}
+ */
+function _getPaddingMultiplier () {
+    var paddingPercent = 15;
+    return ( 100 + paddingPercent ) / 100;
 }
 
 /**

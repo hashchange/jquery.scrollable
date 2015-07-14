@@ -14,7 +14,7 @@
             maxScrollWidth, maxScrollHeight;
 
 
-        beforeEach( function () {
+        beforeEach( function ( done ) {
             var fixtureCss = [
                 "body { width: 3000px; height: 3000px; }",
                 "html, body { margin: 0; padding: 0; border: none; }"
@@ -29,13 +29,15 @@
             $window.scrollTop( 0 ).scrollLeft( 0 );
 
             // Reduce the default duration for animations in order to speed up the tests
-            $.fx.speeds._default = 250;
+            reduceDefaultDurationForAnimations();
+
+            // Give browsers some breathing space to complete the initial setup phase.
+            _.delay( done, 50 );
         } );
 
         afterEach( function () {
             f.cleanDom();
-            // Restore the default duration for animations
-            $.fx.speeds._default = 400;
+            restoreDefaultDurationForAnimations();
         } );
 
         afterAll( function () {
