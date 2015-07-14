@@ -462,7 +462,7 @@
                         // We order the scroll animation to stop immediately, but it does only come into effect _after_
                         // the current step. We want to remain at the position the user has scrolled to, so we reduce
                         // the current step to a no-op.
-                        tween.now = lastReal;
+                        tween.now = lastReal[animatedProp];
                         lib.stopScrollAnimation( $( tween.elem ), { queue: queueName } );
                     }
                 }
