@@ -17,7 +17,12 @@
             intentionalUserScrollMovement,
 
             /** @type {number}  the number of px a user scrolls, in an accidental move */
-            accidentalUserScrollMovement;
+            accidentalUserScrollMovement,
+
+            /** @type {boolean}  true if there is a default user scroll threshold */
+            hasUserScrollThreshold = $.scrollable.userScrollThreshold > 0,
+
+            msgTestSkippedNoThreshold = 'Skipped because the default user scroll threshold is set to 0 ($.scrollable.userScrollThreshold = 0)';
 
 
         beforeEach( function () {
@@ -34,8 +39,8 @@
 
             $window.scrollTop( 0 ).scrollLeft( 0 );
 
-            intentionalUserScrollMovement = 6;
-            accidentalUserScrollMovement = 1;
+            intentionalUserScrollMovement = Math.max( $.scrollable.userScrollThreshold + 1, 1 );
+            accidentalUserScrollMovement = Math.max( $.scrollable.userScrollThreshold, 1 );
 
             // Reduce the default duration for animations in order to speed up the tests
             $.fx.speeds._default = 250;
@@ -120,9 +125,9 @@
 
             } );
 
-            describe( 'Movement does not stop', function () {
+            describeIf( hasUserScrollThreshold, msgTestSkippedNoThreshold, 'Movement does not stop', function () {
 
-                it( 'when the user scrolls vertically, in the same direction, but only by a minimal amount (1px)', function ( done ) {
+                it( 'when the user scrolls vertically, in the same direction, but only by as much as the threshold', function ( done ) {
                     var userTarget;
                     $window.scrollTo( "bottom" );
 
@@ -137,7 +142,7 @@
                     } );
                 } );
 
-                it( 'when the user scrolls vertically, in the opposite direction, but only by a minimal amount (1px)', function ( done ) {
+                it( 'when the user scrolls vertically, in the opposite direction, but only by as much as the threshold', function ( done ) {
                     var userTarget;
                     $window.scrollTo( "bottom" );
 
@@ -152,7 +157,7 @@
                     } );
                 } );
 
-                it( 'when the user scrolls horizontally, to the right, but only by a minimal amount (1px)', function ( done ) {
+                it( 'when the user scrolls horizontally, to the right, but only by as much as the threshold', function ( done ) {
                     var userTarget;
                     $window.scrollTo( "bottom" );
 
@@ -167,7 +172,7 @@
                     } );
                 } );
 
-                it( 'when the user scrolls horizontally, to the left, but only by a minimal amount (1px)', function ( done ) {
+                it( 'when the user scrolls horizontally, to the left, but only by as much as the threshold', function ( done ) {
                     var userTarget;
                     $window.scrollLeft( 100 );
 
@@ -260,9 +265,9 @@
 
             } );
 
-            describe( 'Movement does not stop', function () {
+            describeIf( hasUserScrollThreshold, msgTestSkippedNoThreshold, 'Movement does not stop', function () {
 
-                it( 'when the user scrolls vertically, in the same direction, but only by a minimal amount (1px)', function ( done ) {
+                it( 'when the user scrolls vertically, in the same direction, but only by as much as the threshold', function ( done ) {
                     var userTarget;
                     $window.scrollTo( "top" );
 
@@ -277,7 +282,7 @@
                     } );
                 } );
 
-                it( 'when the user scrolls vertically, in the opposite direction, but only by a minimal amount (1px)', function ( done ) {
+                it( 'when the user scrolls vertically, in the opposite direction, but only by as much as the threshold', function ( done ) {
                     var userTarget;
                     $window.scrollTo( "top" );
 
@@ -292,7 +297,7 @@
                     } );
                 } );
 
-                it( 'when the user scrolls horizontally, to the right, but only by a minimal amount (1px)', function ( done ) {
+                it( 'when the user scrolls horizontally, to the right, but only by as much as the threshold', function ( done ) {
                     var userTarget;
                     $window.scrollTo( "top" );
 
@@ -307,7 +312,7 @@
                     } );
                 } );
 
-                it( 'when the user scrolls horizontally, to the left, but only by a minimal amount (1px)', function ( done ) {
+                it( 'when the user scrolls horizontally, to the left, but only by as much as the threshold', function ( done ) {
                     var userTarget;
                     $window.scrollLeft( 100 );
 
@@ -396,9 +401,9 @@
 
             } );
 
-            describe( 'Movement does not stop', function () {
+            describeIf( hasUserScrollThreshold, msgTestSkippedNoThreshold, 'Movement does not stop', function () {
 
-                it( 'when the user scrolls horizontally, in the same direction, but only by a minimal amount (1px)', function ( done ) {
+                it( 'when the user scrolls horizontally, in the same direction, but only by as much as the threshold', function ( done ) {
                     var userTarget;
                     $window.scrollTo( "right" );
 
@@ -413,7 +418,7 @@
                     } );
                 } );
 
-                it( 'when the user scrolls horizontally, in the opposite direction, but only by a minimal amount (1px)', function ( done ) {
+                it( 'when the user scrolls horizontally, in the opposite direction, but only by as much as the threshold', function ( done ) {
                     var userTarget;
                     $window.scrollTo( "right" );
 
@@ -428,7 +433,7 @@
                     } );
                 } );
 
-                it( 'when the user scrolls vertically, downwards, but only by a minimal amount (1px)', function ( done ) {
+                it( 'when the user scrolls vertically, downwards, but only by as much as the threshold', function ( done ) {
                     var userTarget;
                     $window.scrollTo( "right" );
 
@@ -443,7 +448,7 @@
                     } );
                 } );
 
-                it( 'when the user scrolls vertically, upwards, but only by a minimal amount (1px)', function ( done ) {
+                it( 'when the user scrolls vertically, upwards, but only by as much as the threshold', function ( done ) {
                     var userTarget;
                     $window.scrollTop( 100 );
 
@@ -536,9 +541,9 @@
 
             } );
 
-            describe( 'Movement does not stop', function () {
+            describeIf( hasUserScrollThreshold, msgTestSkippedNoThreshold, 'Movement does not stop', function () {
 
-                it( 'when the user scrolls horizontally, in the same direction, but only by a minimal amount (1px)', function ( done ) {
+                it( 'when the user scrolls horizontally, in the same direction, but only by as much as the threshold', function ( done ) {
                     var userTarget;
                     $window.scrollTo( "left" );
 
@@ -553,7 +558,7 @@
                     } );
                 } );
 
-                it( 'when the user scrolls horizontally, in the opposite direction, but only by a minimal amount (1px)', function ( done ) {
+                it( 'when the user scrolls horizontally, in the opposite direction, but only by as much as the threshold', function ( done ) {
                     var userTarget;
                     $window.scrollTo( "left" );
 
@@ -568,7 +573,7 @@
                     } );
                 } );
 
-                it( 'when the user scrolls vertically, downwards, but only by a minimal amount (1px)', function ( done ) {
+                it( 'when the user scrolls vertically, downwards, but only by as much as the threshold', function ( done ) {
                     var userTarget;
                     $window.scrollTo( "left" );
 
@@ -583,7 +588,7 @@
                     } );
                 } );
 
-                it( 'when the user scrolls vertically, upwards, but only by a minimal amount (1px)', function ( done ) {
+                it( 'when the user scrolls vertically, upwards, but only by as much as the threshold', function ( done ) {
                     var userTarget;
                     $window.scrollTop( 100 );
 
