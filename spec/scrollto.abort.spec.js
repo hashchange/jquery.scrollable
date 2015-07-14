@@ -19,8 +19,12 @@
             /** @type {number}  the number of px a user scrolls, in an accidental move */
             accidentalUserScrollMovement,
 
+            userScrollDetectionEnabled = $.scrollable._enableUserScrollDetection,
+
             /** @type {boolean}  true if there is a default user scroll threshold */
             hasUserScrollThreshold = $.scrollable.userScrollThreshold > 0,
+
+            msgTestSkippedDetectionDisabled = 'Skipped because user scroll detection is disabled ($.scrollable._enableUserScrollDetection = false)',
 
             msgTestSkippedNoThreshold = 'Skipped because the default user scroll threshold is set to 0 ($.scrollable.userScrollThreshold = 0)';
 
@@ -59,7 +63,7 @@
 
         describe( 'Scrolling down vertically', function () {
 
-            describe( 'Movement stops', function () {
+            describeIf( userScrollDetectionEnabled, msgTestSkippedDetectionDisabled, 'Movement stops', function () {
 
                 it( 'when the user scrolls vertically, in the same direction, in mid movement', function ( done ) {
                     var userTarget;
@@ -199,7 +203,7 @@
                 $window.scrollTop( maxScrollHeight );
             } );
 
-            describe( 'Movement stops', function () {
+            describeIf( userScrollDetectionEnabled, msgTestSkippedDetectionDisabled, 'Movement stops', function () {
 
                 it( 'when the user scrolls vertically, in the same direction, in mid movement', function ( done ) {
                     var userTarget;
@@ -335,7 +339,7 @@
 
         describe( 'Scrolling horizontally, to the right', function () {
 
-            describe( 'Movement stops', function () {
+            describeIf( userScrollDetectionEnabled, msgTestSkippedDetectionDisabled, 'Movement stops', function () {
 
                 it( 'when the user scrolls horizontally, in the same direction, in mid movement', function ( done ) {
                     var userTarget;
@@ -475,7 +479,7 @@
                 $window.scrollLeft( maxScrollWidth );
             } );
 
-            describe( 'Movement stops', function () {
+            describeIf( userScrollDetectionEnabled, msgTestSkippedDetectionDisabled, 'Movement stops', function () {
 
                 it( 'when the user scrolls horizontally, in the same direction, in mid movement', function ( done ) {
                     var userTarget;
@@ -611,7 +615,7 @@
 
         describe( 'Clearing the queue', function () {
 
-            describe( 'When the user scrolls while some scroll animations are still waiting in the queue', function () {
+            describeIf( userScrollDetectionEnabled, msgTestSkippedDetectionDisabled, 'When the user scrolls while some scroll animations are still waiting in the queue', function () {
                 var userTarget;
 
                 beforeEach( function ( done ) {
@@ -649,7 +653,7 @@
             } );
         } );
 
-        describe( 'Callbacks', function () {
+        describeIf( userScrollDetectionEnabled, msgTestSkippedDetectionDisabled, 'Callbacks', function () {
 
                 /** @type {Object}  holds animation callback functions of all types; functions are created with getCallbackLogger */
                 var callbacks_1, callbacks_2,
@@ -751,7 +755,7 @@
 
         } );
 
-        describe( 'Changing the userScrollThreshold', function () {
+        describeIf( userScrollDetectionEnabled, msgTestSkippedDetectionDisabled, 'Changing the userScrollThreshold', function () {
 
             describe( 'Changing the global value', function () {
 

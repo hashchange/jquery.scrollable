@@ -441,36 +441,40 @@
             modifiedOptions = animationOptions ? $.extend( {}, animationOptions ) : {},
             lastExpected = {};
 
-        modifiedOptions.step = function ( now, tween ) {
-            var animatedProp = tween.prop,
-                otherProp = animatedProp === "scrollTop" ? "scrollLeft" : "scrollTop",
-                lastReal = {};
+        if ( $.scrollable._enableUserScrollDetection ) {
 
-            // Get the actual last position.
-            //
-            // The step callback executes _before_ the step executes. So the scroll state information gathered here
-            // reflects the result of the preceding animation step.
-            lastReal[animatedProp] = Math.floor( tween.cur() );
-            lastReal[otherProp] = Math.floor( tween.elem[otherProp] );
+            modifiedOptions.step = function ( now, tween ) {
+                var animatedProp = tween.prop,
+                    otherProp = animatedProp === "scrollTop" ? "scrollLeft" : "scrollTop",
+                    lastReal = {};
 
-            if ( lastExpected[animatedProp] !== undefined && lastExpected[otherProp] !== undefined ) {
-                if ( !( isInToleranceRange( lastReal[animatedProp], lastExpected[animatedProp], userScrollThreshold ) && isInToleranceRange( lastReal[otherProp], lastExpected[otherProp], userScrollThreshold ) ) ) {
-                    // The real position is not where we would expect it to be. The user has scrolled.
-                    //
-                    // We order the scroll animation to stop immediately, but it does only come into effect _after_
-                    // the current step. We want to remain at the position the user has scrolled to, so we reduce
-                    // the current step to a no-op.
-                    tween.now = lastReal;
-                    lib.stopScrollAnimation( $( tween.elem ), { queue: queueName } );
+                // Get the actual last position.
+                //
+                // The step callback executes _before_ the step executes. So the scroll state information gathered here
+                // reflects the result of the preceding animation step.
+                lastReal[animatedProp] = Math.floor( tween.cur() );
+                lastReal[otherProp] = Math.floor( tween.elem[otherProp] );
+
+                if ( lastExpected[animatedProp] !== undefined && lastExpected[otherProp] !== undefined ) {
+                    if ( !( isInToleranceRange( lastReal[animatedProp], lastExpected[animatedProp], userScrollThreshold ) && isInToleranceRange( lastReal[otherProp], lastExpected[otherProp], userScrollThreshold ) ) ) {
+                        // The real position is not where we would expect it to be. The user has scrolled.
+                        //
+                        // We order the scroll animation to stop immediately, but it does only come into effect _after_
+                        // the current step. We want to remain at the position the user has scrolled to, so we reduce
+                        // the current step to a no-op.
+                        tween.now = lastReal;
+                        lib.stopScrollAnimation( $( tween.elem ), { queue: queueName } );
+                    }
                 }
-            }
 
-            lastExpected[animatedProp] = Math.floor( tween.now );
-            lastExpected[otherProp] = lastReal[otherProp];
+                lastExpected[animatedProp] = Math.floor( tween.now );
+                lastExpected[otherProp] = lastReal[otherProp];
 
-            // Finally, call the user-provided step callback
-            return userStepCb && userStepCb.apply( this, $.makeArray( arguments ) );
-        };
+                // Finally, call the user-provided step callback
+                return userStepCb && userStepCb.apply( this, $.makeArray( arguments ) );
+            };
+
+        }
 
         return modifiedOptions;
     }
