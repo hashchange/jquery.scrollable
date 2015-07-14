@@ -29,6 +29,10 @@ var mgr = {},
         return this;
     };
 
+    $.scrollable = {
+        userScrollThreshold: 5
+    };
+
     /**
      * Does the actual work of $.fn.scrollable.
      *

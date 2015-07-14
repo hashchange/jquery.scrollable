@@ -164,6 +164,8 @@
                 callbacks: lib.getCallbacks( options )
             };
 
+        options = addUserScrollDetection( options );
+
         if ( hasPosX ) animated.scrollLeft = posX;
         if ( hasPosY ) animated.scrollTop = posY;
 
@@ -408,6 +410,83 @@
         return $.inArray( value, arr ) !== -1;
     };
 
+    /**
+     * Adds user scroll detection to the animation options, and returns the updated options hash.
+     *
+     * User scrolling is detected in the `step` callback. If the user has provided a step callback, it is called from
+     * the wrapper `step` function which is added here.
+     *
+     * An independent, modified options hash is returned. The original options hash remains unchanged.
+     *
+     * NB Step wrapper vs propHooks:
+     *
+     * User scroll detection can also be placed into $.Tween.propHooks.scrollLeft and $.Tween.propHooks.scrollTop. But I
+     * have abandoned that route for now.
+     *
+     * - It seems that a propHooks implementation is less reliable than a step wrapper, occasionally aborting scroll
+     *   movements which should in fact proceed. (Maybe that could be fixed - I haven't tried hard.)
+     *
+     * - In addition, the propHooks are undocumented, increasing the risk that they might change or disappear in any
+     *   future jQuery release. (They seem to be part of the "official" API, though, mitigating that risk.)
+     *
+     * On balance, a step wrapper seemed to be the better option.
+     *
+     * @param   {Object} animationOptions  must be normalized
+     * @returns {Object}
+     */
+    function addUserScrollDetection ( animationOptions ) {
+        var queueName = animationOptions.queue,
+            userScrollThreshold = animationOptions.userScrollThreshold !== undefined ? parseInt( animationOptions.userScrollThreshold, 10 ) : $.scrollable.userScrollThreshold,
+            userStepCb = animationOptions.step,
+            modifiedOptions = animationOptions ? $.extend( {}, animationOptions ) : {},
+            lastExpected = {};
+
+        modifiedOptions.step = function ( now, tween ) {
+            var animatedProp = tween.prop,
+                otherProp = animatedProp === "scrollTop" ? "scrollLeft" : "scrollTop",
+                lastReal = {};
+
+            // Get the actual last position.
+            //
+            // The step callback executes _before_ the step executes. So the scroll state information gathered here
+            // reflects the result of the preceding animation step.
+            lastReal[animatedProp] = Math.floor( tween.cur() );
+            lastReal[otherProp] = Math.floor( tween.elem[otherProp] );
+
+            if ( lastExpected[animatedProp] !== undefined && lastExpected[otherProp] !== undefined ) {
+                if ( !( isInToleranceRange( lastReal[animatedProp], lastExpected[animatedProp], userScrollThreshold ) && isInToleranceRange( lastReal[otherProp], lastExpected[otherProp], userScrollThreshold ) ) ) {
+                    // The real position is not where we would expect it to be. The user has scrolled.
+                    //
+                    // We order the scroll animation to stop immediately, but it does only come into effect _after_
+                    // the current step. We want to remain at the position the user has scrolled to, so we reduce
+                    // the current step to a no-op.
+                    tween.now = lastReal;
+                    lib.stopScrollAnimation( $( tween.elem ), { queue: queueName } );
+                }
+            }
+
+            lastExpected[animatedProp] = Math.floor( tween.now );
+            lastExpected[otherProp] = lastReal[otherProp];
+
+            // Finally, call the user-provided step callback
+            return userStepCb && userStepCb.apply( this, $.makeArray( arguments ) );
+        };
+
+        return modifiedOptions;
+    }
+
+    /**
+     * Returns if a value is close to another value, given a tolerance.
+     *
+     * @param   {number} actual
+     * @param   {number} expected
+     * @param   {number} [tolerance=0]
+     * @returns {boolean}
+     */
+    function isInToleranceRange ( actual, expected, tolerance ) {
+        tolerance || ( tolerance = 0 );
+        return actual >= expected - tolerance && actual <= expected + tolerance;
+    }
 
     /**
      * Custom types.

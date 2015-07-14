@@ -112,4 +112,55 @@ function createObservedCallbacks ( callsCollector, $scrollContainer ) {
     return callbacks;
 }
 
+/**
+ * Scrolls to a new position immediately, without animation, based on the current scroll position. Returns the new
+ * position as a hash of (px) numbers: { x: ..., y: ... }.
+ *
+ * The amount to be scrolled can either be a number, which will scroll the vertical axis, or a hash containing one or
+ * both axes, e.g. { x: 20 } or { x: 20, y: 20 }.
+ *
+ * Does not apply any silent corrections if the target position is less than 0 or beyond the maximum scrollable distance.
+ * On the contrary, it throws an exception if the desired distance can't be scrolled.
+ *
+ * @param   {Object|number} amount
+ * @param   {jQuery}        $container  should be $( window ) if the window is scrolled
+ * @returns {{x: number, y: number}}
+ */
+function userScrollsBy ( amount, $container ) {
+    var target, result;
+
+    if ( _.isNumber( amount ) ) amount = { x: 0, y: amount };
+
+    target = {
+        x: $container.scrollLeft() + ( amount.x || 0 ),
+        y: $container.scrollTop() + ( amount.y || 0 )
+    };
+
+    $container
+        .scrollLeft( target.x )
+        .scrollTop( target.y );
+
+    result = {
+        x: $container.scrollLeft(),
+        y: $container.scrollTop()
+    };
+
+    if ( target.x !== result.x || target.y !== result.y ) throw new Error( "userScrollsBy: target is beyond the scrollable distance" );
+
+    return result;
+}
+
+/**
+ * Returns the current scroll location as a hash of (px) numbers: { x: ..., y: ... }.
+ *
+ * @param   {jQuery} $container  should be $( window ) if the window is scrolled
+ * @returns {{x: number, y: number}}
+ */
+function getCurrentScrollLocation ( $container ) {
+    return {
+        x: $container.scrollLeft(),
+        y: $container.scrollTop()
+    };
+}
+
 
