@@ -118,6 +118,26 @@
                     } );
                 } );
 
+                it( 'scrolls down to 150px when starting at 50px with target "+=100px" (append mode)', function ( done ) {
+                    $window.scrollTop( 50 ).scrollTo( "+=100px", { append: true } );
+
+                    afterScroll( function () {
+                        expect( $window.scrollTop() ).toEqual( 150 );
+                        expect( $window.scrollLeft() ).toEqual( 0 );
+                        done();
+                    } );
+                } );
+
+                it( 'scrolls down to 150px when starting at 50px with target "+=100px" (merge mode)', function ( done ) {
+                    $window.scrollTop( 50 ).scrollTo( "+=100px", { merge: true } );
+
+                    afterScroll( function () {
+                        expect( $window.scrollTop() ).toEqual( 150 );
+                        expect( $window.scrollLeft() ).toEqual( 0 );
+                        done();
+                    } );
+                } );
+
                 it( 'scrolls up to 50px when starting at 150px with target "-=100px"', function ( done ) {
                     $window.scrollTop( 150 ).scrollTo( "-=100px" );
 
@@ -146,8 +166,64 @@
                     } );
                 } );
 
+                it( 'scrolls up to 15% of page height when starting at 40% with target "-=25%" (append mode)', function ( done ) {
+                    // allow a tolerance for rounding when dealing with odd page heights
+                    var scrollHeight40percent = maxScrollHeight * 0.4,
+                        scrollHeight25percent = maxScrollHeight * 0.25,
+
+                        expectedFloor = Math.floor( scrollHeight40percent ) - Math.ceil( scrollHeight25percent ),
+                        expectedCeil = Math.ceil( scrollHeight40percent ) - Math.floor( scrollHeight25percent );
+
+                    $window.scrollTop( scrollHeight40percent ).scrollTo( "-=25%", { append: true } );
+
+                    afterScroll( function () {
+                        expect( $window.scrollTop() ).toBeLessThan( expectedCeil + 0.001 );
+                        expect( $window.scrollTop() ).toBeGreaterThan( expectedFloor - 0.001 );
+                        expect( $window.scrollLeft() ).toEqual( 0 );
+                        done();
+                    } );
+                } );
+
+                it( 'scrolls up to 15% of page height when starting at 40% with target "-=25%" (merge mode)', function ( done ) {
+                    // allow a tolerance for rounding when dealing with odd page heights
+                    var scrollHeight40percent = maxScrollHeight * 0.4,
+                        scrollHeight25percent = maxScrollHeight * 0.25,
+
+                        expectedFloor = Math.floor( scrollHeight40percent ) - Math.ceil( scrollHeight25percent ),
+                        expectedCeil = Math.ceil( scrollHeight40percent ) - Math.floor( scrollHeight25percent );
+
+                    $window.scrollTop( scrollHeight40percent ).scrollTo( "-=25%", { merge: true } );
+
+                    afterScroll( function () {
+                        expect( $window.scrollTop() ).toBeLessThan( expectedCeil + 0.001 );
+                        expect( $window.scrollTop() ).toBeGreaterThan( expectedFloor - 0.001 );
+                        expect( $window.scrollLeft() ).toEqual( 0 );
+                        done();
+                    } );
+                } );
+
                 it( 'scrolls back up to 100px when starting at 150px with target 100', function ( done ) {
                     $window.scrollTop( 150 ).scrollTo( 100 );
+
+                    afterScroll( function () {
+                        expect( $window.scrollTop() ).toEqual( 100 );
+                        expect( $window.scrollLeft() ).toEqual( 0 );
+                        done();
+                    } );
+                } );
+
+                it( 'scrolls back up to 100px when starting at 150px with target 100 (append mode)', function ( done ) {
+                    $window.scrollTop( 150 ).scrollTo( 100, { append: true } );
+
+                    afterScroll( function () {
+                        expect( $window.scrollTop() ).toEqual( 100 );
+                        expect( $window.scrollLeft() ).toEqual( 0 );
+                        done();
+                    } );
+                } );
+
+                it( 'scrolls back up to 100px when starting at 150px with target 100 (merge mode)', function ( done ) {
+                    $window.scrollTop( 150 ).scrollTo( 100, { merge: true } );
 
                     afterScroll( function () {
                         expect( $window.scrollTop() ).toEqual( 100 );

@@ -297,8 +297,8 @@
         if ( axis === norm.BOTH_AXES ) {
             if ( position[norm.HORIZONTAL] === norm.IGNORE_AXIS ) position[norm.HORIZONTAL] = lib.getCurrentScrollPosition( $container, norm.HORIZONTAL );
             if ( position[norm.VERTICAL] === norm.IGNORE_AXIS ) position[norm.VERTICAL] = lib.getCurrentScrollPosition( $container, norm.VERTICAL );
-        } else if ( position[axis] === norm.IGNORE_AXIS ) {
-            position[axis] = lib.getCurrentScrollPosition( $container, axis );
+        } else if ( position === norm.IGNORE_AXIS ) {
+            position = lib.getCurrentScrollPosition( $container, axis );
         }
 
         return position;
