@@ -615,6 +615,51 @@
 
         } );
 
+        describeIf( hasUserScrollThreshold, msgTestSkippedNoThreshold, 'Cumulative scrolling', function () {
+
+            describe( 'The user scrolls as much as the threshold at first, and 1px more later. The scroll movement stops the second time', function () {
+
+                it( 'when the user scrolls on the same axis as the animation', function ( done ) {
+                    var userTarget1, userTarget2;
+                    $window.scrollTo( "bottom" );
+
+                    earlyInMidScroll( function () {
+                        userTarget1 = userScrollsBy( accidentalUserScrollMovement, $window );
+                    } );
+
+                    inMidScroll( function () {
+                        userTarget2 = userScrollsBy( 1, $window );
+                    } );
+
+                    afterScroll( function () {
+                        expect( $window.scrollTop() ).toEqual( userTarget2.y );
+                        expect( $window.scrollLeft() ).toEqual( 0 );
+                        done();
+                    } );
+                } );
+
+                it( 'when the user scrolls on a different axis than the animation', function ( done ) {
+                    var userTarget1, userTarget2;
+                    $window.scrollTo( "bottom" );
+
+                    earlyInMidScroll( function () {
+                        userTarget1 = userScrollsBy( { x: accidentalUserScrollMovement }, $window );
+                    } );
+
+                    inMidScroll( function () {
+                        userTarget2 = userScrollsBy( { x: 1 }, $window );
+                    } );
+
+                    afterScroll( function () {
+                        expect( $window.scrollTop() ).toEqual( userTarget2.y );
+                        expect( $window.scrollLeft() ).toEqual( userTarget2.x );
+                        done();
+                    } );
+                } );
+
+            } );
+        } );
+
         describe( 'Clearing the queue', function () {
 
             describeIf( userScrollDetectionEnabled, msgTestSkippedDetectionDisabled, 'When the user scrolls while some scroll animations are still waiting in the queue', function () {

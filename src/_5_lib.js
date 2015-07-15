@@ -439,7 +439,11 @@
             userScrollThreshold = animationOptions.userScrollThreshold !== undefined ? parseInt( animationOptions.userScrollThreshold, 10 ) : $.scrollable.userScrollThreshold,
             userStepCb = animationOptions.step,
             modifiedOptions = animationOptions ? $.extend( {}, animationOptions ) : {},
-            lastExpected = {};
+            lastExpected = {},
+            cumulativeDelta = {
+                scrollTop: 0,
+                scrollLeft: 0
+            };
 
         if ( $.scrollable._enableUserScrollDetection ) {
 
@@ -456,7 +460,10 @@
                 lastReal[otherProp] = Math.floor( tween.elem[otherProp] );
 
                 if ( lastExpected[animatedProp] !== undefined && lastExpected[otherProp] !== undefined ) {
-                    if ( !( isInToleranceRange( lastReal[animatedProp], lastExpected[animatedProp], userScrollThreshold ) && isInToleranceRange( lastReal[otherProp], lastExpected[otherProp], userScrollThreshold ) ) ) {
+                    cumulativeDelta[animatedProp] += lastExpected[animatedProp] - lastReal[animatedProp];
+                    cumulativeDelta[otherProp] += lastExpected[otherProp] - lastReal[otherProp];
+
+                    if ( Math.abs( cumulativeDelta[animatedProp] ) > userScrollThreshold || Math.abs( cumulativeDelta[otherProp] ) > userScrollThreshold ) {
                         // The real position is not where we would expect it to be. The user has scrolled.
                         //
                         // We order the scroll animation to stop immediately, but it does only come into effect _after_
@@ -477,19 +484,6 @@
         }
 
         return modifiedOptions;
-    }
-
-    /**
-     * Returns if a value is close to another value, given a tolerance.
-     *
-     * @param   {number} actual
-     * @param   {number} expected
-     * @param   {number} [tolerance=0]
-     * @returns {boolean}
-     */
-    function isInToleranceRange ( actual, expected, tolerance ) {
-        tolerance || ( tolerance = 0 );
-        return actual >= expected - tolerance && actual <= expected + tolerance;
     }
 
     /**
