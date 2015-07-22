@@ -19,11 +19,16 @@ function restoreDefaultDurationForAnimations () {
  * Delays the execution of a (test) function long enough to let a programmatic scroll action take place.
  *
  * @param {Function} testFunc
- * @param {number}   [duration]  defaults to the jQuery default duration + a "padding" defined in _getPaddingMultiplier
- *                               (but at least 10ms)
+ * @param {boolean}  [waitForRubberBand=false]  if true, an additional waiting period is added to allow rubber-band
+ *                                              bouncing to finish (useful on mobile)
+ * @param {number}   [duration]                 defaults to the jQuery default duration + a "padding" defined in
+ *                                              _getPaddingMultiplier (but at least 10ms)
  */
-function afterScroll ( testFunc, duration ) {
+function afterScroll ( testFunc, waitForRubberBand, duration ) {
+    if ( !_.isUndefined( waitForRubberBand ) && !_.isBoolean( waitForRubberBand ) ) throw new Error( "waitForRubberBand must be a boolean, or left undefined" );
     if ( _.isUndefined( duration ) ) duration = Math.max( $.fx.speeds._default + 10, Math.ceil( $.fx.speeds._default * _getPaddingMultiplier() ) );
+    if ( waitForRubberBand ) duration += _getRubberBandEffectDuration();
+
     _.delay( testFunc, duration );
 }
 
@@ -36,9 +41,12 @@ function afterScroll ( testFunc, duration ) {
  *
  * @param {number}   factor    number of scroll animations to wait for. Fractions are ok, too.
  * @param {Function} testFunc
+ * @param {boolean}  [waitForRubberBand=false]  if true, an additional waiting period is added to allow rubber-band
+ *                                              bouncing to finish (useful on mobile). Only added for the last scroll.
  */
-function afterScrolls ( factor, testFunc ) {
+function afterScrolls ( factor, testFunc, waitForRubberBand ) {
     var duration = Math.max( $.fx.speeds._default * factor + 10, Math.ceil( $.fx.speeds._default * factor * _getPaddingMultiplier() ) );
+    if ( waitForRubberBand ) duration += _getRubberBandEffectDuration();
     afterScroll( testFunc, duration );
 }
 
@@ -64,6 +72,16 @@ function earlyInMidScroll ( func, duration ) {
 }
 
 /**
+ * Returns true if a test should wait for a rubber band effect to subside, and the rubber band animation to come to an
+ * end.
+ *
+ * Always true on mobile, otherwise false. This is a synonym of isMobile(), but more expressive in the given context.
+ */
+function waitForRubberBand () {
+    return isMobile();
+}
+
+/**
  * Returns the multiplier used for padding the scroll timeouts (for afterScroll etc).
  *
  * @returns {number}
@@ -71,6 +89,15 @@ function earlyInMidScroll ( func, duration ) {
 function _getPaddingMultiplier () {
     var paddingPercent = 15;
     return ( 100 + paddingPercent ) / 100;
+}
+
+/**
+ * Returns the additional delay allowing a rubber band effects to subside.
+ *
+ * @returns {number}
+ */
+function _getRubberBandEffectDuration () {
+    return 400;
 }
 
 /**

@@ -45,8 +45,8 @@ require( [
         // Make sure the document body is larger than the window by at least 2000px in each dimension
         $body
             .css( {
-                minWidth:  ( $window.width() + 2000 ) + "px",
-                minHeight: ( $window.height() + 2000 ) + "px"
+                minWidth:  ( $.windowWidth() + 2000 ) + "px",
+                minHeight: ( $.windowHeight() + 2000 ) + "px"
             } );
 
         // Add a gradient background by injecting a "gradient background div". This is a terrible hack.

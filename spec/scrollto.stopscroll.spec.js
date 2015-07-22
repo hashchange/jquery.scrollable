@@ -23,8 +23,8 @@
             f = Setup.create( "window", f, { createEl: false, injectCss: fixtureCss } );
 
             $window = $( window );
-            maxScrollWidth = 3000 - $window.width();
-            maxScrollHeight = 3000 - $window.height();
+            maxScrollWidth = 3000 - $.windowWidth();
+            maxScrollHeight = 3000 - $.windowHeight();
 
             $window.scrollTop( 0 ).scrollLeft( 0 );
 
