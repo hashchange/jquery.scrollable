@@ -31,12 +31,13 @@
         } else {
 
             // We are measuring the true inner size of the container, excluding a horizontal or vertical scroll bar. The
-            // appropriate property, for a window container as well as an ordinary element, is clientHeight/clientWidth.
+            // appropriate property is clientHeight/clientWidth; for a window, use $.windowHeight()/$.windowWidth() to
+            // accommodate pinch zooming, and handle minimal UI on iOS.
             if ( axis === norm.HORIZONTAL ) {
-                containerSize = isWindow ? _document.documentElement.clientWidth : container.clientWidth;
+                containerSize = isWindow ? $.windowWidth() : container.clientWidth;
                 contentSize = isWindow ? $.documentWidth( _document ) : container.scrollWidth;
             } else if ( axis === norm.VERTICAL ) {
-                containerSize = isWindow ? _document.documentElement.clientHeight : container.clientHeight;
+                containerSize = isWindow ? $.windowHeight() : container.clientHeight;
                 contentSize = isWindow ? $.documentHeight( _document ) : container.scrollHeight;
             } else {
                 throw new Error( "Unrecognized axis argument " + axis );
