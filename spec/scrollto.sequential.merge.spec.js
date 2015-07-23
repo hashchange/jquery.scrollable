@@ -28,26 +28,31 @@
             f = Setup.create( "window", f, { createEl: false, injectCss: fixtureCss } );
 
             $window = $( window );
-            maxScrollWidth = 3000 - $.windowWidth();
-            maxScrollHeight = 3000 - $.windowHeight();
 
-            $window.scrollTop( 0 ).scrollLeft( 0 );
+            afterScreenUpdate( function () {
 
-            // Reduce the default duration for animations in order to speed up the tests
-            reduceDefaultDurationForAnimations();
+                maxScrollWidth = 3000 - $.windowWidth();
+                maxScrollHeight = 3000 - $.windowHeight();
 
-            // Create observed callbacks
-            callbackCalls_1 = {};
-            callbackCalls_2 = {};
-            callbackCalls_3 = {};
-            callbackCalls_4 = {};
-            callbacks_1 = createObservedCallbacks( callbackCalls_1, $window );
-            callbacks_2 = createObservedCallbacks( callbackCalls_2, $window );
-            callbacks_3 = createObservedCallbacks( callbackCalls_3, $window );
-            callbacks_4 = createObservedCallbacks( callbackCalls_4, $window );
+                $window.scrollTop( 0 ).scrollLeft( 0 );
 
-            // Give browsers some breathing space to complete the initial setup phase.
-            _.delay( done, 50 );
+                // Reduce the default duration for animations in order to speed up the tests
+                reduceDefaultDurationForAnimations();
+
+                // Create observed callbacks
+                callbackCalls_1 = {};
+                callbackCalls_2 = {};
+                callbackCalls_3 = {};
+                callbackCalls_4 = {};
+                callbacks_1 = createObservedCallbacks( callbackCalls_1, $window );
+                callbacks_2 = createObservedCallbacks( callbackCalls_2, $window );
+                callbacks_3 = createObservedCallbacks( callbackCalls_3, $window );
+                callbacks_4 = createObservedCallbacks( callbackCalls_4, $window );
+
+                // Give browsers some breathing space to complete the initial setup phase.
+                _.delay( done, 50 );
+
+            } );
         } );
 
         afterEach( function () {

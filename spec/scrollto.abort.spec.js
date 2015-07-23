@@ -38,19 +38,24 @@
             f = Setup.create( "window", f, { createEl: false, injectCss: fixtureCss } );
 
             $window = $( window );
-            maxScrollWidth = 3000 - $.windowWidth();
-            maxScrollHeight = 3000 - $.windowHeight();
 
-            $window.scrollTop( 0 ).scrollLeft( 0 );
+            afterScreenUpdate( function () {
 
-            intentionalUserScrollMovement = Math.max( $.scrollable.userScrollThreshold + 1, 1 );
-            accidentalUserScrollMovement = Math.max( $.scrollable.userScrollThreshold, 1 );
+                maxScrollWidth = 3000 - $.windowWidth();
+                maxScrollHeight = 3000 - $.windowHeight();
 
-            // Reduce the default duration for animations in order to speed up the tests
-            reduceDefaultDurationForAnimations();
+                $window.scrollTop( 0 ).scrollLeft( 0 );
 
-            // Some browsers need a little extra time to get their act together.
-            _.delay( done, 50 );
+                intentionalUserScrollMovement = Math.max( $.scrollable.userScrollThreshold + 1, 1 );
+                accidentalUserScrollMovement = Math.max( $.scrollable.userScrollThreshold, 1 );
+
+                // Reduce the default duration for animations in order to speed up the tests
+                reduceDefaultDurationForAnimations();
+
+                // Some browsers need a little extra time to get their act together.
+                _.delay( done, 50 );
+
+            } );
         } );
 
         afterEach( function () {
@@ -201,8 +206,11 @@
 
         describe( 'Scrolling up vertically', function () {
 
-            beforeEach( function () {
+            beforeEach( function ( done ) {
                 $window.scrollTop( maxScrollHeight );
+
+                // Add a delay. In iOS, the position is *not* reached instantly, needs a timeout
+                afterScreenUpdate( done );
             } );
 
             describeIf( userScrollDetectionEnabled, msgTestSkippedDetectionDisabled, 'Movement stops', function () {
@@ -392,16 +400,21 @@
                     var userTarget;
                     $window.scrollTop( 100 );
 
-                    $window.scrollTo( "right" );
+                    // Add a delay. In iOS, the position is *not* reached instantly, needs a timeout
+                    afterScreenUpdate( function () {
 
-                    inMidScroll( function () {
-                        userTarget = userScrollsBy( -intentionalUserScrollMovement, $window );
-                    } );
+                        $window.scrollTo( "right" );
 
-                    afterScroll( function () {
-                        expect( $window.scrollTop() ).toEqual( userTarget.y );
-                        expect( $window.scrollLeft() ).toEqual( userTarget.x );
-                        done();
+                        inMidScroll( function () {
+                            userTarget = userScrollsBy( -intentionalUserScrollMovement, $window );
+                        } );
+
+                        afterScroll( function () {
+                            expect( $window.scrollTop() ).toEqual( userTarget.y );
+                            expect( $window.scrollLeft() ).toEqual( userTarget.x );
+                            done();
+                        } );
+
                     } );
                 } );
 
@@ -458,16 +471,21 @@
                     var userTarget;
                     $window.scrollTop( 100 );
 
-                    $window.scrollTo( "right" );
+                    // Add a delay. In iOS, the position is *not* reached instantly, needs a timeout
+                    afterScreenUpdate( function () {
 
-                    inMidScroll( function () {
-                        userTarget = userScrollsBy( -accidentalUserScrollMovement, $window );
-                    } );
+                        $window.scrollTo( "right" );
 
-                    afterScroll( function () {
-                        expect( $window.scrollTop() ).toEqual( userTarget.y );
-                        expect( $window.scrollLeft() ).toEqual( maxScrollWidth );
-                        done();
+                        inMidScroll( function () {
+                            userTarget = userScrollsBy( -accidentalUserScrollMovement, $window );
+                        } );
+
+                        afterScroll( function () {
+                            expect( $window.scrollTop() ).toEqual( userTarget.y );
+                            expect( $window.scrollLeft() ).toEqual( maxScrollWidth );
+                            done();
+                        } );
+
                     } );
                 } );
 
@@ -532,16 +550,21 @@
                     var userTarget;
                     $window.scrollTop( 100 );
 
-                    $window.scrollTo( "left" );
+                    // Add a delay. In iOS, the position is *not* reached instantly, needs a timeout
+                    afterScreenUpdate( function () {
 
-                    inMidScroll( function () {
-                        userTarget = userScrollsBy( -intentionalUserScrollMovement, $window );
-                    } );
+                        $window.scrollTo( "left" );
 
-                    afterScroll( function () {
-                        expect( $window.scrollTop() ).toEqual( userTarget.y );
-                        expect( $window.scrollLeft() ).toEqual( userTarget.x );
-                        done();
+                        inMidScroll( function () {
+                            userTarget = userScrollsBy( -intentionalUserScrollMovement, $window );
+                        } );
+
+                        afterScroll( function () {
+                            expect( $window.scrollTop() ).toEqual( userTarget.y );
+                            expect( $window.scrollLeft() ).toEqual( userTarget.x );
+                            done();
+                        } );
+
                     } );
                 } );
 
@@ -598,16 +621,21 @@
                     var userTarget;
                     $window.scrollTop( 100 );
 
-                    $window.scrollTo( "left" );
+                    // Add a delay. In iOS, the position is *not* reached instantly, needs a timeout
+                    afterScreenUpdate( function () {
 
-                    inMidScroll( function () {
-                        userTarget = userScrollsBy( -accidentalUserScrollMovement, $window );
-                    } );
+                        $window.scrollTo( "left" );
 
-                    afterScroll( function () {
-                        expect( $window.scrollTop() ).toEqual( userTarget.y );
-                        expect( $window.scrollLeft() ).toEqual( 0 );
-                        done();
+                        inMidScroll( function () {
+                            userTarget = userScrollsBy( -accidentalUserScrollMovement, $window );
+                        } );
+
+                        afterScroll( function () {
+                            expect( $window.scrollTop() ).toEqual( userTarget.y );
+                            expect( $window.scrollLeft() ).toEqual( 0 );
+                            done();
+                        } );
+
                     } );
                 } );
 

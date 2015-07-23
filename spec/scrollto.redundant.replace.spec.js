@@ -52,9 +52,12 @@
 
             var initialX, initialY;
 
-            beforeEach( function () {
+            beforeEach( function ( done ) {
                 initialX = initialY = 50;
                 $window.scrollTop( initialY ).scrollLeft( initialX );
+
+                // Add a delay. In iOS, the position is *not* reached instantly, needs a timeout
+                afterScreenUpdate( done );
             } );
 
             describe( 'Movement. The animation is skipped', function () {

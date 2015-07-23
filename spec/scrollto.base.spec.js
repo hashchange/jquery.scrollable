@@ -22,16 +22,22 @@
             f = Setup.create( "window", f, { createEl: false, injectCss: fixtureCss } );
 
             $window = $( window );
-            maxScrollWidth = 3000 - $.windowWidth();
-            maxScrollHeight = 3000 - $.windowHeight();
 
-            $window.scrollTop( 0 ).scrollLeft( 0 );
+            afterScreenUpdate( function () {
 
-            // Reduce the default duration for animations in order to speed up the tests
-            reduceDefaultDurationForAnimations();
+                maxScrollWidth = 3000 - $.windowWidth();
+                maxScrollHeight = 3000 - $.windowHeight();
 
-            // Give browsers some breathing space to complete the initial setup phase.
-            _.delay( done, 50 );
+                $window.scrollTop( 0 ).scrollLeft( 0 );
+
+                // Reduce the default duration for animations in order to speed up the tests
+                reduceDefaultDurationForAnimations();
+
+                // Give browsers some breathing space to complete the initial setup phase.
+                _.delay( done, 50 );
+
+            } );
+
         } );
 
         afterEach( function () {

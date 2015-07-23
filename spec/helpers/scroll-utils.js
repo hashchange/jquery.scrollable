@@ -46,8 +46,7 @@ function afterScroll ( testFunc, waitForRubberBand, duration ) {
  */
 function afterScrolls ( factor, testFunc, waitForRubberBand ) {
     var duration = Math.max( $.fx.speeds._default * factor + 10, Math.ceil( $.fx.speeds._default * factor * _getPaddingMultiplier() ) );
-    if ( waitForRubberBand ) duration += _getRubberBandEffectDuration();
-    afterScroll( testFunc, duration );
+    afterScroll( testFunc, waitForRubberBand, duration );
 }
 
 /**
@@ -76,9 +75,21 @@ function earlyInMidScroll ( func, duration ) {
  * end.
  *
  * Always true on mobile, otherwise false. This is a synonym of isMobile(), but more expressive in the given context.
+ *
+ * Typically used in afterScroll calls, as in `afterScroll( function () {}, waitForRubberBand() )`.
  */
 function waitForRubberBand () {
     return isMobile();
+}
+
+/**
+ * Sets a timeout in order to unblock the UI and give the browser - even a slow one - ample time to repaint, then
+ * executes the callback.
+ *
+ * @param {Function} callback
+ */
+function afterScreenUpdate( callback ) {
+    setTimeout( callback, 150 );
 }
 
 /**
