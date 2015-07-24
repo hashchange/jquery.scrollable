@@ -2,7 +2,7 @@
 (function () {
     "use strict";
 
-    describe( 'stopScroll()', function () {
+    describe( 'stopScroll().', function () {
 
         /** @type {DOMFixture}  populated by Setup.create() */
         var f,
@@ -50,7 +50,7 @@
         } );
 
 
-        describe( 'stopScroll is called in mid movement', function () {
+        describe( 'stopScroll is called in mid movement.', function () {
 
             describe( 'Movement stops', function () {
 
@@ -64,7 +64,7 @@
                     } );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toBeCloseTo( stopLocation.y );
+                        expect( $window.scrollTop() ).toFuzzyEqual( stopLocation.y );
                         expect( $window.scrollLeft() ).toEqual( 0 );
                         done();
                     } );
@@ -81,7 +81,7 @@
 
                     afterScroll( function () {
                         expect( $window.scrollTop() ).toEqual( 0 );
-                        expect( $window.scrollLeft() ).toBeCloseTo( stopLocation.x );
+                        expect( $window.scrollLeft() ).toFuzzyEqual( stopLocation.x );
                         done();
                     } );
                 } );
@@ -96,8 +96,8 @@
                     } );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toBeCloseTo( stopLocation.y );
-                        expect( $window.scrollLeft() ).toBeCloseTo( stopLocation.x );
+                        expect( $window.scrollTop() ).toFuzzyEqual( stopLocation.y );
+                        expect( $window.scrollLeft() ).toFuzzyEqual( stopLocation.x );
                         done();
                     } );
                 } );
@@ -106,9 +106,9 @@
 
         } );
 
-        describe( 'Clearing the queue', function () {
+        describe( 'Clearing the queue.', function () {
 
-            describe( 'When calling stopScroll while some scroll animations are still waiting in the queue', function () {
+            describe( 'When calling stopScroll while some scroll animations are still waiting in the queue,', function () {
                 var stopLocation;
 
                 beforeEach( function ( done ) {
@@ -129,8 +129,8 @@
 
                 it( 'the ongoing animation is aborted', function ( done ) {
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toBeCloseTo( stopLocation.y );
-                        expect( $window.scrollLeft() ).toBeCloseTo( stopLocation.x );
+                        expect( $window.scrollTop() ).toFuzzyEqual( stopLocation.y );
+                        expect( $window.scrollLeft() ).toFuzzyEqual( stopLocation.x );
                     } );
 
                     afterScrolls( 4, done );
@@ -138,8 +138,8 @@
 
                 it( 'the queued animations are removed as well', function ( done ) {
                     afterScrolls( 4, function () {
-                        expect( $window.scrollTop() ).toBeCloseTo( stopLocation.y );
-                        expect( $window.scrollLeft() ).toBeCloseTo( stopLocation.x );
+                        expect( $window.scrollTop() ).toFuzzyEqual( stopLocation.y );
+                        expect( $window.scrollLeft() ).toFuzzyEqual( stopLocation.x );
                         done();
                     } );
                 } );
@@ -147,7 +147,7 @@
             } );
         } );
 
-        describe( 'Callbacks', function () {
+        describe( 'Callbacks.', function () {
 
                 /** @type {Object}  holds animation callback functions of all types; functions are created with getCallbackLogger */
                 var callbacks_1, callbacks_2,
@@ -176,7 +176,7 @@
                     afterScrolls( 2, done );
                 } );
 
-            describe( 'For an animation which is aborted by stopScroll', function () {
+            describe( 'For an animation which is aborted by stopScroll,', function () {
 
                 it( 'the "start" callback runs', function () {
                     expect( callbacks_1.start ).toHaveBeenCalled();
@@ -204,20 +204,20 @@
                 it( 'the "always" callback runs', function () {
                     expect( callbacks_1.always ).toHaveBeenCalled();
                     expect( callbackCalls_1.always.callCount ).toEqual( 1 );
-                    expect( callbackCalls_1.always.scrollState.x ).toBeCloseTo( stopLocation.x );
-                    expect( callbackCalls_1.always.scrollState.y ).toBeCloseTo( stopLocation.y );
+                    expect( callbackCalls_1.always.scrollState.x ).toFuzzyEqual( stopLocation.x );
+                    expect( callbackCalls_1.always.scrollState.y ).toFuzzyEqual( stopLocation.y );
                 } );
 
                 it( 'the fail callback runs', function () {
                     expect( callbacks_1.fail ).toHaveBeenCalled();
                     expect( callbackCalls_1.fail.callCount ).toEqual( 1 );
-                    expect( callbackCalls_1.fail.scrollState.x ).toBeCloseTo( stopLocation.x );
-                    expect( callbackCalls_1.fail.scrollState.y ).toBeCloseTo( stopLocation.y );
+                    expect( callbackCalls_1.fail.scrollState.x ).toFuzzyEqual( stopLocation.x );
+                    expect( callbackCalls_1.fail.scrollState.y ).toFuzzyEqual( stopLocation.y );
                 } );
 
             } );
 
-            describe( 'For an animation which is removed from the queue by stopScroll', function () {
+            describe( 'For an animation which is removed from the queue by stopScroll,', function () {
 
                 it( 'the "start" callback does not run', function () {
                     expect( callbacks_2.start ).not.toHaveBeenCalled();

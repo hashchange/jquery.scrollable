@@ -2,7 +2,7 @@
 (function () {
     "use strict";
 
-    describe( 'scrollTo(): Aborted movement', function () {
+    describe( 'scrollTo(): Aborted movement.', function () {
 
         /** @type {DOMFixture}  populated by Setup.create() */
         var f,
@@ -73,7 +73,7 @@
         } );
 
 
-        describe( 'Scrolling down vertically', function () {
+        describe( 'Scrolling down vertically.', function () {
 
             describeIf( userScrollDetectionEnabled, msgTestSkippedDetectionDisabled, 'Movement stops', function () {
 
@@ -86,8 +86,9 @@
                     } );
 
                     afterScroll( function () {
-                        expect( Math.ceil( $window.scrollTop() ) ).toBeWithinRange( Math.floor( userTarget.y ), userTarget.y + abortTolerance );
-                        expect( Math.ceil( $window.scrollTop() ) ).toBeLessThan( maxScrollHeight );
+
+                        expect( $window.scrollTop() ).toBeLocatedCloselyBelow( userTarget.y, abortTolerance );
+                        expect( $window.scrollTop() ).toBeLocatedStrictlyAbove( maxScrollHeight );
 
                         expect( $window.scrollLeft() ).toEqual( 0 );
                         done();
@@ -103,8 +104,8 @@
                     } );
 
                     afterScroll( function () {
-                        expect( Math.ceil( $window.scrollTop() ) ).toBeWithinRange( Math.floor( userTarget.y ), userTarget.y + abortTolerance );
-                        expect( Math.ceil( $window.scrollTop() ) ).toBeLessThan( maxScrollHeight );
+                        expect( $window.scrollTop() ).toBeLocatedCloselyBelow( userTarget.y, abortTolerance );
+                        expect( $window.scrollTop() ).toBeLocatedStrictlyAbove( maxScrollHeight );
 
                         expect( $window.scrollLeft() ).toEqual( 0 );
                         done();
@@ -120,10 +121,10 @@
                     } );
 
                     afterScroll( function () {
-                        expect( Math.ceil( $window.scrollTop() ) ).toBeWithinRange( Math.floor( userTarget.y ), userTarget.y + abortTolerance );
-                        expect( Math.ceil( $window.scrollTop() ) ).toBeLessThan( maxScrollHeight );
+                        expect( $window.scrollTop() ).toBeLocatedCloselyBelow( userTarget.y, abortTolerance );
+                        expect( $window.scrollTop() ).toBeLocatedStrictlyAbove( maxScrollHeight );
 
-                        expect( $window.scrollLeft() ).toBeCloseTo( userTarget.x );
+                        expect( $window.scrollLeft() ).toFuzzyEqual( userTarget.x );
                         done();
                     } );
                 } );
@@ -139,10 +140,10 @@
                     } );
 
                     afterScroll( function () {
-                        expect( Math.ceil( $window.scrollTop() ) ).toBeWithinRange( Math.floor( userTarget.y ), userTarget.y + abortTolerance );
-                        expect( Math.ceil( $window.scrollTop() ) ).toBeLessThan( maxScrollHeight );
+                        expect( $window.scrollTop() ).toBeLocatedCloselyBelow( userTarget.y, abortTolerance );
+                        expect( $window.scrollTop() ).toBeLocatedStrictlyAbove( maxScrollHeight );
 
-                        expect( $window.scrollLeft() ).toBeCloseTo( userTarget.x );
+                        expect( $window.scrollLeft() ).toFuzzyEqual( userTarget.x );
                         done();
                     } );
                 } );
@@ -160,7 +161,7 @@
                     } );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toBeCloseTo( maxScrollHeight );
+                        expect( $window.scrollTop() ).toFuzzyEqual( maxScrollHeight );
                         expect( $window.scrollLeft() ).toEqual( 0 );
                         done();
                     } );
@@ -175,7 +176,7 @@
                     } );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toBeCloseTo( maxScrollHeight );
+                        expect( $window.scrollTop() ).toFuzzyEqual( maxScrollHeight );
                         expect( $window.scrollLeft() ).toEqual( 0 );
                         done();
                     } );
@@ -190,8 +191,8 @@
                     } );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toBeCloseTo( maxScrollHeight );
-                        expect( $window.scrollLeft() ).toBeCloseTo( userTarget.x );
+                        expect( $window.scrollTop() ).toFuzzyEqual( maxScrollHeight );
+                        expect( $window.scrollLeft() ).toFuzzyEqual( userTarget.x );
                         done();
                     } );
                 } );
@@ -207,8 +208,8 @@
                     } );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toBeCloseTo( maxScrollHeight );
-                        expect( $window.scrollLeft() ).toBeCloseTo( userTarget.x );
+                        expect( $window.scrollTop() ).toFuzzyEqual( maxScrollHeight );
+                        expect( $window.scrollLeft() ).toFuzzyEqual( userTarget.x );
                         done();
                     } );
                 } );
@@ -217,7 +218,7 @@
 
         } );
 
-        describe( 'Scrolling up vertically', function () {
+        describe( 'Scrolling up vertically.', function () {
 
             beforeEach( function ( done ) {
                 $window.scrollTop( maxScrollHeight );
@@ -237,8 +238,8 @@
                     } );
 
                     afterScroll( function () {
-                        expect( Math.floor( $window.scrollTop() ) ).toBeWithinRange( userTarget.y - abortTolerance, Math.ceil( userTarget.y ) );
-                        expect( Math.floor( $window.scrollTop() ) ).toBeGreaterThan( 0 );
+                        expect( $window.scrollTop() ).toBeLocatedCloselyAbove( userTarget.y, abortTolerance );
+                        expect( $window.scrollTop() ).toBeLocatedStrictlyBelow( 0 );
 
                         expect( $window.scrollLeft() ).toEqual( 0 );
                         done();
@@ -254,8 +255,8 @@
                     } );
 
                     afterScroll( function () {
-                        expect( Math.floor( $window.scrollTop() ) ).toBeWithinRange( userTarget.y - abortTolerance, Math.ceil( userTarget.y ) );
-                        expect( Math.floor( $window.scrollTop() ) ).toBeGreaterThan( 0 );
+                        expect( $window.scrollTop() ).toBeLocatedCloselyAbove( userTarget.y, abortTolerance );
+                        expect( $window.scrollTop() ).toBeLocatedStrictlyBelow( 0 );
 
                         expect( $window.scrollLeft() ).toEqual( 0 );
                         done();
@@ -271,10 +272,10 @@
                     } );
 
                     afterScroll( function () {
-                        expect( Math.floor( $window.scrollTop() ) ).toBeWithinRange( userTarget.y - abortTolerance, Math.ceil( userTarget.y ) );
-                        expect( Math.floor( $window.scrollTop() ) ).toBeGreaterThan( 0 );
+                        expect( $window.scrollTop() ).toBeLocatedCloselyAbove( userTarget.y, abortTolerance );
+                        expect( $window.scrollTop() ).toBeLocatedStrictlyBelow( 0 );
 
-                        expect( $window.scrollLeft() ).toBeCloseTo( userTarget.x );
+                        expect( $window.scrollLeft() ).toFuzzyEqual( userTarget.x );
                         done();
                     } );
                 } );
@@ -290,10 +291,10 @@
                     } );
 
                     afterScroll( function () {
-                        expect( Math.floor( $window.scrollTop() ) ).toBeWithinRange( userTarget.y - abortTolerance, Math.ceil( userTarget.y ) );
-                        expect( Math.floor( $window.scrollTop() ) ).toBeGreaterThan( 0 );
+                        expect( $window.scrollTop() ).toBeLocatedCloselyAbove( userTarget.y, abortTolerance );
+                        expect( $window.scrollTop() ).toBeLocatedStrictlyBelow( 0 );
 
-                        expect( $window.scrollLeft() ).toBeCloseTo( userTarget.x );
+                        expect( $window.scrollLeft() ).toFuzzyEqual( userTarget.x );
                         done();
                     } );
                 } );
@@ -342,7 +343,7 @@
 
                     afterScroll( function () {
                         expect( $window.scrollTop() ).toEqual( 0 );
-                        expect( $window.scrollLeft() ).toBeCloseTo( userTarget.x );
+                        expect( $window.scrollLeft() ).toFuzzyEqual( userTarget.x );
                         done();
                     } );
                 } );
@@ -359,7 +360,7 @@
 
                     afterScroll( function () {
                         expect( $window.scrollTop() ).toEqual( 0 );
-                        expect( $window.scrollLeft() ).toBeCloseTo( userTarget.x );
+                        expect( $window.scrollLeft() ).toFuzzyEqual( userTarget.x );
                         done();
                     } );
                 } );
@@ -368,7 +369,7 @@
 
         } );
 
-        describe( 'Scrolling horizontally, to the right', function () {
+        describe( 'Scrolling horizontally, to the right.', function () {
 
             describeIf( userScrollDetectionEnabled, msgTestSkippedDetectionDisabled, 'Movement stops', function () {
 
@@ -383,8 +384,8 @@
                     afterScroll( function () {
                         expect( $window.scrollTop() ).toEqual( 0 );
 
-                        expect( Math.ceil( $window.scrollLeft() ) ).toBeWithinRange( Math.floor( userTarget.x ), userTarget.x + abortTolerance );
-                        expect( Math.ceil( $window.scrollLeft() ) ).toBeLessThan( maxScrollWidth );
+                        expect( $window.scrollLeft() ).toBeLocatedCloselyRightOf( userTarget.x, abortTolerance );
+                        expect( $window.scrollLeft() ).toBeLocatedStrictlyLeftOf( maxScrollWidth );
                         done();
                     } );
                 } );
@@ -400,8 +401,8 @@
                     afterScroll( function () {
                         expect( $window.scrollTop() ).toEqual( 0 );
 
-                        expect( Math.ceil( $window.scrollLeft() ) ).toBeWithinRange( Math.floor( userTarget.x ), userTarget.x + abortTolerance );
-                        expect( Math.ceil( $window.scrollLeft() ) ).toBeLessThan( maxScrollWidth );
+                        expect( $window.scrollLeft() ).toBeLocatedCloselyRightOf( userTarget.x, abortTolerance );
+                        expect( $window.scrollLeft() ).toBeLocatedStrictlyLeftOf( maxScrollWidth );
                         done();
                     } );
                 } );
@@ -415,10 +416,10 @@
                     } );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toBeCloseTo( userTarget.y );
+                        expect( $window.scrollTop() ).toFuzzyEqual( userTarget.y );
 
-                        expect( Math.ceil( $window.scrollLeft() ) ).toBeWithinRange( Math.floor( userTarget.x ), userTarget.x + abortTolerance );
-                        expect( Math.ceil( $window.scrollLeft() ) ).toBeLessThan( maxScrollWidth );
+                        expect( $window.scrollLeft() ).toBeLocatedCloselyRightOf( userTarget.x, abortTolerance );
+                        expect( $window.scrollLeft() ).toBeLocatedStrictlyLeftOf( maxScrollWidth );
                         done();
                     } );
                 } );
@@ -437,10 +438,10 @@
                         } );
 
                         afterScroll( function () {
-                            expect( $window.scrollTop() ).toBeCloseTo( userTarget.y );
+                            expect( $window.scrollTop() ).toFuzzyEqual( userTarget.y );
 
-                            expect( Math.ceil( $window.scrollLeft() ) ).toBeWithinRange( Math.floor( userTarget.x ), userTarget.x + abortTolerance );
-                            expect( Math.ceil( $window.scrollLeft() ) ).toBeLessThan( maxScrollWidth );
+                            expect( $window.scrollLeft() ).toBeLocatedCloselyRightOf( userTarget.x, abortTolerance );
+                            expect( $window.scrollLeft() ).toBeLocatedStrictlyLeftOf( maxScrollWidth );
                             done();
                         } );
 
@@ -461,7 +462,7 @@
 
                     afterScroll( function () {
                         expect( $window.scrollTop() ).toEqual( 0 );
-                        expect( $window.scrollLeft() ).toBeCloseTo( maxScrollWidth );
+                        expect( $window.scrollLeft() ).toFuzzyEqual( maxScrollWidth );
                         done();
                     } );
                 } );
@@ -476,7 +477,7 @@
 
                     afterScroll( function () {
                         expect( $window.scrollTop() ).toEqual( 0 );
-                        expect( $window.scrollLeft() ).toBeCloseTo( maxScrollWidth );
+                        expect( $window.scrollLeft() ).toFuzzyEqual( maxScrollWidth );
                         done();
                     } );
                 } );
@@ -490,8 +491,8 @@
                     } );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toBeCloseTo( userTarget.y );
-                        expect( $window.scrollLeft() ).toBeCloseTo( maxScrollWidth );
+                        expect( $window.scrollTop() ).toFuzzyEqual( userTarget.y );
+                        expect( $window.scrollLeft() ).toFuzzyEqual( maxScrollWidth );
                         done();
                     } );
                 } );
@@ -510,8 +511,8 @@
                         } );
 
                         afterScroll( function () {
-                            expect( $window.scrollTop() ).toBeCloseTo( userTarget.y );
-                            expect( $window.scrollLeft() ).toBeCloseTo( maxScrollWidth );
+                            expect( $window.scrollTop() ).toFuzzyEqual( userTarget.y );
+                            expect( $window.scrollLeft() ).toFuzzyEqual( maxScrollWidth );
                             done();
                         } );
 
@@ -522,7 +523,7 @@
 
         } );
 
-        describe( 'Scrolling horizontally, to the left', function () {
+        describe( 'Scrolling horizontally, to the left.', function () {
 
             beforeEach( function () {
                 $window.scrollLeft( maxScrollWidth );
@@ -541,8 +542,8 @@
                     afterScroll( function () {
                         expect( $window.scrollTop() ).toEqual( 0 );
 
-                        expect( Math.floor( $window.scrollLeft() ) ).toBeWithinRange( userTarget.x - abortTolerance, Math.ceil( userTarget.x ) );
-                        expect( Math.floor( $window.scrollLeft() ) ).toBeGreaterThan( 0 );
+                        expect( $window.scrollLeft() ).toBeLocatedCloselyLeftOf( userTarget.x, abortTolerance );
+                        expect( $window.scrollLeft() ).toBeLocatedStrictlyRightOf( 0 );
                         done();
                     } );
                 } );
@@ -558,8 +559,8 @@
                     afterScroll( function () {
                         expect( $window.scrollTop() ).toEqual( 0 );
 
-                        expect( Math.floor( $window.scrollLeft() ) ).toBeWithinRange( userTarget.x - abortTolerance, Math.ceil( userTarget.x ) );
-                        expect( Math.floor( $window.scrollLeft() ) ).toBeGreaterThan( 0 );
+                        expect( $window.scrollLeft() ).toBeLocatedCloselyLeftOf( userTarget.x, abortTolerance );
+                        expect( $window.scrollLeft() ).toBeLocatedStrictlyRightOf( 0 );
                         done();
                     } );
                 } );
@@ -573,10 +574,10 @@
                     } );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toBeCloseTo( userTarget.y );
+                        expect( $window.scrollTop() ).toFuzzyEqual( userTarget.y );
 
-                        expect( Math.floor( $window.scrollLeft() ) ).toBeWithinRange( userTarget.x - abortTolerance, Math.ceil( userTarget.x ) );
-                        expect( Math.floor( $window.scrollLeft() ) ).toBeGreaterThan( 0 );
+                        expect( $window.scrollLeft() ).toBeLocatedCloselyLeftOf( userTarget.x, abortTolerance );
+                        expect( $window.scrollLeft() ).toBeLocatedStrictlyRightOf( 0 );
                         done();
                     } );
                 } );
@@ -595,10 +596,10 @@
                         } );
 
                         afterScroll( function () {
-                            expect( $window.scrollTop() ).toBeCloseTo( userTarget.y );
+                            expect( $window.scrollTop() ).toFuzzyEqual( userTarget.y );
 
-                            expect( Math.floor( $window.scrollLeft() ) ).toBeWithinRange( userTarget.x - abortTolerance, Math.ceil( userTarget.x ) );
-                            expect( Math.floor( $window.scrollLeft() ) ).toBeGreaterThan( 0 );
+                            expect( $window.scrollLeft() ).toBeLocatedCloselyLeftOf( userTarget.x, abortTolerance );
+                            expect( $window.scrollLeft() ).toBeLocatedStrictlyRightOf( 0 );
                             done();
                         } );
 
@@ -648,7 +649,7 @@
                     } );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toBeCloseTo( userTarget.y );
+                        expect( $window.scrollTop() ).toFuzzyEqual( userTarget.y );
                         expect( $window.scrollLeft() ).toEqual( 0 );
                         done();
                     } );
@@ -668,7 +669,7 @@
                         } );
 
                         afterScroll( function () {
-                            expect( $window.scrollTop() ).toBeCloseTo( userTarget.y );
+                            expect( $window.scrollTop() ).toFuzzyEqual( userTarget.y );
                             expect( $window.scrollLeft() ).toEqual( 0 );
                             done();
                         } );
@@ -680,7 +681,7 @@
 
         } );
 
-        describeIf( hasUserScrollThreshold, msgTestSkippedNoThreshold, 'Cumulative scrolling', function () {
+        describeIf( hasUserScrollThreshold, msgTestSkippedNoThreshold, 'Cumulative scrolling.', function () {
 
             describe( 'The user scrolls as much as the threshold at first, and 1px more later. The scroll movement stops the second time', function () {
 
@@ -704,8 +705,8 @@
                         expect( userTarget2.y ).toBeGreaterThan( maxScrollHeight * 0.4 );
 
                         // Verify that the movement stops after the second time.
-                        expect( Math.ceil( $window.scrollTop() ) ).toBeWithinRange( Math.floor( userTarget2.y ), userTarget2.y + abortTolerance );
-                        expect( Math.ceil( $window.scrollTop() ) ).toBeLessThan( maxScrollHeight );
+                        expect( $window.scrollTop() ).toBeLocatedCloselyBelow( userTarget2.y, abortTolerance );
+                        expect( $window.scrollTop() ).toBeLocatedStrictlyAbove( maxScrollHeight );
 
                         expect( $window.scrollLeft() ).toEqual( 0 );
                         done();
@@ -730,10 +731,10 @@
                         expect( userTarget2.y ).toBeGreaterThan( maxScrollHeight * 0.4 );
 
                         // Verify that the movement stops after the second time.
-                        expect( Math.ceil( $window.scrollTop() ) ).toBeWithinRange( Math.floor( userTarget2.y ), userTarget2.y + abortTolerance );
-                        expect( Math.ceil( $window.scrollTop() ) ).toBeLessThan( maxScrollHeight );
+                        expect( $window.scrollTop() ).toBeLocatedCloselyBelow( userTarget2.y, abortTolerance );
+                        expect( $window.scrollTop() ).toBeLocatedStrictlyAbove( maxScrollHeight );
 
-                        expect( $window.scrollLeft() ).toBeCloseTo( userTarget2.x );
+                        expect( $window.scrollLeft() ).toFuzzyEqual( userTarget2.x );
                         done();
                     } );
                 } );
@@ -741,9 +742,9 @@
             } );
         } );
 
-        describe( 'Clearing the queue', function () {
+        describe( 'Clearing the queue.', function () {
 
-            describeIf( userScrollDetectionEnabled, msgTestSkippedDetectionDisabled, 'When the user scrolls while some scroll animations are still waiting in the queue', function () {
+            describeIf( userScrollDetectionEnabled, msgTestSkippedDetectionDisabled, 'When the user scrolls while some scroll animations are still waiting in the queue,', function () {
                 var userTarget;
 
                 beforeEach( function ( done ) {
@@ -763,10 +764,10 @@
 
                 it( 'the ongoing animation is aborted', function ( done ) {
                     afterScroll( function () {
-                        expect( Math.ceil( $window.scrollTop() ) ).toBeWithinRange( Math.floor( userTarget.y ), userTarget.y + abortTolerance );
-                        expect( Math.ceil( $window.scrollTop() ) ).toBeLessThan( maxScrollHeight );
+                        expect( $window.scrollTop() ).toBeLocatedCloselyBelow( userTarget.y, abortTolerance );
+                        expect( $window.scrollTop() ).toBeLocatedStrictlyAbove( maxScrollHeight );
 
-                        expect( $window.scrollLeft() ).toBeCloseTo( userTarget.x );
+                        expect( $window.scrollLeft() ).toFuzzyEqual( userTarget.x );
                     } );
 
                     afterScrolls( 4, done );
@@ -774,10 +775,10 @@
 
                 it( 'the queued animations are removed as well', function ( done ) {
                     afterScrolls( 4, function () {
-                        expect( Math.ceil( $window.scrollTop() ) ).toBeWithinRange( Math.floor( userTarget.y ), userTarget.y + abortTolerance );
-                        expect( Math.ceil( $window.scrollTop() ) ).toBeLessThan( maxScrollHeight );
+                        expect( $window.scrollTop() ).toBeLocatedCloselyBelow( userTarget.y, abortTolerance );
+                        expect( $window.scrollTop() ).toBeLocatedStrictlyAbove( maxScrollHeight );
 
-                        expect( $window.scrollLeft() ).toBeCloseTo( userTarget.x );
+                        expect( $window.scrollLeft() ).toFuzzyEqual( userTarget.x );
                         done();
                     } );
                 } );
@@ -785,7 +786,7 @@
             } );
         } );
 
-        describeIf( userScrollDetectionEnabled, msgTestSkippedDetectionDisabled, 'Callbacks', function () {
+        describeIf( userScrollDetectionEnabled, msgTestSkippedDetectionDisabled, 'Callbacks.', function () {
 
                 /** @type {Object}  holds animation callback functions of all types; functions are created with getCallbackLogger */
                 var callbacks_1, callbacks_2,
@@ -812,7 +813,7 @@
                     afterScrolls( 2, done );
                 } );
 
-            describe( 'For an animation which is aborted due to user scrolling', function () {
+            describe( 'For an animation which is aborted due to user scrolling,', function () {
 
                 it( 'the "start" callback runs', function () {
                     expect( callbacks_1.start ).toHaveBeenCalled();
@@ -840,22 +841,22 @@
                 it( 'the "always" callback runs', function () {
                     expect( callbacks_1.always ).toHaveBeenCalled();
                     expect( callbackCalls_1.always.callCount ).toEqual( 1 );
-                    expect( callbackCalls_1.always.scrollState.x ).toBeCloseTo( userTarget.x );
-                    expect( Math.ceil( callbackCalls_1.always.scrollState.y ) ).toBeWithinRange( Math.floor( userTarget.y ), userTarget.y + abortTolerance );
-                    expect( Math.ceil( callbackCalls_1.always.scrollState.y ) ).toBeLessThan( maxScrollHeight );
+                    expect( callbackCalls_1.always.scrollState.x ).toFuzzyEqual( userTarget.x );
+                    expect( callbackCalls_1.always.scrollState.y ).toBeLocatedCloselyBelow( userTarget.y, abortTolerance );
+                    expect( callbackCalls_1.always.scrollState.y ).toBeLocatedStrictlyAbove( maxScrollHeight );
                 } );
 
                 it( 'the fail callback runs', function () {
                     expect( callbacks_1.fail ).toHaveBeenCalled();
                     expect( callbackCalls_1.fail.callCount ).toEqual( 1 );
-                    expect( callbackCalls_1.fail.scrollState.x ).toBeCloseTo( userTarget.x );
-                    expect( Math.ceil( callbackCalls_1.always.scrollState.y ) ).toBeWithinRange( Math.floor( userTarget.y ), userTarget.y + abortTolerance );
-                    expect( Math.ceil( callbackCalls_1.always.scrollState.y ) ).toBeLessThan( maxScrollHeight );
+                    expect( callbackCalls_1.fail.scrollState.x ).toFuzzyEqual( userTarget.x );
+                    expect( callbackCalls_1.always.scrollState.y ).toBeLocatedCloselyBelow( userTarget.y, abortTolerance );
+                    expect( callbackCalls_1.always.scrollState.y ).toBeLocatedStrictlyAbove( maxScrollHeight );
                 } );
 
             } );
 
-            describe( 'For an animation which is removed from the queue due to user scrolling', function () {
+            describe( 'For an animation which is removed from the queue due to user scrolling,', function () {
 
                 it( 'the "start" callback does not run', function () {
                     expect( callbacks_2.start ).not.toHaveBeenCalled();
@@ -889,11 +890,11 @@
 
         } );
 
-        describeIf( userScrollDetectionEnabled, msgTestSkippedDetectionDisabled, 'Changing the userScrollThreshold', function () {
+        describeIf( userScrollDetectionEnabled, msgTestSkippedDetectionDisabled, 'Changing the userScrollThreshold.', function () {
 
-            describe( 'Changing the global value', function () {
+            describe( 'Changing the global value.', function () {
 
-                describe( 'The threshold is reduced to 0', function () {
+                describe( 'The threshold is reduced to 0.', function () {
 
                     beforeEach( function () {
                         $.scrollable.userScrollThreshold = 0;
@@ -908,8 +909,8 @@
                         } );
 
                         afterScroll( function () {
-                            expect( Math.ceil( $window.scrollTop() ) ).toBeWithinRange( Math.floor( userTarget.y ), userTarget.y + abortTolerance );
-                            expect( Math.ceil( $window.scrollTop() ) ).toBeLessThan( maxScrollHeight );
+                            expect( $window.scrollTop() ).toBeLocatedCloselyBelow( userTarget.y, abortTolerance );
+                            expect( $window.scrollTop() ).toBeLocatedStrictlyAbove( maxScrollHeight );
 
                             expect( $window.scrollLeft() ).toEqual( 0 );
                             done();
@@ -918,7 +919,7 @@
 
                 } );
 
-                describe( 'The threshold is increased to 100', function () {
+                describe( 'The threshold is increased to 100.', function () {
                     var defaultThreshold;
 
                     beforeEach( function () {
@@ -939,7 +940,7 @@
                         } );
 
                         afterScroll( function () {
-                            expect( $window.scrollTop() ).toBeCloseTo( maxScrollHeight );
+                            expect( $window.scrollTop() ).toFuzzyEqual( maxScrollHeight );
                             expect( $window.scrollLeft() ).toEqual( 0 );
                             done();
                         } );
@@ -954,8 +955,8 @@
                         } );
 
                         afterScroll( function () {
-                            expect( Math.ceil( $window.scrollTop() ) ).toBeWithinRange( Math.floor( userTarget.y ), userTarget.y + abortTolerance );
-                            expect( Math.ceil( $window.scrollTop() ) ).toBeLessThan( maxScrollHeight );
+                            expect( $window.scrollTop() ).toBeLocatedCloselyBelow( userTarget.y, abortTolerance );
+                            expect( $window.scrollTop() ).toBeLocatedStrictlyAbove( maxScrollHeight );
 
                             expect( $window.scrollLeft() ).toEqual( 0 );
                             done();
@@ -966,9 +967,9 @@
 
             } );
 
-            describe( 'Using the userScrollThreshold option', function () {
+            describe( 'Using the userScrollThreshold option.', function () {
 
-                describe( 'The threshold is reduced to 0', function () {
+                describe( 'The threshold is reduced to 0.', function () {
 
                     it( 'When the user scrolls by as little as 1px, the scroll animation is stopped', function ( done ) {
                         var userTarget;
@@ -979,8 +980,8 @@
                         } );
 
                         afterScroll( function () {
-                            expect( Math.ceil( $window.scrollTop() ) ).toBeWithinRange( Math.floor( userTarget.y ), userTarget.y + abortTolerance );
-                            expect( Math.ceil( $window.scrollTop() ) ).toBeLessThan( maxScrollHeight );
+                            expect( $window.scrollTop() ).toBeLocatedCloselyBelow( userTarget.y, abortTolerance );
+                            expect( $window.scrollTop() ).toBeLocatedStrictlyAbove( maxScrollHeight );
 
                             expect( $window.scrollLeft() ).toEqual( 0 );
                             done();
@@ -989,7 +990,7 @@
 
                 } );
 
-                describe( 'The threshold is increased to 100', function () {
+                describe( 'The threshold is increased to 100.', function () {
 
                     it( 'When the user scrolls by 100px, the scroll animation continues', function ( done ) {
                         var userTarget;
@@ -1000,7 +1001,7 @@
                         } );
 
                         afterScroll( function () {
-                            expect( $window.scrollTop() ).toBeCloseTo( maxScrollHeight );
+                            expect( $window.scrollTop() ).toFuzzyEqual( maxScrollHeight );
                             expect( $window.scrollLeft() ).toEqual( 0 );
                             done();
                         } );
@@ -1015,8 +1016,8 @@
                         } );
 
                         afterScroll( function () {
-                            expect( Math.ceil( $window.scrollTop() ) ).toBeWithinRange( Math.floor( userTarget.y ), userTarget.y + abortTolerance );
-                            expect( Math.ceil( $window.scrollTop() ) ).toBeLessThan( maxScrollHeight );
+                            expect( $window.scrollTop() ).toBeLocatedCloselyBelow( userTarget.y, abortTolerance );
+                            expect( $window.scrollTop() ).toBeLocatedStrictlyAbove( maxScrollHeight );
 
                             expect( $window.scrollLeft() ).toEqual( 0 );
                             done();

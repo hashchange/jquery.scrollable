@@ -2,7 +2,7 @@
 (function () {
     "use strict";
 
-    describe( 'scrollTo(): Basic movement', function () {
+    describe( 'scrollTo(): Basic movement.', function () {
 
         /** @type {DOMFixture}  populated by Setup.create() */
         var f,
@@ -50,111 +50,111 @@
         } );
 
 
-        describe( 'Scrolling vertically', function () {
+        describe( 'Scrolling vertically.', function () {
 
-            describe( 'Movement', function () {
+            describe( 'Movement.', function () {
 
-                it( 'scrolls to the bottom with the "bottom" keyword', function ( done ) {
+                it( 'It scrolls to the bottom with the "bottom" keyword', function ( done ) {
                     $window.scrollTo( "bottom" );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toBeCloseTo( maxScrollHeight );
+                        expect( $window.scrollTop() ).toFuzzyEqual( maxScrollHeight );
                         expect( $window.scrollLeft() ).toEqual( 0 );
                         done();
                     } );
                 } );
 
-                it( 'scrolls to 100px with target 100 as a numeric value', function ( done ) {
+                it( 'It scrolls to 100px with target 100 as a numeric value', function ( done ) {
                     $window.scrollTo( 100 );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toBeCloseTo( 100 );
+                        expect( $window.scrollTop() ).toFuzzyEqual( 100 );
                         expect( $window.scrollLeft() ).toEqual( 0 );
                         done();
                     } );
                 } );
 
-                it( 'scrolls to 100px with target "100" as a string value', function ( done ) {
+                it( 'It scrolls to 100px with target "100" as a string value', function ( done ) {
                     $window.scrollTo( "100" );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toBeCloseTo( 100 );
+                        expect( $window.scrollTop() ).toFuzzyEqual( 100 );
                         expect( $window.scrollLeft() ).toEqual( 0 );
                         done();
                     } );
                 } );
 
-                it( 'scrolls to 100px with target "100px"', function ( done ) {
+                it( 'It scrolls to 100px with target "100px"', function ( done ) {
                     $window.scrollTo( "100px" );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toBeCloseTo( 100 );
+                        expect( $window.scrollTop() ).toFuzzyEqual( 100 );
                         expect( $window.scrollLeft() ).toEqual( 0 );
                         done();
                     } );
                 } );
 
-                it( 'scrolls to 25% of the page height with target "25%"', function ( done ) {
+                it( 'It scrolls to 25% of the page height with target "25%"', function ( done ) {
                     $window.scrollTo( "25%" );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toBeCloseTo( Math.round( maxScrollHeight * 0.25 ) );
+                        expect( $window.scrollTop() ).toFuzzyEqual( Math.round( maxScrollHeight * 0.25 ) );
                         expect( $window.scrollLeft() ).toEqual( 0 );
                         done();
                     } );
                 } );
 
-                it( 'scrolls down to 150px when starting at 50px with target "+=100"', function ( done ) {
+                it( 'It scrolls down to 150px when starting at 50px with target "+=100"', function ( done ) {
                     $window.scrollTop( 50 ).scrollTo( "+=100" );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toBeCloseTo( 150 );
+                        expect( $window.scrollTop() ).toFuzzyEqual( 150 );
                         expect( $window.scrollLeft() ).toEqual( 0 );
                         done();
                     } );
                 } );
 
-                it( 'scrolls down to 150px when starting at 50px with target "+=100px"', function ( done ) {
+                it( 'It scrolls down to 150px when starting at 50px with target "+=100px"', function ( done ) {
                     $window.scrollTop( 50 ).scrollTo( "+=100px" );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toBeCloseTo( 150 );
+                        expect( $window.scrollTop() ).toFuzzyEqual( 150 );
                         expect( $window.scrollLeft() ).toEqual( 0 );
                         done();
                     } );
                 } );
 
-                it( 'scrolls down to 150px when starting at 50px with target "+=100px" (append mode)', function ( done ) {
+                it( 'It scrolls down to 150px when starting at 50px with target "+=100px" (append mode)', function ( done ) {
                     $window.scrollTop( 50 ).scrollTo( "+=100px", { append: true } );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toBeCloseTo( 150 );
+                        expect( $window.scrollTop() ).toFuzzyEqual( 150 );
                         expect( $window.scrollLeft() ).toEqual( 0 );
                         done();
                     } );
                 } );
 
-                it( 'scrolls down to 150px when starting at 50px with target "+=100px" (merge mode)', function ( done ) {
+                it( 'It scrolls down to 150px when starting at 50px with target "+=100px" (merge mode)', function ( done ) {
                     $window.scrollTop( 50 ).scrollTo( "+=100px", { merge: true } );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toBeCloseTo( 150 );
+                        expect( $window.scrollTop() ).toFuzzyEqual( 150 );
                         expect( $window.scrollLeft() ).toEqual( 0 );
                         done();
                     } );
                 } );
 
-                it( 'scrolls up to 50px when starting at 150px with target "-=100px"', function ( done ) {
+                it( 'It scrolls up to 50px when starting at 150px with target "-=100px"', function ( done ) {
                     $window.scrollTop( 150 ).scrollTo( "-=100px" );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toBeCloseTo( 50 );
+                        expect( $window.scrollTop() ).toFuzzyEqual( 50 );
                         expect( $window.scrollLeft() ).toEqual( 0 );
                         done();
                     } );
                 } );
 
-                it( 'scrolls up to 15% of page height when starting at 40% with target "-=25%"', function ( done ) {
+                it( 'It scrolls up to 15% of page height when starting at 40% with target "-=25%"', function ( done ) {
                     // allow a tolerance for rounding when dealing with odd page heights
                     var scrollHeight40percent = maxScrollHeight * 0.4,
                         scrollHeight25percent = maxScrollHeight * 0.25,
@@ -172,7 +172,7 @@
                     } );
                 } );
 
-                it( 'scrolls up to 15% of page height when starting at 40% with target "-=25%" (append mode)', function ( done ) {
+                it( 'It scrolls up to 15% of page height when starting at 40% with target "-=25%" (append mode)', function ( done ) {
                     // allow a tolerance for rounding when dealing with odd page heights
                     var scrollHeight40percent = maxScrollHeight * 0.4,
                         scrollHeight25percent = maxScrollHeight * 0.25,
@@ -190,7 +190,7 @@
                     } );
                 } );
 
-                it( 'scrolls up to 15% of page height when starting at 40% with target "-=25%" (merge mode)', function ( done ) {
+                it( 'It scrolls up to 15% of page height when starting at 40% with target "-=25%" (merge mode)', function ( done ) {
                     // allow a tolerance for rounding when dealing with odd page heights
                     var scrollHeight40percent = maxScrollHeight * 0.4,
                         scrollHeight25percent = maxScrollHeight * 0.25,
@@ -208,31 +208,31 @@
                     } );
                 } );
 
-                it( 'scrolls back up to 100px when starting at 150px with target 100', function ( done ) {
+                it( 'It scrolls back up to 100px when starting at 150px with target 100', function ( done ) {
                     $window.scrollTop( 150 ).scrollTo( 100 );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toBeCloseTo( 100 );
+                        expect( $window.scrollTop() ).toFuzzyEqual( 100 );
                         expect( $window.scrollLeft() ).toEqual( 0 );
                         done();
                     } );
                 } );
 
-                it( 'scrolls back up to 100px when starting at 150px with target 100 (append mode)', function ( done ) {
+                it( 'It scrolls back up to 100px when starting at 150px with target 100 (append mode)', function ( done ) {
                     $window.scrollTop( 150 ).scrollTo( 100, { append: true } );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toBeCloseTo( 100 );
+                        expect( $window.scrollTop() ).toFuzzyEqual( 100 );
                         expect( $window.scrollLeft() ).toEqual( 0 );
                         done();
                     } );
                 } );
 
-                it( 'scrolls back up to 100px when starting at 150px with target 100 (merge mode)', function ( done ) {
+                it( 'It scrolls back up to 100px when starting at 150px with target 100 (merge mode)', function ( done ) {
                     $window.scrollTop( 150 ).scrollTo( 100, { merge: true } );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toBeCloseTo( 100 );
+                        expect( $window.scrollTop() ).toFuzzyEqual( 100 );
                         expect( $window.scrollLeft() ).toEqual( 0 );
                         done();
                     } );
@@ -240,7 +240,7 @@
 
             } );
 
-            describe( 'Callbacks', function () {
+            describe( 'Callbacks.', function () {
 
                 /** @type {Object}  holds animation callback functions of all types; functions are created with getCallbackLogger */
                 var callbacks,
@@ -262,7 +262,7 @@
                     } );
                 } );
 
-                describe( 'Before the movement starts', function () {
+                describe( 'Before the movement starts,', function () {
 
                     it( 'it fires the "start" callback', function () {
                         expect( callbacks.start ).toHaveBeenCalled();
@@ -272,7 +272,7 @@
 
                 } );
 
-                describe( 'Until the movement is complete', function () {
+                describe( 'Until the movement is complete,', function () {
 
                     it( 'it fires the "step" callback repeatedly', function () {
                         expect( callbacks.step ).toHaveBeenCalled();
@@ -288,24 +288,24 @@
 
                 } );
 
-                describe( 'When the movement is complete', function () {
+                describe( 'When the movement is complete,', function () {
 
                     it( 'it fires the "done" callback', function () {
                         expect( callbacks.done ).toHaveBeenCalled();
                         expect( callbackCalls.done.callCount ).toEqual( 1 );
-                        expect( callbackCalls.done.scrollState.y ).toBeCloseTo( targetPx );
+                        expect( callbackCalls.done.scrollState.y ).toFuzzyEqual( targetPx );
                     } );
 
                     it( 'it fires the "complete" callback', function () {
                         expect( callbacks.complete ).toHaveBeenCalled();
                         expect( callbackCalls.complete.callCount ).toEqual( 1 );
-                        expect( callbackCalls.complete.scrollState.y ).toBeCloseTo( targetPx );
+                        expect( callbackCalls.complete.scrollState.y ).toFuzzyEqual( targetPx );
                     } );
 
                     it( 'it fires the "always" callback', function () {
                         expect( callbacks.always ).toHaveBeenCalled();
                         expect( callbackCalls.always.callCount ).toEqual( 1 );
-                        expect( callbackCalls.always.scrollState.y ).toBeCloseTo( targetPx );
+                        expect( callbackCalls.always.scrollState.y ).toFuzzyEqual( targetPx );
                     } );
 
                     it( 'it has not fired the fail callback', function () {
@@ -314,7 +314,7 @@
 
                 } );
 
-                describe( 'When the window is scrolled', function () {
+                describe( 'When the window is scrolled,', function () {
 
                     it( 'it binds the "start" callback to the window', function () {
                         expect( callbackCalls.start.this ).toBe( window );
@@ -346,15 +346,15 @@
 
         } );
 
-        describe( 'Scrolling horizontally', function () {
+        describe( 'Scrolling horizontally.', function () {
 
-            describe( 'Movement', function () {
+            describe( 'Movement.', function () {
 
-                it( 'scrolls to the right edge with the "right" keyword', function ( done ) {
+                it( 'It scrolls to the right edge with the "right" keyword', function ( done ) {
                     $window.scrollTo( "right" );
 
                     afterScroll( function () {
-                        expect( $window.scrollLeft() ).toBeCloseTo( maxScrollWidth );
+                        expect( $window.scrollLeft() ).toFuzzyEqual( maxScrollWidth );
                         expect( $window.scrollTop() ).toEqual( 0 );
                         done();
                     } );
@@ -362,7 +362,7 @@
 
             } );
 
-            describe( 'Callbacks', function () {
+            describe( 'Callbacks.', function () {
 
                 /** @type {Object}  holds animation callback functions of all types; functions are created with getCallbackLogger */
                 var callbacks,
@@ -384,7 +384,7 @@
                     } );
                 } );
 
-                describe( 'Before the movement starts', function () {
+                describe( 'Before the movement starts,', function () {
 
                     it( 'it fires the "start" callback', function () {
                         expect( callbacks.start ).toHaveBeenCalled();
@@ -394,7 +394,7 @@
 
                 } );
 
-                describe( 'Until the movement is complete', function () {
+                describe( 'Until the movement is complete,', function () {
 
                     it( 'it fires the "step" callback repeatedly', function () {
                         expect( callbacks.step ).toHaveBeenCalled();
@@ -410,24 +410,24 @@
 
                 } );
 
-                describe( 'When the movement is complete', function () {
+                describe( 'When the movement is complete,', function () {
 
                     it( 'it fires the "done" callback', function () {
                         expect( callbacks.done ).toHaveBeenCalled();
                         expect( callbackCalls.done.callCount ).toEqual( 1 );
-                        expect( callbackCalls.done.scrollState.x ).toBeCloseTo( targetPx );
+                        expect( callbackCalls.done.scrollState.x ).toFuzzyEqual( targetPx );
                     } );
 
                     it( 'it fires the "complete" callback', function () {
                         expect( callbacks.complete ).toHaveBeenCalled();
                         expect( callbackCalls.complete.callCount ).toEqual( 1 );
-                        expect( callbackCalls.complete.scrollState.x ).toBeCloseTo( targetPx );
+                        expect( callbackCalls.complete.scrollState.x ).toFuzzyEqual( targetPx );
                     } );
 
                     it( 'it fires the "always" callback', function () {
                         expect( callbacks.always ).toHaveBeenCalled();
                         expect( callbackCalls.always.callCount ).toEqual( 1 );
-                        expect( callbackCalls.always.scrollState.x ).toBeCloseTo( targetPx );
+                        expect( callbackCalls.always.scrollState.x ).toFuzzyEqual( targetPx );
                     } );
 
                     it( 'it has not fired the fail callback', function () {
@@ -436,7 +436,7 @@
 
                 } );
 
-                describe( 'When the window is scrolled', function () {
+                describe( 'When the window is scrolled,', function () {
 
                     it( 'it binds the "start" callback to the window', function () {
                         expect( callbackCalls.start.this ).toBe( window );
@@ -468,23 +468,23 @@
 
         } );
 
-        describe( 'Scrolling vertically and horizontally at the same time', function () {
+        describe( 'Scrolling vertically and horizontally at the same time.', function () {
 
-            describe( 'Movement', function () {
+            describe( 'Movement.', function () {
 
-                it( 'scrolls to the bottom right edge when passed a position hash with the "bottom" and "right" keywords', function ( done ) {
+                it( 'It scrolls to the bottom right edge when passed a position hash with the "bottom" and "right" keywords', function ( done ) {
                     $window.scrollTo( { x: "right", y: "bottom" } );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toBeCloseTo( maxScrollHeight );
-                        expect( $window.scrollLeft() ).toBeCloseTo( maxScrollWidth );
+                        expect( $window.scrollTop() ).toFuzzyEqual( maxScrollHeight );
+                        expect( $window.scrollLeft() ).toFuzzyEqual( maxScrollWidth );
                         done();
                     } );
                 } );
 
             } );
 
-            describe( 'Callbacks', function () {
+            describe( 'Callbacks.', function () {
 
                 /** @type {Object}  holds animation callback functions of all types; functions are created with getCallbackLogger */
                 var callbacks,
@@ -508,7 +508,7 @@
                     } );
                 } );
 
-                describe( 'Before the movement starts', function () {
+                describe( 'Before the movement starts,', function () {
 
                     it( 'it fires the "start" callback', function () {
                         expect( callbacks.start ).toHaveBeenCalled();
@@ -519,7 +519,7 @@
 
                 } );
 
-                describe( 'Until the movement is complete', function () {
+                describe( 'Until the movement is complete,', function () {
 
                     it( 'it fires the "step" callback repeatedly', function () {
                         expect( callbacks.step ).toHaveBeenCalled();
@@ -537,27 +537,27 @@
 
                 } );
 
-                describe( 'When the movement is complete', function () {
+                describe( 'When the movement is complete,', function () {
 
                     it( 'it fires the "done" callback', function () {
                         expect( callbacks.done ).toHaveBeenCalled();
                         expect( callbackCalls.done.callCount ).toEqual( 1 );
-                        expect( callbackCalls.done.scrollState.x ).toBeCloseTo( xTargetPx );
-                        expect( callbackCalls.done.scrollState.y ).toBeCloseTo( yTargetPx );
+                        expect( callbackCalls.done.scrollState.x ).toFuzzyEqual( xTargetPx );
+                        expect( callbackCalls.done.scrollState.y ).toFuzzyEqual( yTargetPx );
                     } );
 
                     it( 'it fires the "complete" callback', function () {
                         expect( callbacks.complete ).toHaveBeenCalled();
                         expect( callbackCalls.complete.callCount ).toEqual( 1 );
-                        expect( callbackCalls.complete.scrollState.x ).toBeCloseTo( xTargetPx );
-                        expect( callbackCalls.complete.scrollState.y ).toBeCloseTo( yTargetPx );
+                        expect( callbackCalls.complete.scrollState.x ).toFuzzyEqual( xTargetPx );
+                        expect( callbackCalls.complete.scrollState.y ).toFuzzyEqual( yTargetPx );
                     } );
 
                     it( 'it fires the "always" callback', function () {
                         expect( callbacks.always ).toHaveBeenCalled();
                         expect( callbackCalls.always.callCount ).toEqual( 1 );
-                        expect( callbackCalls.always.scrollState.x ).toBeCloseTo( xTargetPx );
-                        expect( callbackCalls.always.scrollState.y ).toBeCloseTo( yTargetPx );
+                        expect( callbackCalls.always.scrollState.x ).toFuzzyEqual( xTargetPx );
+                        expect( callbackCalls.always.scrollState.y ).toFuzzyEqual( yTargetPx );
                     } );
 
                     it( 'it has not fired the fail callback', function () {
@@ -566,7 +566,7 @@
 
                 } );
 
-                describe( 'When the window is scrolled', function () {
+                describe( 'When the window is scrolled,', function () {
 
                     it( 'it binds the "start" callback to the window', function () {
                         expect( callbackCalls.start.this ).toBe( window );

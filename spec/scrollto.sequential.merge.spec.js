@@ -2,7 +2,7 @@
 (function () {
     "use strict";
 
-    describe( 'scrollTo(): Sequential movement, in "merge" mode', function () {
+    describe( 'scrollTo(): Sequential movement, in "merge" mode.', function () {
 
         /** @type {DOMFixture}  populated by Setup.create() */
         var f,
@@ -65,32 +65,32 @@
         } );
 
 
-        describe( 'New movement during ongoing scroll', function () {
+        describe( 'New movement during ongoing scroll.', function () {
 
-            describe( 'When the new scrollTo command targets the same axis', function () {
+            describe( 'When the new scrollTo command targets the same axis,', function () {
 
-                it( 'scrolls to the new target location', function ( done ) {
+                it( 'it scrolls to the new target location', function ( done ) {
                     $window.scrollTo( "bottom" );
 
                     inMidScroll( function () {
                         $window.scrollTo( 100, { merge: true } );
 
                         afterScroll( function () {
-                            expect( $window.scrollTop() ).toBeCloseTo( 100 );
+                            expect( $window.scrollTop() ).toFuzzyEqual( 100 );
                             expect( $window.scrollLeft() ).toEqual( 0 );
                             done();
                         } );
                     } );
                 } );
 
-                it( 'bases a relative scroll target on the target position of the first scrollTo call', function ( done ) {
+                it( 'it bases a relative scroll target on the target position of the first scrollTo call', function ( done ) {
                     $window.scrollTo( "bottom" );
 
                     inMidScroll( function () {
                         $window.scrollTo( "-=30px", { merge: true } );
 
                         afterScroll( function () {
-                            expect( $window.scrollTop() ).toBeCloseTo( maxScrollHeight - 30 );
+                            expect( $window.scrollTop() ).toFuzzyEqual( maxScrollHeight - 30 );
                             expect( $window.scrollLeft() ).toEqual( 0 );
                             done();
                         } );
@@ -100,16 +100,16 @@
 
             } );
 
-            describe( 'When the new scrollTo command targets a different axis', function () {
+            describe( 'When the new scrollTo command targets a different axis,', function () {
 
-                it( 'scrolls to the target location on the new axis', function ( done ) {
+                it( 'it scrolls to the target location on the new axis', function ( done ) {
                     $window.scrollTo( "bottom" );
 
                     inMidScroll( function () {
                         $window.scrollTo( { x: 100 }, { merge: true } );
 
                         afterScroll( function () {
-                            expect( $window.scrollLeft() ).toBeCloseTo( 100 );
+                            expect( $window.scrollLeft() ).toFuzzyEqual( 100 );
                             done();
                         } );
                     } );
@@ -122,7 +122,7 @@
                         $window.scrollTo( { x: 100 }, { merge: true } );
 
                         afterScroll( function () {
-                            expect( $window.scrollTop() ).toBeCloseTo( maxScrollHeight );
+                            expect( $window.scrollTop() ).toFuzzyEqual( maxScrollHeight );
                             done();
                         } );
                     } );
@@ -130,7 +130,7 @@
 
             } );
 
-            describe( 'Callbacks', function () {
+            describe( 'Callbacks.', function () {
 
                 var calledAtPx, targetPx;
 
@@ -150,7 +150,7 @@
 
                 } );
 
-                describe( 'For the initial scrollTo call', function () {
+                describe( 'For the initial scrollTo call,', function () {
 
                     it( 'the "done" callback has not fired', function () {
                         expect( callbacks_1.done ).not.toHaveBeenCalled();
@@ -170,17 +170,17 @@
 
                 } );
 
-                describe( 'Before the new movement starts', function () {
+                describe( 'Before the new movement starts,', function () {
 
                     it( 'it fires the "start" callback', function () {
                         expect( callbacks_2.start ).toHaveBeenCalled();
                         expect( callbackCalls_2.start.callCount ).toEqual( 1 );
-                        expect( callbackCalls_2.start.scrollState.y ).toBeCloseTo( calledAtPx );
+                        expect( callbackCalls_2.start.scrollState.y ).toFuzzyEqual( calledAtPx );
                     } );
 
                 } );
 
-                describe( 'Until the new movement is complete', function () {
+                describe( 'Until the new movement is complete,', function () {
 
                     it( 'it fires the "step" callback repeatedly', function () {
                         expect( callbacks_2.step ).toHaveBeenCalled();
@@ -196,24 +196,24 @@
 
                 } );
 
-                describe( 'When the new movement is complete', function () {
+                describe( 'When the new movement is complete,', function () {
 
                     it( 'it fires the "done" callback', function () {
                         expect( callbacks_2.done ).toHaveBeenCalled();
                         expect( callbackCalls_2.done.callCount ).toEqual( 1 );
-                        expect( callbackCalls_2.done.scrollState.y ).toBeCloseTo( targetPx );
+                        expect( callbackCalls_2.done.scrollState.y ).toFuzzyEqual( targetPx );
                     } );
 
                     it( 'it fires the "complete" callback', function () {
                         expect( callbacks_2.complete ).toHaveBeenCalled();
                         expect( callbackCalls_2.complete.callCount ).toEqual( 1 );
-                        expect( callbackCalls_2.complete.scrollState.y ).toBeCloseTo( targetPx );
+                        expect( callbackCalls_2.complete.scrollState.y ).toFuzzyEqual( targetPx );
                     } );
 
                     it( 'it fires the "always" callback', function () {
                         expect( callbacks_2.always ).toHaveBeenCalled();
                         expect( callbackCalls_2.always.callCount ).toEqual( 1 );
-                        expect( callbackCalls_2.always.scrollState.y ).toBeCloseTo( targetPx );
+                        expect( callbackCalls_2.always.scrollState.y ).toFuzzyEqual( targetPx );
                     } );
 
                     it( 'it has not fired the fail callback', function () {
@@ -226,9 +226,9 @@
 
         } );
 
-        describe( 'scrollTo is called several times at once (four times)', function () {
+        describe( 'scrollTo is called several times at once (four times).', function () {
 
-            describe( 'Movement', function () {
+            describe( 'Movement.', function () {
 
                 beforeEach( function ( done ) {
                     // Implicitly also tests that the overridden scrollTo calls do not prolong the execution time. They
@@ -247,17 +247,17 @@
                 } );
 
                 it( 'The target of the last scrollTo call prevails', function ( done ) {
-                    expect( $window.scrollLeft() ).toBeCloseTo( 150 );
+                    expect( $window.scrollLeft() ).toFuzzyEqual( 150 );
                     done();
                 } );
 
                 it( 'On an axis which the last scrollTo call did not specify, the last preceding call for that axis prevails', function ( done ) {
-                    expect( $window.scrollTop() ).toBeCloseTo( 100 );
+                    expect( $window.scrollTop() ).toFuzzyEqual( 100 );
                     done();
                 } );
             } );
 
-            describe( 'Callbacks', function () {
+            describe( 'Callbacks.', function () {
 
                 var targetPxY_3, targetPxX_4;
 
@@ -276,7 +276,7 @@
                     } );
                 } );
 
-                describe( 'For the first scrollTo call', function () {
+                describe( 'For the first scrollTo call,', function () {
 
                     it( 'the "done" callback has not fired', function () {
                         expect( callbacks_1.done ).not.toHaveBeenCalled();
@@ -296,7 +296,7 @@
 
                 } );
 
-                describe( 'For the second scrollTo call', function () {
+                describe( 'For the second scrollTo call,', function () {
 
                     it( 'the "done" callback has not fired', function () {
                         expect( callbacks_2.done ).not.toHaveBeenCalled();
@@ -316,7 +316,7 @@
 
                 } );
 
-                describe( 'For the third scrollTo call', function () {
+                describe( 'For the third scrollTo call,', function () {
 
                     it( 'the "done" callback has not fired', function () {
                         expect( callbacks_3.done ).not.toHaveBeenCalled();
@@ -336,7 +336,7 @@
 
                 } );
 
-                describe( 'Before the final movement starts', function () {
+                describe( 'Before the final movement starts,', function () {
 
                     it( 'it fires the "start" callback', function () {
                         expect( callbacks_4.start ).toHaveBeenCalled();
@@ -347,7 +347,7 @@
 
                 } );
 
-                describe( 'Until the final movement is complete', function () {
+                describe( 'Until the final movement is complete,', function () {
 
                     it( 'it fires the "step" callback repeatedly', function () {
                         expect( callbacks_4.step ).toHaveBeenCalled();
@@ -365,27 +365,27 @@
 
                 } );
 
-                describe( 'When the final movement is complete', function () {
+                describe( 'When the final movement is complete,', function () {
 
                     it( 'it fires the "done" callback', function () {
                         expect( callbacks_4.done ).toHaveBeenCalled();
                         expect( callbackCalls_4.done.callCount ).toEqual( 1 );
-                        expect( callbackCalls_4.done.scrollState.x ).toBeCloseTo( targetPxX_4 );
-                        expect( callbackCalls_4.done.scrollState.y ).toBeCloseTo( targetPxY_3 );
+                        expect( callbackCalls_4.done.scrollState.x ).toFuzzyEqual( targetPxX_4 );
+                        expect( callbackCalls_4.done.scrollState.y ).toFuzzyEqual( targetPxY_3 );
                     } );
 
                     it( 'it fires the "complete" callback', function () {
                         expect( callbacks_4.complete ).toHaveBeenCalled();
                         expect( callbackCalls_4.complete.callCount ).toEqual( 1 );
-                        expect( callbackCalls_4.complete.scrollState.x ).toBeCloseTo( targetPxX_4 );
-                        expect( callbackCalls_4.complete.scrollState.y ).toBeCloseTo( targetPxY_3 );
+                        expect( callbackCalls_4.complete.scrollState.x ).toFuzzyEqual( targetPxX_4 );
+                        expect( callbackCalls_4.complete.scrollState.y ).toFuzzyEqual( targetPxY_3 );
                     } );
 
                     it( 'it fires the "always" callback', function () {
                         expect( callbacks_4.always ).toHaveBeenCalled();
                         expect( callbackCalls_4.always.callCount ).toEqual( 1 );
-                        expect( callbackCalls_4.always.scrollState.x ).toBeCloseTo( targetPxX_4 );
-                        expect( callbackCalls_4.always.scrollState.y ).toBeCloseTo( targetPxY_3 );
+                        expect( callbackCalls_4.always.scrollState.x ).toFuzzyEqual( targetPxX_4 );
+                        expect( callbackCalls_4.always.scrollState.y ).toFuzzyEqual( targetPxY_3 );
                     } );
 
                     it( 'it has not fired the fail callback', function () {

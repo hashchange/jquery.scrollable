@@ -2,7 +2,7 @@
 (function () {
     "use strict";
 
-    describe( 'scrollTo(): Redundant calls, in "replace" mode', function () {
+    describe( 'scrollTo(): Redundant calls, in "replace" mode.', function () {
 
         /** @type {DOMFixture}  populated by Setup.create() */
         var f,
@@ -75,7 +75,7 @@
 
                     afterScroll( function () {
                         expect( $window.scrollTop() ).toEqual( initialY );
-                        expect( $window.scrollLeft() ).toBeCloseTo( initialX + 100 );
+                        expect( $window.scrollLeft() ).toFuzzyEqual( initialX + 100 );
                         done();
                     } );
                 } );
@@ -86,7 +86,7 @@
                         .scrollTo( { y: initialY + 100 }, { append: true } );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toBeCloseTo( initialY + 100 );
+                        expect( $window.scrollTop() ).toFuzzyEqual( initialY + 100 );
                         expect( $window.scrollLeft() ).toEqual( initialX );
                         done();
                     } );
@@ -98,15 +98,15 @@
                         .scrollTo( { x: initialX + 100, y: initialY + 100 }, { append: true } );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toBeCloseTo( initialY + 100 );
-                        expect( $window.scrollLeft() ).toBeCloseTo( initialX + 100 );
+                        expect( $window.scrollTop() ).toFuzzyEqual( initialY + 100 );
+                        expect( $window.scrollLeft() ).toFuzzyEqual( initialX + 100 );
                         done();
                     } );
                 } );
 
             } );
 
-            describe( 'Callbacks', function () {
+            describe( 'Callbacks.', function () {
 
                 beforeEach( function ( done ) {
                     $window.scrollTop( 50 ).scrollLeft( 50 );
@@ -114,31 +114,31 @@
                     afterScroll( done );
                 } );
 
-                it( 'the "start" callback has not fired', function () {
+                it( 'The "start" callback has not fired', function () {
                     expect( callbacks.start ).not.toHaveBeenCalled();
                 } );
 
-                it( 'the "step" callback has not fired', function () {
+                it( 'The "step" callback has not fired', function () {
                     expect( callbacks.step ).not.toHaveBeenCalled();
                 } );
 
-                it( 'the "progress" callback has not fired', function () {
+                it( 'The "progress" callback has not fired', function () {
                     expect( callbacks.progress ).not.toHaveBeenCalled();
                 } );
 
-                it( 'the "done" callback has not fired', function () {
+                it( 'The "done" callback has not fired', function () {
                     expect( callbacks.done ).not.toHaveBeenCalled();
                 } );
 
-                it( 'the "complete" callback has not fired', function () {
+                it( 'The "complete" callback has not fired', function () {
                     expect( callbacks.complete ).not.toHaveBeenCalled();
                 } );
 
-                it( 'the "fail" callback has not fired', function () {
+                it( 'The "fail" callback has not fired', function () {
                     expect( callbacks.fail ).not.toHaveBeenCalled();
                 } );
 
-                it( 'the "always" callback has not fired', function () {
+                it( 'The "always" callback has not fired', function () {
                     expect( callbacks.always ).not.toHaveBeenCalled();
                 } );
 
@@ -165,7 +165,7 @@
 
                     // One scroll period after the restart, the target is reached.
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toBeCloseTo( 100 );
+                        expect( $window.scrollTop() ).toFuzzyEqual( 100 );
                         done();
                     } );
                 } );
@@ -212,7 +212,7 @@
 
                     // One scroll period after the restart, the target is reached.
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toBeCloseTo( 100 );
+                        expect( $window.scrollTop() ).toFuzzyEqual( 100 );
                         done();
                     } );
                 } );
