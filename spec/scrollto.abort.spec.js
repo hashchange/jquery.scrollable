@@ -19,6 +19,9 @@
             /** @type {number}  the number of px a user scrolls, in an accidental move */
             accidentalUserScrollMovement,
 
+            /** @type {number}  the number of px within which an aborted scroll movement must stop, relative to where it was initiated */
+            abortTolerance,
+
             userScrollDetectionEnabled = $.scrollable._enableUserScrollDetection,
 
             /** @type {boolean}  true if there is a default user scroll threshold */
@@ -38,6 +41,8 @@
             f = Setup.create( "window", f, { createEl: false, injectCss: fixtureCss } );
 
             $window = $( window );
+
+            abortTolerance = 1;
 
             afterScreenUpdate( function () {
 
@@ -81,7 +86,9 @@
                     } );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toEqual( userTarget.y );
+                        expect( Math.ceil( $window.scrollTop() ) ).toBeWithinRange( Math.floor( userTarget.y ), userTarget.y + abortTolerance );
+                        expect( Math.ceil( $window.scrollTop() ) ).toBeLessThan( maxScrollHeight );
+
                         expect( $window.scrollLeft() ).toEqual( 0 );
                         done();
                     } );
@@ -96,7 +103,9 @@
                     } );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toEqual( userTarget.y );
+                        expect( Math.ceil( $window.scrollTop() ) ).toBeWithinRange( Math.floor( userTarget.y ), userTarget.y + abortTolerance );
+                        expect( Math.ceil( $window.scrollTop() ) ).toBeLessThan( maxScrollHeight );
+
                         expect( $window.scrollLeft() ).toEqual( 0 );
                         done();
                     } );
@@ -111,8 +120,10 @@
                     } );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toEqual( userTarget.y );
-                        expect( $window.scrollLeft() ).toEqual( userTarget.x );
+                        expect( Math.ceil( $window.scrollTop() ) ).toBeWithinRange( Math.floor( userTarget.y ), userTarget.y + abortTolerance );
+                        expect( Math.ceil( $window.scrollTop() ) ).toBeLessThan( maxScrollHeight );
+
+                        expect( $window.scrollLeft() ).toBeCloseTo( userTarget.x );
                         done();
                     } );
                 } );
@@ -128,8 +139,10 @@
                     } );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toEqual( userTarget.y );
-                        expect( $window.scrollLeft() ).toEqual( userTarget.x );
+                        expect( Math.ceil( $window.scrollTop() ) ).toBeWithinRange( Math.floor( userTarget.y ), userTarget.y + abortTolerance );
+                        expect( Math.ceil( $window.scrollTop() ) ).toBeLessThan( maxScrollHeight );
+
+                        expect( $window.scrollLeft() ).toBeCloseTo( userTarget.x );
                         done();
                     } );
                 } );
@@ -147,7 +160,7 @@
                     } );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toEqual( maxScrollHeight );
+                        expect( $window.scrollTop() ).toBeCloseTo( maxScrollHeight );
                         expect( $window.scrollLeft() ).toEqual( 0 );
                         done();
                     } );
@@ -162,7 +175,7 @@
                     } );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toEqual( maxScrollHeight );
+                        expect( $window.scrollTop() ).toBeCloseTo( maxScrollHeight );
                         expect( $window.scrollLeft() ).toEqual( 0 );
                         done();
                     } );
@@ -177,8 +190,8 @@
                     } );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toEqual( maxScrollHeight );
-                        expect( $window.scrollLeft() ).toEqual( userTarget.x );
+                        expect( $window.scrollTop() ).toBeCloseTo( maxScrollHeight );
+                        expect( $window.scrollLeft() ).toBeCloseTo( userTarget.x );
                         done();
                     } );
                 } );
@@ -194,8 +207,8 @@
                     } );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toEqual( maxScrollHeight );
-                        expect( $window.scrollLeft() ).toEqual( userTarget.x );
+                        expect( $window.scrollTop() ).toBeCloseTo( maxScrollHeight );
+                        expect( $window.scrollLeft() ).toBeCloseTo( userTarget.x );
                         done();
                     } );
                 } );
@@ -224,7 +237,9 @@
                     } );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toEqual( userTarget.y );
+                        expect( Math.floor( $window.scrollTop() ) ).toBeWithinRange( userTarget.y - abortTolerance, Math.ceil( userTarget.y ) );
+                        expect( Math.floor( $window.scrollTop() ) ).toBeGreaterThan( 0 );
+
                         expect( $window.scrollLeft() ).toEqual( 0 );
                         done();
                     } );
@@ -239,7 +254,9 @@
                     } );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toEqual( userTarget.y );
+                        expect( Math.floor( $window.scrollTop() ) ).toBeWithinRange( userTarget.y - abortTolerance, Math.ceil( userTarget.y ) );
+                        expect( Math.floor( $window.scrollTop() ) ).toBeGreaterThan( 0 );
+
                         expect( $window.scrollLeft() ).toEqual( 0 );
                         done();
                     } );
@@ -254,8 +271,10 @@
                     } );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toEqual( userTarget.y );
-                        expect( $window.scrollLeft() ).toEqual( userTarget.x );
+                        expect( Math.floor( $window.scrollTop() ) ).toBeWithinRange( userTarget.y - abortTolerance, Math.ceil( userTarget.y ) );
+                        expect( Math.floor( $window.scrollTop() ) ).toBeGreaterThan( 0 );
+
+                        expect( $window.scrollLeft() ).toBeCloseTo( userTarget.x );
                         done();
                     } );
                 } );
@@ -271,8 +290,10 @@
                     } );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toEqual( userTarget.y );
-                        expect( $window.scrollLeft() ).toEqual( userTarget.x );
+                        expect( Math.floor( $window.scrollTop() ) ).toBeWithinRange( userTarget.y - abortTolerance, Math.ceil( userTarget.y ) );
+                        expect( Math.floor( $window.scrollTop() ) ).toBeGreaterThan( 0 );
+
+                        expect( $window.scrollLeft() ).toBeCloseTo( userTarget.x );
                         done();
                     } );
                 } );
@@ -321,7 +342,7 @@
 
                     afterScroll( function () {
                         expect( $window.scrollTop() ).toEqual( 0 );
-                        expect( $window.scrollLeft() ).toEqual( userTarget.x );
+                        expect( $window.scrollLeft() ).toBeCloseTo( userTarget.x );
                         done();
                     } );
                 } );
@@ -338,7 +359,7 @@
 
                     afterScroll( function () {
                         expect( $window.scrollTop() ).toEqual( 0 );
-                        expect( $window.scrollLeft() ).toEqual( userTarget.x );
+                        expect( $window.scrollLeft() ).toBeCloseTo( userTarget.x );
                         done();
                     } );
                 } );
@@ -361,7 +382,9 @@
 
                     afterScroll( function () {
                         expect( $window.scrollTop() ).toEqual( 0 );
-                        expect( $window.scrollLeft() ).toEqual( userTarget.x );
+
+                        expect( Math.ceil( $window.scrollLeft() ) ).toBeWithinRange( Math.floor( userTarget.x ), userTarget.x + abortTolerance );
+                        expect( Math.ceil( $window.scrollLeft() ) ).toBeLessThan( maxScrollWidth );
                         done();
                     } );
                 } );
@@ -376,7 +399,9 @@
 
                     afterScroll( function () {
                         expect( $window.scrollTop() ).toEqual( 0 );
-                        expect( $window.scrollLeft() ).toEqual( userTarget.x );
+
+                        expect( Math.ceil( $window.scrollLeft() ) ).toBeWithinRange( Math.floor( userTarget.x ), userTarget.x + abortTolerance );
+                        expect( Math.ceil( $window.scrollLeft() ) ).toBeLessThan( maxScrollWidth );
                         done();
                     } );
                 } );
@@ -390,8 +415,10 @@
                     } );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toEqual( userTarget.y );
-                        expect( $window.scrollLeft() ).toEqual( userTarget.x );
+                        expect( $window.scrollTop() ).toBeCloseTo( userTarget.y );
+
+                        expect( Math.ceil( $window.scrollLeft() ) ).toBeWithinRange( Math.floor( userTarget.x ), userTarget.x + abortTolerance );
+                        expect( Math.ceil( $window.scrollLeft() ) ).toBeLessThan( maxScrollWidth );
                         done();
                     } );
                 } );
@@ -410,8 +437,10 @@
                         } );
 
                         afterScroll( function () {
-                            expect( $window.scrollTop() ).toEqual( userTarget.y );
-                            expect( $window.scrollLeft() ).toEqual( userTarget.x );
+                            expect( $window.scrollTop() ).toBeCloseTo( userTarget.y );
+
+                            expect( Math.ceil( $window.scrollLeft() ) ).toBeWithinRange( Math.floor( userTarget.x ), userTarget.x + abortTolerance );
+                            expect( Math.ceil( $window.scrollLeft() ) ).toBeLessThan( maxScrollWidth );
                             done();
                         } );
 
@@ -432,7 +461,7 @@
 
                     afterScroll( function () {
                         expect( $window.scrollTop() ).toEqual( 0 );
-                        expect( $window.scrollLeft() ).toEqual( maxScrollWidth );
+                        expect( $window.scrollLeft() ).toBeCloseTo( maxScrollWidth );
                         done();
                     } );
                 } );
@@ -447,7 +476,7 @@
 
                     afterScroll( function () {
                         expect( $window.scrollTop() ).toEqual( 0 );
-                        expect( $window.scrollLeft() ).toEqual( maxScrollWidth );
+                        expect( $window.scrollLeft() ).toBeCloseTo( maxScrollWidth );
                         done();
                     } );
                 } );
@@ -461,8 +490,8 @@
                     } );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toEqual( userTarget.y );
-                        expect( $window.scrollLeft() ).toEqual( maxScrollWidth );
+                        expect( $window.scrollTop() ).toBeCloseTo( userTarget.y );
+                        expect( $window.scrollLeft() ).toBeCloseTo( maxScrollWidth );
                         done();
                     } );
                 } );
@@ -481,8 +510,8 @@
                         } );
 
                         afterScroll( function () {
-                            expect( $window.scrollTop() ).toEqual( userTarget.y );
-                            expect( $window.scrollLeft() ).toEqual( maxScrollWidth );
+                            expect( $window.scrollTop() ).toBeCloseTo( userTarget.y );
+                            expect( $window.scrollLeft() ).toBeCloseTo( maxScrollWidth );
                             done();
                         } );
 
@@ -511,7 +540,9 @@
 
                     afterScroll( function () {
                         expect( $window.scrollTop() ).toEqual( 0 );
-                        expect( $window.scrollLeft() ).toEqual( userTarget.x );
+
+                        expect( Math.floor( $window.scrollLeft() ) ).toBeWithinRange( userTarget.x - abortTolerance, Math.ceil( userTarget.x ) );
+                        expect( Math.floor( $window.scrollLeft() ) ).toBeGreaterThan( 0 );
                         done();
                     } );
                 } );
@@ -526,7 +557,9 @@
 
                     afterScroll( function () {
                         expect( $window.scrollTop() ).toEqual( 0 );
-                        expect( $window.scrollLeft() ).toEqual( userTarget.x );
+
+                        expect( Math.floor( $window.scrollLeft() ) ).toBeWithinRange( userTarget.x - abortTolerance, Math.ceil( userTarget.x ) );
+                        expect( Math.floor( $window.scrollLeft() ) ).toBeGreaterThan( 0 );
                         done();
                     } );
                 } );
@@ -540,8 +573,10 @@
                     } );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toEqual( userTarget.y );
-                        expect( $window.scrollLeft() ).toEqual( userTarget.x );
+                        expect( $window.scrollTop() ).toBeCloseTo( userTarget.y );
+
+                        expect( Math.floor( $window.scrollLeft() ) ).toBeWithinRange( userTarget.x - abortTolerance, Math.ceil( userTarget.x ) );
+                        expect( Math.floor( $window.scrollLeft() ) ).toBeGreaterThan( 0 );
                         done();
                     } );
                 } );
@@ -560,8 +595,10 @@
                         } );
 
                         afterScroll( function () {
-                            expect( $window.scrollTop() ).toEqual( userTarget.y );
-                            expect( $window.scrollLeft() ).toEqual( userTarget.x );
+                            expect( $window.scrollTop() ).toBeCloseTo( userTarget.y );
+
+                            expect( Math.floor( $window.scrollLeft() ) ).toBeWithinRange( userTarget.x - abortTolerance, Math.ceil( userTarget.x ) );
+                            expect( Math.floor( $window.scrollLeft() ) ).toBeGreaterThan( 0 );
                             done();
                         } );
 
@@ -611,7 +648,7 @@
                     } );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toEqual( userTarget.y );
+                        expect( $window.scrollTop() ).toBeCloseTo( userTarget.y );
                         expect( $window.scrollLeft() ).toEqual( 0 );
                         done();
                     } );
@@ -631,7 +668,7 @@
                         } );
 
                         afterScroll( function () {
-                            expect( $window.scrollTop() ).toEqual( userTarget.y );
+                            expect( $window.scrollTop() ).toBeCloseTo( userTarget.y );
                             expect( $window.scrollLeft() ).toEqual( 0 );
                             done();
                         } );
@@ -660,7 +697,16 @@
                     } );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toEqual( userTarget2.y );
+                        // earlyInMidScroll runs after 10% of total time, inMidScroll after 50%. Because movement is not
+                        // supposed to be halted the first time around, expect the position to have covered at least 40%
+                        // (should actually be 50%) of total scrolling distance when the user scrolls for the second
+                        // time.
+                        expect( userTarget2.y ).toBeGreaterThan( maxScrollHeight * 0.4 );
+
+                        // Verify that the movement stops after the second time.
+                        expect( Math.ceil( $window.scrollTop() ) ).toBeWithinRange( Math.floor( userTarget2.y ), userTarget2.y + abortTolerance );
+                        expect( Math.ceil( $window.scrollTop() ) ).toBeLessThan( maxScrollHeight );
+
                         expect( $window.scrollLeft() ).toEqual( 0 );
                         done();
                     } );
@@ -679,8 +725,15 @@
                     } );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toEqual( userTarget2.y );
-                        expect( $window.scrollLeft() ).toEqual( userTarget2.x );
+                        // Again, expect the position to have covered at least 40% of total scrolling distance when the
+                        // user scrolls for the second time. See the test above.
+                        expect( userTarget2.y ).toBeGreaterThan( maxScrollHeight * 0.4 );
+
+                        // Verify that the movement stops after the second time.
+                        expect( Math.ceil( $window.scrollTop() ) ).toBeWithinRange( Math.floor( userTarget2.y ), userTarget2.y + abortTolerance );
+                        expect( Math.ceil( $window.scrollTop() ) ).toBeLessThan( maxScrollHeight );
+
+                        expect( $window.scrollLeft() ).toBeCloseTo( userTarget2.x );
                         done();
                     } );
                 } );
@@ -710,8 +763,10 @@
 
                 it( 'the ongoing animation is aborted', function ( done ) {
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toEqual( userTarget.y );
-                        expect( $window.scrollLeft() ).toEqual( userTarget.x );
+                        expect( Math.ceil( $window.scrollTop() ) ).toBeWithinRange( Math.floor( userTarget.y ), userTarget.y + abortTolerance );
+                        expect( Math.ceil( $window.scrollTop() ) ).toBeLessThan( maxScrollHeight );
+
+                        expect( $window.scrollLeft() ).toBeCloseTo( userTarget.x );
                     } );
 
                     afterScrolls( 4, done );
@@ -719,8 +774,10 @@
 
                 it( 'the queued animations are removed as well', function ( done ) {
                     afterScrolls( 4, function () {
-                        expect( $window.scrollTop() ).toEqual( userTarget.y );
-                        expect( $window.scrollLeft() ).toEqual( userTarget.x );
+                        expect( Math.ceil( $window.scrollTop() ) ).toBeWithinRange( Math.floor( userTarget.y ), userTarget.y + abortTolerance );
+                        expect( Math.ceil( $window.scrollTop() ) ).toBeLessThan( maxScrollHeight );
+
+                        expect( $window.scrollLeft() ).toBeCloseTo( userTarget.x );
                         done();
                     } );
                 } );
@@ -783,15 +840,17 @@
                 it( 'the "always" callback runs', function () {
                     expect( callbacks_1.always ).toHaveBeenCalled();
                     expect( callbackCalls_1.always.callCount ).toEqual( 1 );
-                    expect( callbackCalls_1.always.scrollState.x ).toEqual( userTarget.x );
-                    expect( callbackCalls_1.always.scrollState.y ).toEqual( userTarget.y );
+                    expect( callbackCalls_1.always.scrollState.x ).toBeCloseTo( userTarget.x );
+                    expect( Math.ceil( callbackCalls_1.always.scrollState.y ) ).toBeWithinRange( Math.floor( userTarget.y ), userTarget.y + abortTolerance );
+                    expect( Math.ceil( callbackCalls_1.always.scrollState.y ) ).toBeLessThan( maxScrollHeight );
                 } );
 
                 it( 'the fail callback runs', function () {
                     expect( callbacks_1.fail ).toHaveBeenCalled();
                     expect( callbackCalls_1.fail.callCount ).toEqual( 1 );
-                    expect( callbackCalls_1.fail.scrollState.x ).toEqual( userTarget.x );
-                    expect( callbackCalls_1.fail.scrollState.y ).toEqual( userTarget.y );
+                    expect( callbackCalls_1.fail.scrollState.x ).toBeCloseTo( userTarget.x );
+                    expect( Math.ceil( callbackCalls_1.always.scrollState.y ) ).toBeWithinRange( Math.floor( userTarget.y ), userTarget.y + abortTolerance );
+                    expect( Math.ceil( callbackCalls_1.always.scrollState.y ) ).toBeLessThan( maxScrollHeight );
                 } );
 
             } );
@@ -849,7 +908,9 @@
                         } );
 
                         afterScroll( function () {
-                            expect( $window.scrollTop() ).toEqual( userTarget.y );
+                            expect( Math.ceil( $window.scrollTop() ) ).toBeWithinRange( Math.floor( userTarget.y ), userTarget.y + abortTolerance );
+                            expect( Math.ceil( $window.scrollTop() ) ).toBeLessThan( maxScrollHeight );
+
                             expect( $window.scrollLeft() ).toEqual( 0 );
                             done();
                         } );
@@ -878,7 +939,7 @@
                         } );
 
                         afterScroll( function () {
-                            expect( $window.scrollTop() ).toEqual( maxScrollHeight );
+                            expect( $window.scrollTop() ).toBeCloseTo( maxScrollHeight );
                             expect( $window.scrollLeft() ).toEqual( 0 );
                             done();
                         } );
@@ -893,7 +954,9 @@
                         } );
 
                         afterScroll( function () {
-                            expect( $window.scrollTop() ).toEqual( userTarget.y );
+                            expect( Math.ceil( $window.scrollTop() ) ).toBeWithinRange( Math.floor( userTarget.y ), userTarget.y + abortTolerance );
+                            expect( Math.ceil( $window.scrollTop() ) ).toBeLessThan( maxScrollHeight );
+
                             expect( $window.scrollLeft() ).toEqual( 0 );
                             done();
                         } );
@@ -916,7 +979,9 @@
                         } );
 
                         afterScroll( function () {
-                            expect( $window.scrollTop() ).toEqual( userTarget.y );
+                            expect( Math.ceil( $window.scrollTop() ) ).toBeWithinRange( Math.floor( userTarget.y ), userTarget.y + abortTolerance );
+                            expect( Math.ceil( $window.scrollTop() ) ).toBeLessThan( maxScrollHeight );
+
                             expect( $window.scrollLeft() ).toEqual( 0 );
                             done();
                         } );
@@ -935,7 +1000,7 @@
                         } );
 
                         afterScroll( function () {
-                            expect( $window.scrollTop() ).toEqual( maxScrollHeight );
+                            expect( $window.scrollTop() ).toBeCloseTo( maxScrollHeight );
                             expect( $window.scrollLeft() ).toEqual( 0 );
                             done();
                         } );
@@ -950,7 +1015,9 @@
                         } );
 
                         afterScroll( function () {
-                            expect( $window.scrollTop() ).toEqual( userTarget.y );
+                            expect( Math.ceil( $window.scrollTop() ) ).toBeWithinRange( Math.floor( userTarget.y ), userTarget.y + abortTolerance );
+                            expect( Math.ceil( $window.scrollTop() ) ).toBeLessThan( maxScrollHeight );
+
                             expect( $window.scrollLeft() ).toEqual( 0 );
                             done();
                         } );

@@ -71,7 +71,7 @@
 
                 it( 'first scrolls to the initial target location', function ( done ) {
                     $window.scrollTo( "bottom", { complete: function () {
-                        expect( $window.scrollTop() ).toEqual( maxScrollHeight );
+                        expect( $window.scrollTop() ).toBeCloseTo( maxScrollHeight );
                         expect( $window.scrollLeft() ).toEqual( 0 );
                     } } );
 
@@ -92,7 +92,7 @@
                     } );
 
                     afterScrolls( 2, function () {
-                        expect( $window.scrollTop() ).toEqual( 100 );
+                        expect( $window.scrollTop() ).toBeCloseTo( 100 );
                         expect( $window.scrollLeft() ).toEqual( 0 );
                         done();
                     } );
@@ -106,7 +106,7 @@
                     } );
 
                     afterScrolls( 2, function () {
-                        expect( $window.scrollTop() ).toEqual( maxScrollHeight - 30 );
+                        expect( $window.scrollTop() ).toBeCloseTo( maxScrollHeight - 30 );
                         expect( $window.scrollLeft() ).toEqual( 0 );
                         done();
                     } );
@@ -139,13 +139,13 @@
                     it( 'the "done" callback has fired', function () {
                         expect( callbacks_1.done ).toHaveBeenCalled();
                         expect( callbackCalls_1.done.callCount ).toEqual( 1 );
-                        expect( callbackCalls_1.done.scrollState.y ).toEqual( targetPx_1 );
+                        expect( callbackCalls_1.done.scrollState.y ).toBeCloseTo( targetPx_1 );
                     } );
 
                     it( 'the "complete" callback has fired', function () {
                         expect( callbacks_1.complete ).toHaveBeenCalled();
                         expect( callbackCalls_1.complete.callCount ).toEqual( 1 );
-                        expect( callbackCalls_1.complete.scrollState.y ).toEqual( targetPx_1 );
+                        expect( callbackCalls_1.complete.scrollState.y ).toBeCloseTo( targetPx_1 );
                     } );
 
                     it( 'the "fail" callback has not fired', function () {
@@ -155,7 +155,7 @@
                     it( 'the "always" callback has fired', function () {
                         expect( callbacks_1.always ).toHaveBeenCalled();
                         expect( callbackCalls_1.always.callCount ).toEqual( 1 );
-                        expect( callbackCalls_1.always.scrollState.y ).toEqual( targetPx_1 );
+                        expect( callbackCalls_1.always.scrollState.y ).toBeCloseTo( targetPx_1 );
                     } );
 
                 } );
@@ -165,7 +165,7 @@
                     it( 'it fires the "start" callback', function () {
                         expect( callbacks_2.start ).toHaveBeenCalled();
                         expect( callbackCalls_2.start.callCount ).toEqual( 1 );
-                        expect( callbackCalls_2.start.scrollState.y ).toEqual( targetPx_1 );
+                        expect( callbackCalls_2.start.scrollState.y ).toBeCloseTo( targetPx_1 );
                     } );
 
                 } );
@@ -191,19 +191,19 @@
                     it( 'it fires the "done" callback', function () {
                         expect( callbacks_2.done ).toHaveBeenCalled();
                         expect( callbackCalls_2.done.callCount ).toEqual( 1 );
-                        expect( callbackCalls_2.done.scrollState.y ).toEqual( targetPx_2 );
+                        expect( callbackCalls_2.done.scrollState.y ).toBeCloseTo( targetPx_2 );
                     } );
 
                     it( 'it fires the "complete" callback', function () {
                         expect( callbacks_2.complete ).toHaveBeenCalled();
                         expect( callbackCalls_2.complete.callCount ).toEqual( 1 );
-                        expect( callbackCalls_2.complete.scrollState.y ).toEqual( targetPx_2 );
+                        expect( callbackCalls_2.complete.scrollState.y ).toBeCloseTo( targetPx_2 );
                     } );
 
                     it( 'it fires the "always" callback', function () {
                         expect( callbacks_2.always ).toHaveBeenCalled();
                         expect( callbackCalls_2.always.callCount ).toEqual( 1 );
-                        expect( callbackCalls_2.always.scrollState.y ).toEqual( targetPx_2 );
+                        expect( callbackCalls_2.always.scrollState.y ).toBeCloseTo( targetPx_2 );
                     } );
 
                     it( 'it has not fired the fail callback', function () {
@@ -233,12 +233,12 @@
                 } );
 
                 it( 'The target of the last scrollTo call prevails', function ( done ) {
-                    expect( $window.scrollLeft() ).toEqual( 150 );
+                    expect( $window.scrollLeft() ).toBeCloseTo( 150 );
                     done();
                 } );
 
                 it( 'On an axis which the last scrollTo call did not specify, the last preceding call for that axis prevails', function ( done ) {
-                    expect( $window.scrollTop() ).toEqual( 100 );
+                    expect( $window.scrollTop() ).toBeCloseTo( 100 );
                     done();
                 } );
 
@@ -270,13 +270,13 @@
                     it( 'the "done" callback has fired', function () {
                         expect( callbacks_1.done ).toHaveBeenCalled();
                         expect( callbackCalls_1.done.callCount ).toEqual( 1 );
-                        expect( callbackCalls_1.done.scrollState.y ).toEqual( targetPx_1 );
+                        expect( callbackCalls_1.done.scrollState.y ).toBeCloseTo( targetPx_1 );
                     } );
 
                     it( 'the "complete" callback has fired', function () {
                         expect( callbacks_1.complete ).toHaveBeenCalled();
                         expect( callbackCalls_1.complete.callCount ).toEqual( 1 );
-                        expect( callbackCalls_1.complete.scrollState.y ).toEqual( targetPx_1 );
+                        expect( callbackCalls_1.complete.scrollState.y ).toBeCloseTo( targetPx_1 );
                     } );
 
                     it( 'the "fail" callback has not fired', function () {
@@ -286,7 +286,7 @@
                     it( 'the "always" callback has fired', function () {
                         expect( callbacks_1.always ).toHaveBeenCalled();
                         expect( callbackCalls_1.always.callCount ).toEqual( 1 );
-                        expect( callbackCalls_1.always.scrollState.y ).toEqual( targetPx_1 );
+                        expect( callbackCalls_1.always.scrollState.y ).toBeCloseTo( targetPx_1 );
                     } );
 
                 } );
@@ -296,13 +296,13 @@
                     it( 'the "done" callback has fired', function () {
                         expect( callbacks_2.done ).toHaveBeenCalled();
                         expect( callbackCalls_2.done.callCount ).toEqual( 1 );
-                        expect( callbackCalls_2.done.scrollState.x ).toEqual( targetPx_2 );
+                        expect( callbackCalls_2.done.scrollState.x ).toBeCloseTo( targetPx_2 );
                     } );
 
                     it( 'the "complete" callback has fired', function () {
                         expect( callbacks_2.complete ).toHaveBeenCalled();
                         expect( callbackCalls_2.complete.callCount ).toEqual( 1 );
-                        expect( callbackCalls_2.complete.scrollState.x ).toEqual( targetPx_2 );
+                        expect( callbackCalls_2.complete.scrollState.x ).toBeCloseTo( targetPx_2 );
                     } );
 
                     it( 'the "fail" callback has not fired', function () {
@@ -312,7 +312,7 @@
                     it( 'the "always" callback has fired', function () {
                         expect( callbacks_2.always ).toHaveBeenCalled();
                         expect( callbackCalls_2.always.callCount ).toEqual( 1 );
-                        expect( callbackCalls_2.always.scrollState.x ).toEqual( targetPx_2 );
+                        expect( callbackCalls_2.always.scrollState.x ).toBeCloseTo( targetPx_2 );
                     } );
 
                 } );
@@ -322,13 +322,13 @@
                     it( 'the "done" callback has fired', function () {
                         expect( callbacks_3.done ).toHaveBeenCalled();
                         expect( callbackCalls_3.done.callCount ).toEqual( 1 );
-                        expect( callbackCalls_3.done.scrollState.y ).toEqual( targetPx_3 );
+                        expect( callbackCalls_3.done.scrollState.y ).toBeCloseTo( targetPx_3 );
                     } );
 
                     it( 'the "complete" callback has fired', function () {
                         expect( callbacks_3.complete ).toHaveBeenCalled();
                         expect( callbackCalls_3.complete.callCount ).toEqual( 1 );
-                        expect( callbackCalls_3.complete.scrollState.y ).toEqual( targetPx_3 );
+                        expect( callbackCalls_3.complete.scrollState.y ).toBeCloseTo( targetPx_3 );
                     } );
 
                     it( 'the "fail" callback has not fired', function () {
@@ -338,7 +338,7 @@
                     it( 'the "always" callback has fired', function () {
                         expect( callbacks_3.always ).toHaveBeenCalled();
                         expect( callbackCalls_3.always.callCount ).toEqual( 1 );
-                        expect( callbackCalls_3.always.scrollState.y ).toEqual( targetPx_3 );
+                        expect( callbackCalls_3.always.scrollState.y ).toBeCloseTo( targetPx_3 );
                     } );
 
                 } );
@@ -348,8 +348,8 @@
                     it( 'it fires the "start" callback', function () {
                         expect( callbacks_4.start ).toHaveBeenCalled();
                         expect( callbackCalls_4.start.callCount ).toEqual( 1 );
-                        expect( callbackCalls_4.start.scrollState.x ).toEqual( targetPx_2 );
-                        expect( callbackCalls_4.start.scrollState.y ).toEqual( targetPx_3 );
+                        expect( callbackCalls_4.start.scrollState.x ).toBeCloseTo( targetPx_2 );
+                        expect( callbackCalls_4.start.scrollState.y ).toBeCloseTo( targetPx_3 );
                     } );
 
                 } );
@@ -373,22 +373,22 @@
                     it( 'it fires the "done" callback', function () {
                         expect( callbacks_4.done ).toHaveBeenCalled();
                         expect( callbackCalls_4.done.callCount ).toEqual( 1 );
-                        expect( callbackCalls_4.done.scrollState.x ).toEqual( targetPx_4 );
-                        expect( callbackCalls_4.done.scrollState.y ).toEqual( targetPx_3 );
+                        expect( callbackCalls_4.done.scrollState.x ).toBeCloseTo( targetPx_4 );
+                        expect( callbackCalls_4.done.scrollState.y ).toBeCloseTo( targetPx_3 );
                     } );
 
                     it( 'it fires the "complete" callback', function () {
                         expect( callbacks_4.complete ).toHaveBeenCalled();
                         expect( callbackCalls_4.complete.callCount ).toEqual( 1 );
-                        expect( callbackCalls_4.complete.scrollState.x ).toEqual( targetPx_4 );
-                        expect( callbackCalls_4.complete.scrollState.y ).toEqual( targetPx_3 );
+                        expect( callbackCalls_4.complete.scrollState.x ).toBeCloseTo( targetPx_4 );
+                        expect( callbackCalls_4.complete.scrollState.y ).toBeCloseTo( targetPx_3 );
                     } );
 
                     it( 'it fires the "always" callback', function () {
                         expect( callbacks_4.always ).toHaveBeenCalled();
                         expect( callbackCalls_4.always.callCount ).toEqual( 1 );
-                        expect( callbackCalls_4.always.scrollState.x ).toEqual( targetPx_4 );
-                        expect( callbackCalls_4.always.scrollState.y ).toEqual( targetPx_3 );
+                        expect( callbackCalls_4.always.scrollState.x ).toBeCloseTo( targetPx_4 );
+                        expect( callbackCalls_4.always.scrollState.y ).toBeCloseTo( targetPx_3 );
                     } );
 
                     it( 'it has not fired the fail callback', function () {

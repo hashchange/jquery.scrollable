@@ -211,7 +211,7 @@ function userScrollsBy ( amount, $container ) {
         y: $container.scrollTop()
     };
 
-    if ( target.x !== result.x || target.y !== result.y ) throw new Error( "userScrollsBy: target is beyond the scrollable distance" );
+    if ( Math.round( target.x ) !== Math.round( result.x ) || Math.round( target.y ) !== Math.round ( result.y ) ) throw new Error( "userScrollsBy: target is beyond the scrollable distance (horizontally by " + ( target.x - result.x ) + "px, vertically by " + ( target.y - result.y ) + "px)" );
 
     return result;
 }

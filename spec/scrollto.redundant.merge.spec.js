@@ -75,7 +75,7 @@
 
                     afterScroll( function () {
                         expect( $window.scrollTop() ).toEqual( initialY );
-                        expect( $window.scrollLeft() ).toEqual( initialX + 100 );
+                        expect( $window.scrollLeft() ).toBeCloseTo( initialX + 100 );
                         done();
                     } );
                 } );
@@ -86,7 +86,7 @@
                         .scrollTo( { y: initialY + 100 }, { append: true } );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toEqual( initialY + 100 );
+                        expect( $window.scrollTop() ).toBeCloseTo( initialY + 100 );
                         expect( $window.scrollLeft() ).toEqual( initialX );
                         done();
                     } );
@@ -98,8 +98,8 @@
                         .scrollTo( { x: initialX + 100, y: initialY + 100 }, { append: true } );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toEqual( initialY + 100 );
-                        expect( $window.scrollLeft() ).toEqual( initialX + 100 );
+                        expect( $window.scrollTop() ).toBeCloseTo( initialY + 100 );
+                        expect( $window.scrollLeft() ).toBeCloseTo( initialX + 100 );
                         done();
                     } );
                 } );
@@ -164,7 +164,7 @@
                 } );
 
                 afterScrolls( 2, function () {
-                    expect( $window.scrollTop() ).toEqual( 200 );
+                    expect( $window.scrollTop() ).toBeCloseTo( 200 );
                     done();
                 } );
             } );
@@ -209,7 +209,7 @@
                 } );
 
                 afterScrolls( 3, function () {
-                    expect( $window.scrollTop() ).toEqual( 200 );
+                    expect( $window.scrollTop() ).toBeCloseTo( 200 );
                     done();
                 } );
             } );

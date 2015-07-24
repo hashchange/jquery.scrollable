@@ -64,7 +64,7 @@
                     } );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toEqual( stopLocation.y );
+                        expect( $window.scrollTop() ).toBeCloseTo( stopLocation.y );
                         expect( $window.scrollLeft() ).toEqual( 0 );
                         done();
                     } );
@@ -81,7 +81,7 @@
 
                     afterScroll( function () {
                         expect( $window.scrollTop() ).toEqual( 0 );
-                        expect( $window.scrollLeft() ).toEqual( stopLocation.x );
+                        expect( $window.scrollLeft() ).toBeCloseTo( stopLocation.x );
                         done();
                     } );
                 } );
@@ -96,8 +96,8 @@
                     } );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toEqual( stopLocation.y );
-                        expect( $window.scrollLeft() ).toEqual( stopLocation.x );
+                        expect( $window.scrollTop() ).toBeCloseTo( stopLocation.y );
+                        expect( $window.scrollLeft() ).toBeCloseTo( stopLocation.x );
                         done();
                     } );
                 } );
@@ -129,8 +129,8 @@
 
                 it( 'the ongoing animation is aborted', function ( done ) {
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toEqual( stopLocation.y );
-                        expect( $window.scrollLeft() ).toEqual( stopLocation.x );
+                        expect( $window.scrollTop() ).toBeCloseTo( stopLocation.y );
+                        expect( $window.scrollLeft() ).toBeCloseTo( stopLocation.x );
                     } );
 
                     afterScrolls( 4, done );
@@ -138,8 +138,8 @@
 
                 it( 'the queued animations are removed as well', function ( done ) {
                     afterScrolls( 4, function () {
-                        expect( $window.scrollTop() ).toEqual( stopLocation.y );
-                        expect( $window.scrollLeft() ).toEqual( stopLocation.x );
+                        expect( $window.scrollTop() ).toBeCloseTo( stopLocation.y );
+                        expect( $window.scrollLeft() ).toBeCloseTo( stopLocation.x );
                         done();
                     } );
                 } );
@@ -204,15 +204,15 @@
                 it( 'the "always" callback runs', function () {
                     expect( callbacks_1.always ).toHaveBeenCalled();
                     expect( callbackCalls_1.always.callCount ).toEqual( 1 );
-                    expect( callbackCalls_1.always.scrollState.x ).toEqual( stopLocation.x );
-                    expect( callbackCalls_1.always.scrollState.y ).toEqual( stopLocation.y );
+                    expect( callbackCalls_1.always.scrollState.x ).toBeCloseTo( stopLocation.x );
+                    expect( callbackCalls_1.always.scrollState.y ).toBeCloseTo( stopLocation.y );
                 } );
 
                 it( 'the fail callback runs', function () {
                     expect( callbacks_1.fail ).toHaveBeenCalled();
                     expect( callbackCalls_1.fail.callCount ).toEqual( 1 );
-                    expect( callbackCalls_1.fail.scrollState.x ).toEqual( stopLocation.x );
-                    expect( callbackCalls_1.fail.scrollState.y ).toEqual( stopLocation.y );
+                    expect( callbackCalls_1.fail.scrollState.x ).toBeCloseTo( stopLocation.x );
+                    expect( callbackCalls_1.fail.scrollState.y ).toBeCloseTo( stopLocation.y );
                 } );
 
             } );

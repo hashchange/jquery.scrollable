@@ -75,7 +75,7 @@
 
                     afterScroll( function () {
                         expect( $window.scrollTop() ).toEqual( initialY );
-                        expect( $window.scrollLeft() ).toEqual( initialX + 100 );
+                        expect( $window.scrollLeft() ).toBeCloseTo( initialX + 100 );
                         done();
                     } );
                 } );
@@ -86,7 +86,7 @@
                         .scrollTo( { y: initialY + 100 }, { append: true } );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toEqual( initialY + 100 );
+                        expect( $window.scrollTop() ).toBeCloseTo( initialY + 100 );
                         expect( $window.scrollLeft() ).toEqual( initialX );
                         done();
                     } );
@@ -98,8 +98,8 @@
                         .scrollTo( { x: initialX + 100, y: initialY + 100 }, { append: true } );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toEqual( initialY + 100 );
-                        expect( $window.scrollLeft() ).toEqual( initialX + 100 );
+                        expect( $window.scrollTop() ).toBeCloseTo( initialY + 100 );
+                        expect( $window.scrollLeft() ).toBeCloseTo( initialX + 100 );
                         done();
                     } );
                 } );
@@ -165,7 +165,7 @@
 
                     // One scroll period after the restart, the target is reached.
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toEqual( 100 );
+                        expect( $window.scrollTop() ).toBeCloseTo( 100 );
                         done();
                     } );
                 } );
@@ -212,7 +212,7 @@
 
                     // One scroll period after the restart, the target is reached.
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toEqual( 100 );
+                        expect( $window.scrollTop() ).toBeCloseTo( 100 );
                         done();
                     } );
                 } );

@@ -58,7 +58,7 @@
                     $window.scrollTo( "bottom" );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toEqual( maxScrollHeight );
+                        expect( $window.scrollTop() ).toBeCloseTo( maxScrollHeight );
                         expect( $window.scrollLeft() ).toEqual( 0 );
                         done();
                     } );
@@ -68,7 +68,7 @@
                     $window.scrollTo( 100 );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toEqual( 100 );
+                        expect( $window.scrollTop() ).toBeCloseTo( 100 );
                         expect( $window.scrollLeft() ).toEqual( 0 );
                         done();
                     } );
@@ -78,7 +78,7 @@
                     $window.scrollTo( "100" );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toEqual( 100 );
+                        expect( $window.scrollTop() ).toBeCloseTo( 100 );
                         expect( $window.scrollLeft() ).toEqual( 0 );
                         done();
                     } );
@@ -88,7 +88,7 @@
                     $window.scrollTo( "100px" );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toEqual( 100 );
+                        expect( $window.scrollTop() ).toBeCloseTo( 100 );
                         expect( $window.scrollLeft() ).toEqual( 0 );
                         done();
                     } );
@@ -98,7 +98,7 @@
                     $window.scrollTo( "25%" );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toEqual( Math.round( maxScrollHeight * 0.25 ) );
+                        expect( $window.scrollTop() ).toBeCloseTo( Math.round( maxScrollHeight * 0.25 ) );
                         expect( $window.scrollLeft() ).toEqual( 0 );
                         done();
                     } );
@@ -108,7 +108,7 @@
                     $window.scrollTop( 50 ).scrollTo( "+=100" );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toEqual( 150 );
+                        expect( $window.scrollTop() ).toBeCloseTo( 150 );
                         expect( $window.scrollLeft() ).toEqual( 0 );
                         done();
                     } );
@@ -118,7 +118,7 @@
                     $window.scrollTop( 50 ).scrollTo( "+=100px" );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toEqual( 150 );
+                        expect( $window.scrollTop() ).toBeCloseTo( 150 );
                         expect( $window.scrollLeft() ).toEqual( 0 );
                         done();
                     } );
@@ -128,7 +128,7 @@
                     $window.scrollTop( 50 ).scrollTo( "+=100px", { append: true } );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toEqual( 150 );
+                        expect( $window.scrollTop() ).toBeCloseTo( 150 );
                         expect( $window.scrollLeft() ).toEqual( 0 );
                         done();
                     } );
@@ -138,7 +138,7 @@
                     $window.scrollTop( 50 ).scrollTo( "+=100px", { merge: true } );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toEqual( 150 );
+                        expect( $window.scrollTop() ).toBeCloseTo( 150 );
                         expect( $window.scrollLeft() ).toEqual( 0 );
                         done();
                     } );
@@ -148,7 +148,7 @@
                     $window.scrollTop( 150 ).scrollTo( "-=100px" );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toEqual( 50 );
+                        expect( $window.scrollTop() ).toBeCloseTo( 50 );
                         expect( $window.scrollLeft() ).toEqual( 0 );
                         done();
                     } );
@@ -212,7 +212,7 @@
                     $window.scrollTop( 150 ).scrollTo( 100 );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toEqual( 100 );
+                        expect( $window.scrollTop() ).toBeCloseTo( 100 );
                         expect( $window.scrollLeft() ).toEqual( 0 );
                         done();
                     } );
@@ -222,7 +222,7 @@
                     $window.scrollTop( 150 ).scrollTo( 100, { append: true } );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toEqual( 100 );
+                        expect( $window.scrollTop() ).toBeCloseTo( 100 );
                         expect( $window.scrollLeft() ).toEqual( 0 );
                         done();
                     } );
@@ -232,7 +232,7 @@
                     $window.scrollTop( 150 ).scrollTo( 100, { merge: true } );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toEqual( 100 );
+                        expect( $window.scrollTop() ).toBeCloseTo( 100 );
                         expect( $window.scrollLeft() ).toEqual( 0 );
                         done();
                     } );
@@ -293,19 +293,19 @@
                     it( 'it fires the "done" callback', function () {
                         expect( callbacks.done ).toHaveBeenCalled();
                         expect( callbackCalls.done.callCount ).toEqual( 1 );
-                        expect( callbackCalls.done.scrollState.y ).toEqual( targetPx );
+                        expect( callbackCalls.done.scrollState.y ).toBeCloseTo( targetPx );
                     } );
 
                     it( 'it fires the "complete" callback', function () {
                         expect( callbacks.complete ).toHaveBeenCalled();
                         expect( callbackCalls.complete.callCount ).toEqual( 1 );
-                        expect( callbackCalls.complete.scrollState.y ).toEqual( targetPx );
+                        expect( callbackCalls.complete.scrollState.y ).toBeCloseTo( targetPx );
                     } );
 
                     it( 'it fires the "always" callback', function () {
                         expect( callbacks.always ).toHaveBeenCalled();
                         expect( callbackCalls.always.callCount ).toEqual( 1 );
-                        expect( callbackCalls.always.scrollState.y ).toEqual( targetPx );
+                        expect( callbackCalls.always.scrollState.y ).toBeCloseTo( targetPx );
                     } );
 
                     it( 'it has not fired the fail callback', function () {
@@ -354,7 +354,7 @@
                     $window.scrollTo( "right" );
 
                     afterScroll( function () {
-                        expect( $window.scrollLeft() ).toEqual( maxScrollWidth );
+                        expect( $window.scrollLeft() ).toBeCloseTo( maxScrollWidth );
                         expect( $window.scrollTop() ).toEqual( 0 );
                         done();
                     } );
@@ -415,19 +415,19 @@
                     it( 'it fires the "done" callback', function () {
                         expect( callbacks.done ).toHaveBeenCalled();
                         expect( callbackCalls.done.callCount ).toEqual( 1 );
-                        expect( callbackCalls.done.scrollState.x ).toEqual( targetPx );
+                        expect( callbackCalls.done.scrollState.x ).toBeCloseTo( targetPx );
                     } );
 
                     it( 'it fires the "complete" callback', function () {
                         expect( callbacks.complete ).toHaveBeenCalled();
                         expect( callbackCalls.complete.callCount ).toEqual( 1 );
-                        expect( callbackCalls.complete.scrollState.x ).toEqual( targetPx );
+                        expect( callbackCalls.complete.scrollState.x ).toBeCloseTo( targetPx );
                     } );
 
                     it( 'it fires the "always" callback', function () {
                         expect( callbacks.always ).toHaveBeenCalled();
                         expect( callbackCalls.always.callCount ).toEqual( 1 );
-                        expect( callbackCalls.always.scrollState.x ).toEqual( targetPx );
+                        expect( callbackCalls.always.scrollState.x ).toBeCloseTo( targetPx );
                     } );
 
                     it( 'it has not fired the fail callback', function () {
@@ -476,8 +476,8 @@
                     $window.scrollTo( { x: "right", y: "bottom" } );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toEqual( maxScrollHeight );
-                        expect( $window.scrollLeft() ).toEqual( maxScrollWidth );
+                        expect( $window.scrollTop() ).toBeCloseTo( maxScrollHeight );
+                        expect( $window.scrollLeft() ).toBeCloseTo( maxScrollWidth );
                         done();
                     } );
                 } );
@@ -542,22 +542,22 @@
                     it( 'it fires the "done" callback', function () {
                         expect( callbacks.done ).toHaveBeenCalled();
                         expect( callbackCalls.done.callCount ).toEqual( 1 );
-                        expect( callbackCalls.done.scrollState.x ).toEqual( xTargetPx );
-                        expect( callbackCalls.done.scrollState.y ).toEqual( yTargetPx );
+                        expect( callbackCalls.done.scrollState.x ).toBeCloseTo( xTargetPx );
+                        expect( callbackCalls.done.scrollState.y ).toBeCloseTo( yTargetPx );
                     } );
 
                     it( 'it fires the "complete" callback', function () {
                         expect( callbacks.complete ).toHaveBeenCalled();
                         expect( callbackCalls.complete.callCount ).toEqual( 1 );
-                        expect( callbackCalls.complete.scrollState.x ).toEqual( xTargetPx );
-                        expect( callbackCalls.complete.scrollState.y ).toEqual( yTargetPx );
+                        expect( callbackCalls.complete.scrollState.x ).toBeCloseTo( xTargetPx );
+                        expect( callbackCalls.complete.scrollState.y ).toBeCloseTo( yTargetPx );
                     } );
 
                     it( 'it fires the "always" callback', function () {
                         expect( callbacks.always ).toHaveBeenCalled();
                         expect( callbackCalls.always.callCount ).toEqual( 1 );
-                        expect( callbackCalls.always.scrollState.x ).toEqual( xTargetPx );
-                        expect( callbackCalls.always.scrollState.y ).toEqual( yTargetPx );
+                        expect( callbackCalls.always.scrollState.x ).toBeCloseTo( xTargetPx );
+                        expect( callbackCalls.always.scrollState.y ).toBeCloseTo( yTargetPx );
                     } );
 
                     it( 'it has not fired the fail callback', function () {
