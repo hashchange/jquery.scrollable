@@ -89,7 +89,7 @@ function waitForRubberBand () {
  * @param {Function} callback
  */
 function afterScreenUpdate( callback ) {
-    setTimeout( callback, 150 );
+    setTimeout( callback, 250 );
 }
 
 /**

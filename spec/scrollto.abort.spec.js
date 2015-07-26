@@ -69,6 +69,7 @@
         } );
 
         afterAll( function () {
+            $window.scrollTop( 0 ).scrollLeft( 0 );
             f.shutdown();
         } );
 
@@ -681,7 +682,7 @@
 
         } );
 
-        describeIf( hasUserScrollThreshold, msgTestSkippedNoThreshold, 'Cumulative scrolling.', function () {
+        describeIf( userScrollDetectionEnabled && hasUserScrollThreshold, userScrollDetectionEnabled ? msgTestSkippedNoThreshold : msgTestSkippedDetectionDisabled, 'Cumulative scrolling.', function () {
 
             describe( 'The user scrolls as much as the threshold at first, and 1px more later. The scroll movement stops the second time', function () {
 

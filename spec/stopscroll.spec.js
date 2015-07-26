@@ -46,6 +46,7 @@
         } );
 
         afterAll( function () {
+            $window.scrollTop( 0 ).scrollLeft( 0 );
             f.shutdown();
         } );
 
