@@ -30,7 +30,8 @@ var mgr = {},
     };
 
     $.scrollable = {
-        userScrollThreshold: 5,
+        userScrollThreshold: 10,
+        _scrollDetectionThreshold: 5,
         _enableUserScrollDetection: true
     };
 

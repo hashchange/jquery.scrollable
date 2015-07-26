@@ -437,7 +437,8 @@
      */
     function addUserScrollDetection ( animationOptions ) {
         var queueName = animationOptions.queue,
-            userScrollThreshold = animationOptions.userScrollThreshold !== undefined ? parseInt( animationOptions.userScrollThreshold, 10 ) : $.scrollable.userScrollThreshold,
+            userScrollTriggerThreshold = animationOptions.userScrollThreshold !== undefined ? parseInt( animationOptions.userScrollThreshold, 10 ) : $.scrollable.userScrollThreshold,
+            userScrollDetectionThreshold = $.scrollable._scrollDetectionThreshold,
             userStepCb = animationOptions.step,
             modifiedOptions = animationOptions ? $.extend( {}, animationOptions ) : {},
             lastExpected = {},
@@ -448,10 +449,16 @@
 
         if ( $.scrollable._enableUserScrollDetection ) {
 
+            if ( userScrollTriggerThreshold < userScrollDetectionThreshold ) throw new Error( "User scroll detection: threshold too low. The threshold for detecting user scroll movement must be set to at least " + userScrollDetectionThreshold );
+
             modifiedOptions.step = function ( now, tween ) {
                 var animatedProp = tween.prop,
                     otherProp = animatedProp === "scrollTop" ? "scrollLeft" : "scrollTop",
-                    lastReal = {};
+                    lastReal = {},
+                    currentDelta= {
+                        scrollTop: 0,
+                        scrollLeft: 0
+                    };
 
                 // Get the actual last position.
                 //
@@ -461,10 +468,16 @@
                 lastReal[otherProp] = Math.floor( tween.elem[otherProp] );
 
                 if ( lastExpected[animatedProp] !== undefined && lastExpected[otherProp] !== undefined ) {
-                    cumulativeDelta[animatedProp] += lastExpected[animatedProp] - lastReal[animatedProp];
-                    cumulativeDelta[otherProp] += lastExpected[otherProp] - lastReal[otherProp];
+                    currentDelta[animatedProp] = lastExpected[animatedProp] - lastReal[animatedProp];
+                    currentDelta[otherProp] = lastExpected[otherProp] - lastReal[otherProp];
 
-                    if ( Math.abs( cumulativeDelta[animatedProp] ) > userScrollThreshold || Math.abs( cumulativeDelta[otherProp] ) > userScrollThreshold ) {
+                    // Only detect movements above a minimum threshold, filtering out occasional, random deviations.
+                    if ( Math.abs( currentDelta[animatedProp] ) > userScrollDetectionThreshold || Math.abs( currentDelta[otherProp] ) > userScrollDetectionThreshold ) {
+                        cumulativeDelta[animatedProp] += currentDelta[animatedProp];
+                        cumulativeDelta[otherProp] += currentDelta[otherProp];
+                    }
+
+                    if ( Math.abs( cumulativeDelta[animatedProp] ) > userScrollTriggerThreshold || Math.abs( cumulativeDelta[otherProp] ) > userScrollTriggerThreshold ) {
                         // The real position is not where we would expect it to be. The user has scrolled.
                         //
                         // We order the scroll animation to stop immediately, but it does only come into effect _after_

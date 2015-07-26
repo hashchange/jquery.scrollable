@@ -684,7 +684,16 @@
 
         describeIf( userScrollDetectionEnabled && hasUserScrollThreshold, userScrollDetectionEnabled ? msgTestSkippedNoThreshold : msgTestSkippedDetectionDisabled, 'Cumulative scrolling.', function () {
 
-            describe( 'The user scrolls as much as the threshold at first, and 1px more later. The scroll movement stops the second time', function () {
+            describe( 'The user scrolls as much as the threshold at first, and just enough to be detectable later. The scroll movement stops the second time', function () {
+
+                // An internal setting controls how much the user needs to scroll in order to be detected. The user has
+                // to scroll more than the number of pixels specified in $.scrollable._scrollDetectionThreshold.
+
+                var detectableMinimum;
+
+                beforeEach( function () {
+                    detectableMinimum = $.scrollable._scrollDetectionThreshold + 1;
+                } );
 
                 it( 'when the user scrolls on the same axis as the animation', function ( done ) {
                     var userTarget1, userTarget2;
@@ -695,7 +704,7 @@
                     } );
 
                     inMidScroll( function () {
-                        userTarget2 = userScrollsBy( 1, $window );
+                        userTarget2 = userScrollsBy( detectableMinimum, $window );
                     } );
 
                     afterScroll( function () {
@@ -723,7 +732,7 @@
                     } );
 
                     inMidScroll( function () {
-                        userTarget2 = userScrollsBy( { x: 1 }, $window );
+                        userTarget2 = userScrollsBy( { x: detectableMinimum }, $window );
                     } );
 
                     afterScroll( function () {
@@ -894,19 +903,29 @@
         describeIf( userScrollDetectionEnabled, msgTestSkippedDetectionDisabled, 'Changing the userScrollThreshold.', function () {
 
             describe( 'Changing the global value.', function () {
+                var defaultThreshold, detectableMinimum;
 
-                describe( 'The threshold is reduced to 0.', function () {
+                beforeEach( function () {
+                    defaultThreshold = $.scrollable.userScrollThreshold;
+                    detectableMinimum = $.scrollable._scrollDetectionThreshold + 1;
+                } );
+
+                afterEach( function () {
+                    $.scrollable.userScrollThreshold = defaultThreshold;
+                } );
+
+                describe( 'The threshold is reduced to ' + $.scrollable._scrollDetectionThreshold + ' (minimum value).', function () {
 
                     beforeEach( function () {
-                        $.scrollable.userScrollThreshold = 0;
+                        $.scrollable.userScrollThreshold = $.scrollable._scrollDetectionThreshold;
                     } );
 
-                    it( 'When the user scrolls by as little as 1px, the scroll animation is stopped', function ( done ) {
+                    it( 'When the user scrolls just enough to be detectable (' + ( $.scrollable._scrollDetectionThreshold + 1 ) + 'px), the scroll animation is stopped', function ( done ) {
                         var userTarget;
                         $window.scrollTo( "bottom" );
 
                         inMidScroll( function () {
-                            userTarget = userScrollsBy( 1, $window );
+                            userTarget = userScrollsBy( detectableMinimum, $window );
                         } );
 
                         afterScroll( function () {
@@ -921,15 +940,9 @@
                 } );
 
                 describe( 'The threshold is increased to 100.', function () {
-                    var defaultThreshold;
 
                     beforeEach( function () {
-                        defaultThreshold = $.scrollable.userScrollThreshold;
                         $.scrollable.userScrollThreshold = 100;
-                    } );
-
-                    afterEach( function () {
-                        $.scrollable.userScrollThreshold = defaultThreshold;
                     } );
 
                     it( 'When the user scrolls by 100px, the scroll animation continues', function ( done ) {
@@ -964,20 +977,35 @@
                         } );
                     } );
 
+                } );
+
+                describe( 'The threshold is reduced to less than the minimum value of ' + $.scrollable._scrollDetectionThreshold + '.', function () {
+
+                    it( 'Calling scrollTo() throws an error', function () {
+                        $.scrollable.userScrollThreshold = $.scrollable._scrollDetectionThreshold - 1;
+                        expect( function () { $window.scrollTo( 100 ); } ).toThrowError( /^User scroll detection: threshold too low/ );
+                    } );
                 } );
 
             } );
 
             describe( 'Using the userScrollThreshold option.', function () {
+                var detectableMinimum;
 
-                describe( 'The threshold is reduced to 0.', function () {
+                beforeEach( function () {
+                    detectableMinimum = $.scrollable._scrollDetectionThreshold + 1;
+                } );
 
-                    it( 'When the user scrolls by as little as 1px, the scroll animation is stopped', function ( done ) {
-                        var userTarget;
-                        $window.scrollTo( "bottom", { userScrollThreshold: 0 } );
+                describe( 'The threshold is reduced to ' + $.scrollable._scrollDetectionThreshold + ' (minimum value).', function () {
+
+                    it( 'When the user scrolls just enough to be detectable (' + ( $.scrollable._scrollDetectionThreshold + 1 ) + 'px), the scroll animation is stopped', function ( done ) {
+                        var userTarget,
+                            minimumThreshold = $.scrollable._scrollDetectionThreshold;
+
+                        $window.scrollTo( "bottom", { userScrollThreshold: minimumThreshold } );
 
                         inMidScroll( function () {
-                            userTarget = userScrollsBy( 1, $window );
+                            userTarget = userScrollsBy( detectableMinimum, $window );
                         } );
 
                         afterScroll( function () {
@@ -1023,6 +1051,15 @@
                             expect( $window.scrollLeft() ).toEqual( 0 );
                             done();
                         } );
+                    } );
+
+                } );
+
+                describe( 'The threshold is reduced to less than the minimum value of ' + $.scrollable._scrollDetectionThreshold + '.', function () {
+
+                    it( 'Calling scrollTo() throws an error', function () {
+                        var threshold = $.scrollable._scrollDetectionThreshold - 1;
+                        expect( function () { $window.scrollTo( 100, { userScrollThreshold: threshold } ); } ).toThrowError( /^User scroll detection: threshold too low/ );
                     } );
 
                 } );
