@@ -29,7 +29,9 @@
 
             msgTestSkippedDetectionDisabled = 'Skipped because user scroll detection is disabled ($.scrollable._enableUserScrollDetection = false)',
 
-            msgTestSkippedNoThreshold = 'Skipped because the default user scroll threshold is set to 0 ($.scrollable.userScrollThreshold = 0)';
+            msgTestSkippedNoThreshold = 'Skipped because the default user scroll threshold is set to 0 ($.scrollable.userScrollThreshold = 0)',
+
+            msgTestSkippedUnreliableIOS = "Skipped because the values reported by the browser are too unreliable in iOS to make the test work";
 
 
         beforeEach( function ( done ) {
@@ -151,7 +153,7 @@
 
             } );
 
-            describeIf( hasUserScrollThreshold, msgTestSkippedNoThreshold, 'Movement does not stop', function () {
+            describeIf( hasUserScrollThreshold && !isIOS(), isIOS() ? msgTestSkippedUnreliableIOS : msgTestSkippedNoThreshold, 'Movement does not stop', function () {
 
                 it( 'when the user scrolls vertically, in the same direction, but only by as much as the threshold', function ( done ) {
                     var userTarget;
@@ -302,7 +304,7 @@
 
             } );
 
-            describeIf( hasUserScrollThreshold, msgTestSkippedNoThreshold, 'Movement does not stop', function () {
+            describeIf( hasUserScrollThreshold && !isIOS(), isIOS() ? msgTestSkippedUnreliableIOS : msgTestSkippedNoThreshold, 'Movement does not stop', function () {
 
                 it( 'when the user scrolls vertically, in the same direction, but only by as much as the threshold', function ( done ) {
                     var userTarget;
@@ -451,7 +453,7 @@
 
             } );
 
-            describeIf( hasUserScrollThreshold, msgTestSkippedNoThreshold, 'Movement does not stop', function () {
+            describeIf( hasUserScrollThreshold && !isIOS(), isIOS() ? msgTestSkippedUnreliableIOS : msgTestSkippedNoThreshold, 'Movement does not stop', function () {
 
                 it( 'when the user scrolls horizontally, in the same direction, but only by as much as the threshold', function ( done ) {
                     var userTarget;
@@ -609,7 +611,7 @@
 
             } );
 
-            describeIf( hasUserScrollThreshold, msgTestSkippedNoThreshold, 'Movement does not stop', function () {
+            describeIf( hasUserScrollThreshold && !isIOS(), isIOS() ? msgTestSkippedUnreliableIOS : msgTestSkippedNoThreshold, 'Movement does not stop', function () {
 
                 it( 'when the user scrolls horizontally, in the same direction, but only by as much as the threshold', function ( done ) {
                     var userTarget;
