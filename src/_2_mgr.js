@@ -35,21 +35,34 @@
         // Skip animation if the base position already matches the target position.
         if ( ! lib.isRedundantTarget( position, lib.getScrollStartPosition( $container, options ) ) ) {
 
-            if ( ! options.append ) mgr.stopScroll( $container, options );
+            // If there are animations executing or being queued, capture the history of animation steps immediately
+            // preceding the new animation.
+            //
+            // The new animation can use the history to detect user scrolling more accurately, or rather suppress false
+            // detections, in iOS. See addUserScrollDetection() (lib module) for more.
+
+            if ( options.append ) {
+                options._history = lib.getLastStepHistory( $container, options );
+            } else {
+                // Not appending, so stop an ongoing scroll and empty the queue
+                options._history = mgr.stopScroll( $container, options );
+            }
+
             core.animateScroll( $container, position, options );
 
         }
     };
 
     /**
-     * @param {jQuery}         $container                            must be normalized
-     * @param {Object}         options                               must be normalized
-     * @param {string|boolean} options.queue                         set during options normalization if not provided explicitly
-     * @param {boolean}        [options.jumpToTargetPosition=false]
+     * @param   {jQuery}         $container                            must be normalized
+     * @param   {Object}         options                               must be normalized
+     * @param   {string|boolean} options.queue                         set during options normalization if not provided explicitly
+     * @param   {boolean}        [options.jumpToTargetPosition=false]
+     * @returns {StepHistory}    the step history of the stopped animation
      */
     mgr.stopScroll = function ( $container, options ) {
         var $scrollable = mgr.getScrollable( $container );
-        lib.stopScrollAnimation( $scrollable, options );
+        return lib.stopScrollAnimation( $scrollable, options );
     };
 
 } )( mgr, lib, core );

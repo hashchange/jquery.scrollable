@@ -160,12 +160,14 @@
             hasPosX = posX !== norm.IGNORE_AXIS,
             hasPosY = posY !== norm.IGNORE_AXIS,
             animated = {},
+            history = options._history || { real: [], expected: [] },
             animationInfo = {
                 position: position,
-                callbacks: lib.getCallbacks( options )
+                callbacks: lib.getCallbacks( options ),
+                history: history
             };
 
-        options = addUserScrollDetection( options );
+        options = addUserScrollDetection( options, history );
 
         if ( hasPosX ) animated.scrollLeft = posX;
         if ( hasPosY ) animated.scrollTop = posY;
@@ -197,7 +199,8 @@
 
     /**
      * Stops an ongoing scroll animation and clears the queue of scroll animations. Optionally jumps to the targeted
-     * position, rather than just stopping the scroll animation wherever it happens to be.
+     * position, rather than just stopping the scroll animation wherever it happens to be. Returns a history of
+     * animation steps (StepHistory), or undefined if the queue is bypassed (with options.queue == false).
      *
      * Requires the actual scrollable element, as returned by $.fn.scrollable(). The options must have been normalized.
      *
@@ -218,12 +221,15 @@
      * If you have forced scrollTo to use the standard animation queue ("fx"), you must provide that option here, too.
      * In that case, stopScroll will stop and clear *all* animations in the default queue, not just scroll-related ones.
      *
-     * @param {jQuery}         $scrollable
-     * @param {Object}         options
-     * @param {string|boolean} options.queue
-     * @param {boolean}        [options.jumpToTargetPosition=false]
+     * @param   {jQuery}         $scrollable
+     * @param   {Object}         options
+     * @param   {string|boolean} options.queue
+     * @param   {boolean}        [options.jumpToTargetPosition=false]
+     * @returns {StepHistory|undefined}
      */
     lib.stopScrollAnimation = function ( $scrollable, options ) {
+        var history;
+
         options = $.extend( { jumpToTargetPosition: false }, options );
 
         if ( options.queue === false ) {
@@ -242,9 +248,11 @@
 
             $scrollable.stop( true, options.jumpToTargetPosition );
         } else {
+            history = getCurrentStepHistory( $scrollable, options );
             $scrollable.stop( options.queue, true, options.jumpToTargetPosition );
         }
 
+        return history;
     };
 
     /**
@@ -303,6 +311,34 @@
         }
 
         return position;
+    };
+
+    /**
+     * Returns a reference to the history of animation steps for the animation which will execute last - the last in the
+     * queue, or else the currently executing one. If no animation is queued or executing, undefined is returned.
+     *
+     * In other words, the method fetches the last animation info entry in the queue, and returns its `history`
+     * property.
+     *
+     * NB If the first animation is still queued and not yet executing, its associated step history is empty, of course.
+     *
+     * @param   {jQuery} $container  must be normalized
+     * @param   {Object} options     must be normalized, therefore containing options.queue
+     * @returns {StepHistory|undefined}
+     */
+    lib.getLastStepHistory = function ( $container, options ) {
+        return lib.getLastStepHistory_QW( new queue.QueueWrapper( core.getScrollable( $container ), options.queue ) );
+    };
+
+    /**
+     * Does the actual work of getLastStepHistory(). See there for more.
+     *
+     * @param   {queue.QueueWrapper} queueWrapper
+     * @returns {StepHistory|undefined}
+     */
+    lib.getLastStepHistory_QW = function ( queueWrapper ) {
+        var info = queueWrapper.getLastInfo();
+        return info ? info.history : undefined;
     };
 
     /**
@@ -432,10 +468,12 @@
      *
      * On balance, a step wrapper seemed to be the better option.
      *
-     * @param   {Object} animationOptions  must be normalized
+     * @param   {Object}      animationOptions  must be normalized
+     * @param   {StepHistory} history           animation step history. Usually empty, unless a preceding animation was
+     *                                          stopped as part of the call - see mgr.scrollTo()
      * @returns {Object}
      */
-    function addUserScrollDetection ( animationOptions ) {
+    function addUserScrollDetection ( animationOptions, history ) {
         var queueName = animationOptions.queue,
             userScrollTriggerThreshold = animationOptions.userScrollThreshold !== undefined ? parseInt( animationOptions.userScrollThreshold, 10 ) : $.scrollable.userScrollThreshold,
             userScrollDetectionThreshold = $.scrollable._scrollDetectionThreshold,
@@ -455,9 +493,13 @@
                 var animatedProp = tween.prop,
                     otherProp = animatedProp === "scrollTop" ? "scrollLeft" : "scrollTop",
                     lastReal = {},
-                    currentDelta= {
+                    currentDelta = {
                         scrollTop: 0,
                         scrollLeft: 0
+                    },
+                    scrollDetected = {
+                        scrollTop: false,
+                        scrollLeft: false
                     };
 
                 // Get the actual last position.
@@ -472,7 +514,32 @@
                     currentDelta[otherProp] = lastExpected[otherProp] - lastReal[otherProp];
 
                     // Only detect movements above a minimum threshold, filtering out occasional, random deviations.
-                    if ( Math.abs( currentDelta[animatedProp] ) > userScrollDetectionThreshold || Math.abs( currentDelta[otherProp] ) > userScrollDetectionThreshold ) {
+                    scrollDetected[animatedProp] = Math.abs( currentDelta[animatedProp] ) > userScrollDetectionThreshold;
+                    scrollDetected[otherProp] = Math.abs( currentDelta[otherProp] ) > userScrollDetectionThreshold;
+
+                    if ( $.scrollable._useScrollHistoryForDetection ) {
+
+                        // If there is a deviation, we compare the current position to the ones before it. If there is
+                        // an exact match, it is extremely likely that the browser is lagging and has not updated the
+                        // property to the current position yet. Ignore the deviation then.
+                        //
+                        // We do this comparison twice: once against the history of real positions, once against the
+                        // history of expected positions. Tests have shown that the browser readout may catch up, but
+                        // still lag on step behind in some instances.
+                        //
+                        // All of this is a common issue in mobile Safari (observed in iOS 8). I have not seen it happen
+                        // in other browsers yet.
+                        //
+                        // Incidentally, it does not help to read pageXOffset, pageYOffset instead of scrollTop,
+                        // scrollLeft (when dealing with a window). In mobile Safari, they suffer from the same problem.
+
+                        if ( scrollDetected[animatedProp] ) scrollDetected[animatedProp] = !hasBrowserFailedToUpdate( animatedProp, lastReal, history );
+                        if ( scrollDetected[otherProp] ) scrollDetected[otherProp] = !hasBrowserFailedToUpdate( otherProp, lastReal, history );
+
+                    }
+
+                    // If there is a valid deviation, record it.
+                    if ( scrollDetected[animatedProp] || scrollDetected[otherProp] ) {
                         cumulativeDelta[animatedProp] += currentDelta[animatedProp];
                         cumulativeDelta[otherProp] += currentDelta[otherProp];
                     }
@@ -491,6 +558,18 @@
                 lastExpected[animatedProp] = Math.floor( tween.now );
                 lastExpected[otherProp] = lastReal[otherProp];
 
+                if ( $.scrollable._useScrollHistoryForDetection ) {
+
+                    // Record expected and real values in the step history. Limit the history to the number of steps
+                    // which are actually examined in hasBrowserFailedToUpdate().
+                    history.real.push( lastReal );
+                    history.expected.push( $.extend( {}, lastExpected ) );
+
+                    if ( history.real.length > 6 ) history.real.shift();
+                    if ( history.expected.length > 6 ) history.expected.shift();
+
+                }
+
                 // Finally, call the user-provided step callback
                 return userStepCb && userStepCb.apply( this, $.makeArray( arguments ) );
             };
@@ -499,6 +578,73 @@
 
         return modifiedOptions;
     }
+
+    /**
+     * Helper for addUserScrollDetection(), checks the last real position against a history of real and expected
+     * positions. Returns whether or not the browser has failed to update the real position in time.
+     *
+     * That is the case when the real position has not advanced during the animation and still equals one in history.
+     * See the comment in addUserScrollDetection for more.
+     *
+     * @param   {string}      property
+     * @param   {ScrollState} lastReal
+     * @param   {StepHistory} history
+     * @returns {boolean}
+     */
+    function hasBrowserFailedToUpdate ( property, lastReal, history ) {
+        var i, steps,
+            hasFailed = false,
+            lenReal = history.real.length,
+            lenExpected = history.expected.length,
+            real = lastReal[property];
+
+        // Check lastReal for up to six steps back in history
+        i = lenReal - 1;
+        steps = 6;
+        while ( i >= 0 && lenReal - i <= steps && ! hasFailed ) {
+            hasFailed = real === history.real[i][property];
+            i--;
+        }
+
+        // Check lastExpected for up to six steps back in history
+        i = lenExpected - 1;
+        steps = 6;
+        while ( i >= 0 && lenExpected - i <= steps && ! hasFailed ) {
+            hasFailed = real === history.expected[i][property];
+            i--;
+        }
+
+        return hasFailed;
+    }
+
+    /**
+     * Returns a reference to the history of animation steps for the animation which is currently executing, or queued
+     * up next. If no animation is executing or queued, undefined is returned.
+     *
+     * In other words, the method fetches the first animation info entry in the queue, and returns its `history`
+     * property.
+     *
+     * NB If the first animation is still queued and not yet executing, its associated step history is empty, of course.
+     *
+     * @param   {jQuery} $scrollable  the real scrollable element
+     * @param   {Object} options      must be normalized, therefore containing options.queue
+     * @returns {StepHistory|undefined}
+     */
+    function getCurrentStepHistory ( $scrollable, options ) {
+        return getCurrentStepHistory_QW( new queue.QueueWrapper( $scrollable, options.queue ) );
+    }
+
+    /**
+     * Does the actual work of getCurrentStepHistory(). See there for more.
+     *
+     * @param   {queue.QueueWrapper} queueWrapper
+     * @returns {StepHistory|undefined}
+     */
+    function getCurrentStepHistory_QW ( queueWrapper ) {
+        var info = queueWrapper.getFirstInfo();
+        return info ? info.history : undefined;
+    }
+
 
     /**
      * Custom types.
@@ -525,6 +671,23 @@
      *
      * @property {Coordinates} position
      * @property {Callbacks}   callbacks
+     * @property {StepHistory} history
+     */
+
+    /**
+     * @name StepHistory
+     * @type {Object}
+     *
+     * @property {ScrollState[]} real
+     * @property {ScrollState[]} expected
+     */
+
+    /**
+     * @name ScrollState
+     * @type {Object}
+     *
+     * @property {number|undefined} scrollTop
+     * @property {number|undefined} scrollLeft
      */
 
 } )( lib, norm, queue, core );

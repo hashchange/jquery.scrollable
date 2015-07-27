@@ -31,8 +31,11 @@ var mgr = {},
 
     $.scrollable = {
         userScrollThreshold: 10,
+
+        // Internal config. Do not modify in production.
         _scrollDetectionThreshold: 5,
-        _enableUserScrollDetection: true
+        _enableUserScrollDetection: true,
+        _useScrollHistoryForDetection: isIOS()
     };
 
     /**
@@ -87,6 +90,17 @@ var mgr = {},
         $container = norm.normalizeContainer( $container );
         options = norm.normalizeOptions( options );
         mgr.stopScroll( $container, options );
+    }
+
+    /**
+     * Detects if the browser is on iOS. Works for Safari as well as other browsers, say, Chrome on iOS.
+     *
+     * Required for some iOS behaviour which can't be feature-detected in any way.
+     *
+     * @returns {boolean}
+     */
+    function isIOS () {
+        return (/iPad|iPhone|iPod/gi).test( navigator.userAgent );
     }
 
 } )( mgr, norm );

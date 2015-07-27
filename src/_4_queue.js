@@ -50,10 +50,10 @@
      *
      * For functions which are not jQuery effects, arguments can be whatever you like.
      *
-     * @param {Object}   config
-     * @param {Function} config.func          the "payload" function to be executed; invoked in the context of config.$elem
-     * @param {Array}    config.args          of config.func
-     * @param {Object}   [config.info]        info to be attached to the sentinel, in an `info` property
+     * @param {Object}        config
+     * @param {Function}      config.func    the "payload" function to be executed; invoked in the context of config.$elem
+     * @param {Array}         config.args    of config.func
+     * @param {AnimationInfo} [config.info]  info to be attached to the sentinel, in an `info` property
      */
     queue.QueueWrapper.prototype.addToQueue = function ( config ) {
 
@@ -117,7 +117,7 @@
      *
      * Info objects are attached to sentinels and hold information about the corresponding (scroll) animation.
      *
-     * @returns {Object[]}
+     * @returns {AnimationInfo[]}
      */
     queue.QueueWrapper.prototype.getInfo = function () {
         var info = [],
@@ -128,6 +128,33 @@
         } );
 
         return info;
+    };
+
+    /**
+     * Returns the first (oldest) info object currently held in the queue, or undefined if no such object exists.
+     *
+     * Info objects are attached to sentinels and hold information about the corresponding (scroll) animation.
+     *
+     * @returns {AnimationInfo|undefined}
+     */
+    queue.QueueWrapper.prototype.getFirstInfo = function () {
+        var info = this.getInfo();
+        return info.length ? info[0] : undefined;
+    };
+
+
+    /**
+     * Returns the last (newest) info object currently held in the queue, or undefined if no such object exists.
+     *
+     * Info objects are attached to sentinels and hold information about the corresponding (scroll) animation.
+     *
+     * @returns {AnimationInfo|undefined}
+     */
+    queue.QueueWrapper.prototype.getLastInfo = function () {
+        var info = this.getInfo(),
+            lastIndex = info.length - 1;
+
+        return info.length ? info[lastIndex] : undefined;
     };
 
     /**
