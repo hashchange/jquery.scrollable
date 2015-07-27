@@ -332,7 +332,7 @@ New test files in the `spec` directory are picked up automatically, no need to e
 
 ### v0.4.0
 
-- Made scroll animations abort automatically when the user clicks or taps
+- Made scroll animations abort automatically when the user scrolls
 - Added global `$.scrollable.userScrollThreshold` setting, `userScrollThreshold` option
 - Fixed detection of alternative axis names in `axis` option
 - Fixed miscalculation of relative positions in append, merge mode
