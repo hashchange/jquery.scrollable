@@ -183,6 +183,18 @@ If `scrollTo` targets the exact same position it starts from, the call is ignore
 
   If you don't want that to happen and rather have the original animation complete uninterrupted, use merge mode instead.
 
+### Aborting when the user scrolls
+
+An animation initiated by `scrollTo` is automatically stopped as soon as the user scrolls.
+
+User scroll detection is disabled in iOS, though. Mobile Safari has proven to be too unreliable in its reporting of the current scroll state during an animation.
+
+##### Tweaking the user scroll detection
+
+A scroll animation is aborted when the user has tried to scroll by more than 10px, in any direction. Below that threshold, user scrolling is considered to be accidental and insufficient to signal intent.
+
+You can tweak that threshold, even though there hardly ever is any need to do so. The default setting is stored in a global: `$.scrollable.userScrollThreshold = 5`. You can set the threshold for an individual animation with the `userScrollThreshold` option: `$elem.scrollTo( 1000, { userScrollThreshold: 50 }`. The minimum value for the threshold is 5.
+
 ### Animation options
 
 We have already talked about the options `axis`, `append`, and `merge`. In addition, you can use [every option available to `jQuery.animate()`][jQuery-animate]. Set up `progress` or `complete` callbacks, specify a `duration` etc. Add what you need to the options object that you pass to `scrollTo()`:
@@ -317,6 +329,13 @@ In case anything about the test and build process needs to be changed, have a lo
 New test files in the `spec` directory are picked up automatically, no need to edit the configuration for that.
 
 ## Release Notes
+
+### v0.4.0
+
+- Made scroll animations abort automatically when the user clicks or taps
+- Added global `$.scrollable.userScrollThreshold` setting, `userScrollThreshold` option
+- Fixed detection of alternative axis names in `axis` option
+- Fixed miscalculation of relative positions in append, merge mode
 
 ### v0.3.1
 
