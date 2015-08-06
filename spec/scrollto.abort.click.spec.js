@@ -74,7 +74,10 @@
 
                     afterScroll( function () {
 
-                        expect( $window.scrollTop() ).toBeLocatedCloselyBelow( userTarget.y, abortTolerance );
+                        // We have to disable this expectation in iOS due to a lack of accuracy in the values reported
+                        // by mobile Safari
+                        if ( !isIOS() ) expect( $window.scrollTop() ).toBeLocatedCloselyBelow( userTarget.y, abortTolerance );
+
                         expect( $window.scrollTop() ).toBeLocatedStrictlyAbove( maxScrollHeight );
 
                         expect( $window.scrollLeft() ).toEqual( 0 );
@@ -121,7 +124,10 @@
                     afterScroll( function () {
                         expect( $window.scrollTop() ).toEqual( 0 );
 
-                        expect( $window.scrollLeft() ).toBeLocatedCloselyRightOf( userTarget.x, abortTolerance );
+                        // We have to disable this expectation in iOS due to a lack of accuracy in the values reported
+                        // by mobile Safari
+                        if ( !isIOS() ) expect( $window.scrollLeft() ).toBeLocatedCloselyRightOf( userTarget.x, abortTolerance );
+
                         expect( $window.scrollLeft() ).toBeLocatedStrictlyLeftOf( maxScrollWidth );
                         done();
                     } );
@@ -140,7 +146,10 @@
                     afterScroll( function () {
                         expect( $window.scrollTop() ).toEqual( 0 );
 
-                        expect( $window.scrollLeft() ).toBeLocatedCloselyRightOf( userTarget.x, abortTolerance );
+                        // We have to disable this expectation in iOS due to a lack of accuracy in the values reported
+                        // by mobile Safari
+                        if ( !isIOS() ) expect( $window.scrollLeft() ).toBeLocatedCloselyRightOf( userTarget.x, abortTolerance );
+
                         expect( $window.scrollLeft() ).toBeLocatedStrictlyLeftOf( maxScrollWidth );
                         done();
                     } );
@@ -172,7 +181,10 @@
 
                 it( 'the ongoing animation is aborted', function ( done ) {
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toBeLocatedCloselyBelow( userTarget.y, abortTolerance );
+                        // We have to disable this expectation in iOS due to a lack of accuracy in the values reported
+                        // by mobile Safari
+                        if ( !isIOS() ) expect( $window.scrollTop() ).toBeLocatedCloselyBelow( userTarget.y, abortTolerance );
+
                         expect( $window.scrollTop() ).toBeLocatedStrictlyAbove( maxScrollHeight );
 
                         expect( $window.scrollLeft() ).toFuzzyEqual( userTarget.x );
@@ -183,7 +195,10 @@
 
                 it( 'the queued animations are removed as well', function ( done ) {
                     afterScrolls( 4, function () {
-                        expect( $window.scrollTop() ).toBeLocatedCloselyBelow( userTarget.y, abortTolerance );
+                        // We have to disable this expectation in iOS due to a lack of accuracy in the values reported
+                        // by mobile Safari
+                        if ( !isIOS() ) expect( $window.scrollTop() ).toBeLocatedCloselyBelow( userTarget.y, abortTolerance );
+
                         expect( $window.scrollTop() ).toBeLocatedStrictlyAbove( maxScrollHeight );
 
                         expect( $window.scrollLeft() ).toFuzzyEqual( userTarget.x );
@@ -250,7 +265,11 @@
                     expect( callbacks_1.always ).toHaveBeenCalled();
                     expect( callbackCalls_1.always.callCount ).toEqual( 1 );
                     expect( callbackCalls_1.always.scrollState.x ).toFuzzyEqual( userTarget.x );
-                    expect( callbackCalls_1.always.scrollState.y ).toBeLocatedCloselyBelow( userTarget.y, abortTolerance );
+
+                    // We have to disable this expectation in iOS due to a lack of accuracy in the values reported
+                    // by mobile Safari
+                    if ( !isIOS() ) expect( callbackCalls_1.always.scrollState.y ).toBeLocatedCloselyBelow( userTarget.y, abortTolerance );
+
                     expect( callbackCalls_1.always.scrollState.y ).toBeLocatedStrictlyAbove( maxScrollHeight );
                 } );
 
@@ -258,7 +277,11 @@
                     expect( callbacks_1.fail ).toHaveBeenCalled();
                     expect( callbackCalls_1.fail.callCount ).toEqual( 1 );
                     expect( callbackCalls_1.fail.scrollState.x ).toFuzzyEqual( userTarget.x );
-                    expect( callbackCalls_1.always.scrollState.y ).toBeLocatedCloselyBelow( userTarget.y, abortTolerance );
+
+                    // We have to disable this expectation in iOS due to a lack of accuracy in the values reported
+                    // by mobile Safari
+                    if ( !isIOS() )  expect( callbackCalls_1.always.scrollState.y ).toBeLocatedCloselyBelow( userTarget.y, abortTolerance );
+
                     expect( callbackCalls_1.always.scrollState.y ).toBeLocatedStrictlyAbove( maxScrollHeight );
                 } );
 
@@ -349,7 +372,10 @@
                     } );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toBeLocatedCloselyBelow( userTarget.y, abortTolerance );
+                        // We have to disable this expectation in iOS due to a lack of accuracy in the values reported
+                        // by mobile Safari
+                        if ( !isIOS() ) expect( $window.scrollTop() ).toBeLocatedCloselyBelow( userTarget.y, abortTolerance );
+
                         expect( $window.scrollTop() ).toBeLocatedStrictlyAbove( maxScrollHeight );
 
                         expect( $window.scrollLeft() ).toEqual( 0 );

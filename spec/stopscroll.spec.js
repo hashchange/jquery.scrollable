@@ -65,7 +65,11 @@
                     } );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toFuzzyEqual( stopLocation.y );
+                        // We have to disable this expectation in iOS due to a lack of accuracy in the values reported
+                        // by mobile Safari
+                        if ( !isIOS() ) expect( $window.scrollTop() ).toFuzzyEqual( stopLocation.y );
+                        expect( $window.scrollTop() ).toBeLocatedStrictlyAbove( maxScrollHeight );
+
                         expect( $window.scrollLeft() ).toEqual( 0 );
                         done();
                     } );
@@ -82,7 +86,12 @@
 
                     afterScroll( function () {
                         expect( $window.scrollTop() ).toEqual( 0 );
-                        expect( $window.scrollLeft() ).toFuzzyEqual( stopLocation.x );
+
+                        // We have to disable this expectation in iOS due to a lack of accuracy in the values reported
+                        // by mobile Safari
+                        if ( !isIOS() ) expect( $window.scrollLeft() ).toFuzzyEqual( stopLocation.x );
+                        expect( $window.scrollLeft() ).toBeLocatedStrictlyLeftOf( maxScrollWidth );
+
                         done();
                     } );
                 } );
@@ -97,8 +106,15 @@
                     } );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toFuzzyEqual( stopLocation.y );
-                        expect( $window.scrollLeft() ).toFuzzyEqual( stopLocation.x );
+                        // We have to disable these expectations in iOS due to a lack of accuracy in the values reported
+                        // by mobile Safari
+                        if ( !isIOS() ) {
+                            expect( $window.scrollTop() ).toFuzzyEqual( stopLocation.y );
+                            expect( $window.scrollLeft() ).toFuzzyEqual( stopLocation.x );
+                        }
+
+                        expect( $window.scrollTop() ).toBeLocatedStrictlyAbove( maxScrollHeight );
+                        expect( $window.scrollLeft() ).toBeLocatedStrictlyLeftOf( maxScrollWidth );
                         done();
                     } );
                 } );
@@ -130,8 +146,15 @@
 
                 it( 'the ongoing animation is aborted', function ( done ) {
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toFuzzyEqual( stopLocation.y );
-                        expect( $window.scrollLeft() ).toFuzzyEqual( stopLocation.x );
+                        // We have to disable these expectations in iOS due to a lack of accuracy in the values reported
+                        // by mobile Safari
+                        if ( !isIOS() ) {
+                            expect( $window.scrollTop() ).toFuzzyEqual( stopLocation.y );
+                            expect( $window.scrollLeft() ).toFuzzyEqual( stopLocation.x );
+                        }
+
+                        expect( $window.scrollTop() ).toBeLocatedStrictlyAbove( maxScrollHeight );
+                        expect( $window.scrollLeft() ).toBeLocatedStrictlyLeftOf( maxScrollWidth );
                     } );
 
                     afterScrolls( 4, done );
@@ -139,8 +162,17 @@
 
                 it( 'the queued animations are removed as well', function ( done ) {
                     afterScrolls( 4, function () {
-                        expect( $window.scrollTop() ).toFuzzyEqual( stopLocation.y );
-                        expect( $window.scrollLeft() ).toFuzzyEqual( stopLocation.x );
+                        // We have to disable these expectations in iOS due to a lack of accuracy in the values reported
+                        // by mobile Safari
+                        if ( !isIOS() ) {
+                            expect( $window.scrollTop() ).toFuzzyEqual( stopLocation.y );
+                            expect( $window.scrollLeft() ).toFuzzyEqual( stopLocation.x );
+                        }
+
+                        expect( $window.scrollTop() ).toBeLocatedStrictlyAbove( maxScrollHeight );
+                        expect( $window.scrollTop() ).toBeLocatedStrictlyBelow( 0 );
+                        expect( $window.scrollLeft() ).toBeLocatedStrictlyLeftOf( maxScrollWidth );
+                        expect( $window.scrollLeft() ).toEqual( 0 );
                         done();
                     } );
                 } );
@@ -205,8 +237,16 @@
                 it( 'the "always" callback runs', function () {
                     expect( callbacks_1.always ).toHaveBeenCalled();
                     expect( callbackCalls_1.always.callCount ).toEqual( 1 );
-                    expect( callbackCalls_1.always.scrollState.x ).toFuzzyEqual( stopLocation.x );
-                    expect( callbackCalls_1.always.scrollState.y ).toFuzzyEqual( stopLocation.y );
+
+                    // We have to disable these expectations in iOS due to a lack of accuracy in the values reported
+                    // by mobile Safari
+                    if ( !isIOS() ) {
+                        expect( callbackCalls_1.always.scrollState.x ).toFuzzyEqual( stopLocation.x );
+                        expect( callbackCalls_1.always.scrollState.y ).toFuzzyEqual( stopLocation.y );
+                    }
+
+                    expect( callbackCalls_1.always.scrollState.x ).toBeLocatedStrictlyLeftOf( maxScrollWidth );
+                    expect( callbackCalls_1.always.scrollState.y ).toBeLocatedStrictlyAbove( maxScrollHeight );
                 } );
 
                 it( 'the fail callback runs', function () {
