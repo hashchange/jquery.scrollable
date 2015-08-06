@@ -1,6 +1,8 @@
 # jQuery.scrollable
 
- jQuery.scrollable manages animated scrolling in windows, scrollable elements and iframes. It frees you from handling gotchas and edge cases and offers convenient, flexible options for animation.
+<small>[Setup][setup] – [Why?][why] – [Usage][usage] – [Browser support][browsers] – [Build and test][build]</small>
+
+jQuery.scrollable manages animated scrolling in windows, scrollable elements and iframes. It frees you from handling gotchas and edge cases and offers convenient, flexible options for animation.
 
 ## Dependencies and setup
 
@@ -16,15 +18,17 @@ Yes. And no – because you'll soon discover that your animations end rather abr
 
 Now you suddenly have to feature-test the browser for the right element, which involves injecting a test iframe that needs to be [designed rather carefully][so-comment-iframe-setup]. Or else you can animate both elements, with `$( "html, body" ).animate(...)`, which sounds great until you use animation callbacks (`complete`, `step` etc). They fire twice as often as they should because you animated two elements rather than one, so you find yourself filtering callback calls, which isn't [quite as easy][so-comment-callback-filtering] as it looks at first glance, and ... I'll stop here. You get the picture.
 
-And we haven't even started implementing [convenience][scrolling-both-axes] [options][relative-scrolling], handled [overlapping calls][overlapping-calls], or moved scrolling to a dedicated animation queue so as not to interfere with other animations on the page, and so on.
+And we haven't even started implementing [convenience][scrolling-both-axes] [options][relative-scrolling], handled [overlapping calls][overlapping-calls], or moved scrolling to a dedicated animation queue so as not to interfere with other animations on the page. We still ignore user interaction and fail to [stop an ongoing scroll animation][user-interaction] if the user taps, clicks, or scrolls, which we definitely should in most cases.
 
 See? That's why you get a plugin for such a trivial task. 
 
 ## OK. How?
 
-It's super simple.
+It's super simple. And it gives you a lot of flexibility.
 
-#### Scrolling to a fixed position, vertically
+<small>[Absolute target][absolute-scrolling] – [Relative target][relative-scrolling] – [Overlapping calls][overlapping-calls] – [User interaction][user-interaction] – [Options][animation-options] – [Stopping][stopping] – [Custom queues][custom-queues] – [Scrollable distance][scrollable-distance] – [Scrollable element][scrollable-element]</small>
+
+### Scrolling to a fixed position, vertically
 
 The most common use case. Plenty of ways to do it, all equally valid.
 
@@ -183,21 +187,45 @@ If `scrollTo` targets the exact same position it starts from, the call is ignore
 
   If you don't want that to happen and rather have the original animation complete uninterrupted, use merge mode instead.
 
-### Aborting when the user scrolls
+### Aborting when the user scrolls, clicks, or taps
 
-An animation initiated by `scrollTo` is automatically stopped as soon as the user scrolls.
+An animation initiated by `scrollTo` is automatically stopped as soon as
 
-User scroll detection is disabled in iOS, though. Mobile Safari has proven to be too unreliable in its reporting of the current scroll state during an animation.
+- the user scrolls
+- the user holds down a mouse button, clicks, or double-clicks in the scrolling area
+- the user touches the screen in the scrolling area, in a touch-enabled device.
+
+You might want to allow clicking or tapping on a few selected elements – controls with a fixed position, for instance – without stopping the scroll animation. That is easy to do. The click and touch detection responds to `mousedown`, `touchstart` and `pointerdown` events. We just have to prevent these events from bubbling up to the scroll container.   
+
+So we add an event handler to our controls which does just that:
+ 
+```js
+$controls.on( "mousedown touchstart pointerdown", function ( event ) { 
+    event.stopPropagation(); 
+} );
+```
+
+Of course, you only need to do this if the controls are children of the scroll container.
+
+##### Ignoring the user
+
+You can override the built-in detection of user actions and force your scroll movement to proceed with the `ignoreUser` option: `$elem.scrollTo( 100, { ignoreUser: true } )`. And yes, that option name is chosen deliberately to make you cringe when you type it. 
+
+If you need to be more specific, use `ignoreUser: "click"` to ignore clicks and touch only. The scroll animation still stops when the user scrolls. Alternatively, you can ignore that scrolling, but respond to clicks and touch, with `ignoreUser: "scroll"`.
+
+It should be said, though, that overriding the user's intent in this way is a bad idea (tm) in almost every case. Use `ignoreUser` judiciously.
 
 ##### Tweaking the user scroll detection
 
 A scroll animation is aborted when the user has tried to scroll by more than 10px, in any direction. Below that threshold, user scrolling is considered to be accidental and insufficient to signal intent.
 
-You can tweak that threshold, even though there hardly ever is any need to do so. The default setting is stored in a global: `$.scrollable.userScrollThreshold = 5`. You can set the threshold for an individual animation with the `userScrollThreshold` option: `$elem.scrollTo( 1000, { userScrollThreshold: 50 }`. The minimum value for the threshold is 5.
+You can tweak that threshold, even though there hardly ever is any need to do so. The default setting is stored in a global: `$.scrollable.userScrollThreshold = 10`. You can set the threshold for an individual animation with the `userScrollThreshold` option: `$elem.scrollTo( 1000, { userScrollThreshold: 50 }`. The minimum value for the threshold is 5.
 
 ### Animation options
 
-We have already talked about the options `axis`, `append`, and `merge`. In addition, you can use [every option available to `jQuery.animate()`][jQuery-animate]. Set up `progress` or `complete` callbacks, specify a `duration` etc. Add what you need to the options object that you pass to `scrollTo()`:
+We have already [talked about][overlapping-calls] the options `axis`, `append`, and `merge`, and discussed ways to fine-tune the interaction with [with `ignoreUser`][ignoring-the-user] and [`userScrollThreshold`][tweaking-scroll-detection].
+
+In addition to these, you can use [every option available to `jQuery.animate()`][jQuery-animate]. Set up `progress` or `complete` callbacks, specify a `duration` etc. Add what you need to the options object that you pass to `scrollTo()`:
 
 ```js
 $elem.scrollTo( 1200, { axis: "x", duration: 800 );
@@ -278,6 +306,15 @@ When called on an ordinary HTML element, the result is uninteresting - all you g
 
 (It should go without saying that the result is established with feature testing, not browser sniffing, and is based on the actual behaviour of the browser.)
 
+## Browser support
+
+jQuery.scrollable has been tested with 
+
+- 2015 versions of Chrome, Firefox, Safari, and Opera on the Desktop
+- IE8+
+- Safari on iOS 8, Chrome on Android 5
+- SlimerJS
+
 ## Build process and tests
 
 If you'd like to fix, customize or otherwise improve the project: here are your tools.
@@ -329,6 +366,11 @@ In case anything about the test and build process needs to be changed, have a lo
 New test files in the `spec` directory are picked up automatically, no need to edit the configuration for that.
 
 ## Release Notes
+
+### v1.0.0
+
+- Made scroll animations abort automatically when the user clicks or taps
+- Added `ignoreUser` option
 
 ### v0.4.0
 
@@ -392,9 +434,24 @@ Copyright (c) 2015 Michael Heim.
 [jQuery-animate]: http://api.jquery.com/animate/ "jQuery API Documentation: .animate()"
 [jquery-stop]: http://api.jquery.com/stop/ "jQuery API Documentation: .stop()"
 
-[scrolling-both-axes]: #scrolling-to-a-fixed-position-on-both-axes
-[relative-scrolling]: #relative-scrolling
-[overlapping-calls]: #starting-a-scroll-movement-while-another-one-is-still-in-progress
+[setup]: #dependencies-and-setup "Dependencies and setup"
+[why]: #why "Why use it?"
+[usage]: #ok-how "How to use it"
+[absolute-scrolling]: #scrolling-to-a-fixed-position-vertically "Scrolling to a fixed position"
+[relative-scrolling]: #relative-scrolling "Relative scrolling"
+[overlapping-calls]: #starting-a-scroll-movement-while-another-one-is-still-in-progress "Starting a scroll movement while another one is still in progress"
+[user-interaction]: #aborting-when-the-user-scrolls-clicks-or-taps "Aborting when the user scrolls, clicks, or taps"
+[animation-options]: #animation-options "Animation options"
+[stopping]: #stopping-scroll-animations "Stopping scroll animations"
+[custom-queues]: #custom-queues "Custom queues"
+[scrollable-distance]: #retrieving-the-maximum-scrollable-distance-within-an-element "Retrieving the maximum scrollable distance within an element"
+[scrollable-element]: #getting-the-scrollable-element "Getting the scrollable element"
+[browsers]: #browser-support "Browser support"
+[build]: #build-process-and-tests "Build process and tests"
+
+[scrolling-both-axes]: #scrolling-to-a-fixed-position-on-both-axes "Scrolling to a fixed position on both axes"
+[ignoring-the-user]: #ignoring-the-user "Ignoring the user"
+[tweaking-scroll-detection]: #tweaking-the-user-scroll-detection "Tweaking the user scroll detection"
 
 [Node.js]: http://nodejs.org/ "Node.js"
 [Bower]: http://bower.io/ "Bower: a package manager for the web"
