@@ -1,4 +1,4 @@
-// jQuery.scrollable, v0.4.0
+// jQuery.scrollable, v1.0.0
 // Copyright (c)2015 Michael Heim, Zeilenwechsel.de
 // Distributed under MIT license
 // http://github.com/hashchange/jquery.scrollable
@@ -64,6 +64,7 @@
                 // Internal config. Do not modify in production.
                 _scrollDetectionThreshold: 5,
                 _enableUserScrollDetection: !isIOS(),
+                _enableClickAndTouchDetection: true,
                 _useScrollHistoryForDetection: isIOS()
             };
         
@@ -231,8 +232,15 @@
             /** @type {Object}  default scroll options */
             norm.defaults = {
                 axis: norm.VERTICAL,
-                queue: "internal.jquery.scrollable"
+                queue: "internal.jquery.scrollable",
+                ignoreUser: false
             };
+        
+            /** @type {string}  ignoreUser option name for ignoring scroll */
+            norm.IGNORE_USER_SCROLL_ONLY = "scroll";
+        
+            /** @type {string}  ignoreUser option name for ignoring clicks and touch */
+            norm.IGNORE_USER_CLICK_TOUCH_ONLY = "click";
         
             /** @type {string}  "replace" mode flag for chained scrollTo calls */
             norm.MODE_REPLACE = "replace";
@@ -500,6 +508,8 @@
         
                 }
         
+                validateIgnoreUserOption( options );
+        
                 // Apply defaults where applicable
                 return $.extend( {}, norm.defaults, { axis: axisDefault }, options );
         
@@ -528,6 +538,19 @@
                 return name;
         
             };
+        
+            /**
+             * Verifies that the value of the ignoreUserOption is valid, if it is set. Throws an error if the value isn't
+             * recognized.
+             *
+             * Falsy values are ok, no matter of which type.
+             *
+             * @param {Object} options
+             */
+            function validateIgnoreUserOption ( options ) {
+                var ignoreUser = options && options.ignoreUser;
+                if ( ignoreUser && !( ignoreUser === true || ignoreUser === norm.IGNORE_USER_SCROLL_ONLY || ignoreUser === norm.IGNORE_USER_CLICK_TOUCH_ONLY ) ) throw new Error( 'Invalid ignoreUser option value "' + ignoreUser + '"');
+            }
         
             /**
              * Returns the scroll mode after examining the animation options.
@@ -1004,6 +1027,7 @@
                     };
         
                 options = addUserScrollDetection( options, history );
+                options = addUserClickTouchDetection( $elem, options );
         
                 if ( hasPosX ) animated.scrollLeft = posX;
                 if ( hasPosY ) animated.scrollTop = posY;
@@ -1311,17 +1335,21 @@
              */
             function addUserScrollDetection ( animationOptions, history ) {
                 var queueName = animationOptions.queue,
+        
+                    enableDetection = $.scrollable._enableUserScrollDetection && animationOptions.ignoreUser !== true && animationOptions.ignoreUser !== norm.IGNORE_USER_SCROLL_ONLY,
                     userScrollTriggerThreshold = animationOptions.userScrollThreshold !== undefined ? parseInt( animationOptions.userScrollThreshold, 10 ) : $.scrollable.userScrollThreshold,
                     userScrollDetectionThreshold = $.scrollable._scrollDetectionThreshold,
                     userStepCb = animationOptions.step,
+        
                     modifiedOptions = animationOptions ? $.extend( {}, animationOptions ) : {},
+        
                     lastExpected = {},
                     cumulativeDelta = {
                         scrollTop: 0,
                         scrollLeft: 0
                     };
         
-                if ( $.scrollable._enableUserScrollDetection ) {
+                if ( enableDetection ) {
         
                     if ( userScrollTriggerThreshold < userScrollDetectionThreshold ) throw new Error( "User scroll detection: threshold too low. The threshold for detecting user scroll movement must be set to at least " + userScrollDetectionThreshold );
         
@@ -1408,6 +1436,60 @@
         
                         // Finally, call the user-provided step callback
                         return userStepCb && userStepCb.apply( this, $.makeArray( arguments ) );
+                    };
+        
+                }
+        
+                return modifiedOptions;
+            }
+        
+            /**
+             * Adds user click and touch detection to the animation options, and returns the updated options hash.
+             *
+             * An event handler for user click and touch is set up in the `start` callback, and removed in the `always`
+             * callback. If the user has provided callbacks of these types, they are invoked from the wrapper callbacks which
+             * are created here.
+             *
+             * An independent, modified options hash is returned. The original options hash remains unchanged.
+             *
+             * @param   {jQuery} $elem
+             * @param   {Object} animationOptions  must be normalized
+             * @returns {Object}
+             */
+            function addUserClickTouchDetection ( $elem, animationOptions ) {
+                var handler,
+                    events = "mousedown touchstart pointerdown",
+        
+                    enableDetection = $.scrollable._enableClickAndTouchDetection && animationOptions.ignoreUser !== true && animationOptions.ignoreUser !== norm.IGNORE_USER_CLICK_TOUCH_ONLY,
+                    queueName = animationOptions.queue,
+                    userStartCb = animationOptions.start,
+                    userAlwaysCb = animationOptions.always,
+                    modifiedOptions = animationOptions ? $.extend( {}, animationOptions ) : {},
+        
+                    // Element for attaching the event handlers: If the scrollable element is the "html" element, use the body
+                    // instead.
+                    $clickable = $elem[0].tagName.toLowerCase() === "html" ? $( $elem[0].ownerDocument.body ) : $elem;
+        
+                if ( enableDetection ) {
+        
+                    handler = function () {
+                        lib.stopScrollAnimation( $elem, { queue: queueName } );
+                    };
+        
+                    modifiedOptions.start = function () {
+                        // Add the event handler for mousedown, touchstart, pointerdown
+                        $clickable.on( events, handler );
+        
+                        // Call the user-provided `start` callback
+                        return userStartCb && userStartCb.apply( this, $.makeArray( arguments ) );
+                    };
+        
+                    modifiedOptions.always = function () {
+                        // Remove the event handlers
+                        $clickable.off( events, handler );
+        
+                        // Call the user-provided `always` callback
+                        return userAlwaysCb && userAlwaysCb.apply( this, $.makeArray( arguments ) );
                     };
         
                 }
