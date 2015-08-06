@@ -63,6 +63,16 @@ require( [
             $controlsPane.show();
         } );
 
+        // Clicks on controls should not stop an ongoing scroll animation. Keep events from propagating.
+        $movementControls.on( "mousedown touchstart pointerdown", function ( event ) {
+            event.stopPropagation();
+        } );
+
+        $modeControls.on( "mousedown touchstart pointerdown", function ( event ) {
+            event.stopPropagation();
+        } );
+
+        // Wire up the movement controls
         $movementControls.click( function ( event ) {
             var chain,
                 $elem = $( this ),
@@ -109,10 +119,12 @@ require( [
 
         } );
 
+        // Wire up the mode controls
         $modeControls.click( function ( event ) {
             var $elem = $ ( this );
 
             event.preventDefault();
+
             $modeControls.not( $elem ).removeClass( "active" ).addClass( "info" );
             $elem.addClass( "active" ).removeClass( "info" );
         } );
