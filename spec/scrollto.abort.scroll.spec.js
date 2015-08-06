@@ -2,7 +2,7 @@
 (function () {
     "use strict";
 
-    describe( 'scrollTo(): Aborted movement.', function () {
+    describe( 'scrollTo(): Aborted movement, due to user scrolling.', function () {
 
         /** @type {DOMFixture}  populated by Setup.create() */
         var f,
@@ -1067,6 +1067,69 @@
                 } );
 
             } );
+        } );
+
+        describeIf( userScrollDetectionEnabled, msgTestSkippedDetectionDisabled, 'Ignoring user scrolling with the ignoreUser option.', function () {
+
+            describe( 'Setting the ignoreUser option to true', function () {
+
+                it( 'When the user scrolls, the scroll animation continues regardless', function ( done ) {
+                    var userTarget;
+                    $window.scrollTo( "bottom", { ignoreUser: true } );
+
+                    inMidScroll( function () {
+                        userTarget = userScrollsBy( intentionalUserScrollMovement, $window );
+                    } );
+
+                    afterScroll( function () {
+                        expect( $window.scrollTop() ).toFuzzyEqual( maxScrollHeight );
+                        expect( $window.scrollLeft() ).toEqual( 0 );
+                        done();
+                    } );
+                } );
+
+            } );
+
+            describe( 'Setting the ignoreUser option to "scroll"', function () {
+
+                it( 'When the user scrolls, the scroll animation continues regardless', function ( done ) {
+                    var userTarget;
+                    $window.scrollTo( "bottom", { ignoreUser: "scroll" } );
+
+                    inMidScroll( function () {
+                        userTarget = userScrollsBy( intentionalUserScrollMovement, $window );
+                    } );
+
+                    afterScroll( function () {
+                        expect( $window.scrollTop() ).toFuzzyEqual( maxScrollHeight );
+                        expect( $window.scrollLeft() ).toEqual( 0 );
+                        done();
+                    } );
+                } );
+
+            } );
+
+            describe( 'Setting the ignoreUser option to "click"', function () {
+
+                it( 'When the user scrolls, the scroll animation is stopped as usual', function ( done ) {
+                    var userTarget;
+                    $window.scrollTo( "bottom", { ignoreUser: "click" } );
+
+                    inMidScroll( function () {
+                        userTarget = userScrollsBy( intentionalUserScrollMovement, $window );
+                    } );
+
+                    afterScroll( function () {
+                        expect( $window.scrollTop() ).toBeLocatedCloselyBelow( userTarget.y, abortTolerance );
+                        expect( $window.scrollTop() ).toBeLocatedStrictlyAbove( maxScrollHeight );
+
+                        expect( $window.scrollLeft() ).toEqual( 0 );
+                        done();
+                    } );
+                } );
+
+            } );
+
         } );
 
     } );

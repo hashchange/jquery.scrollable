@@ -217,6 +217,71 @@ function userScrollsBy ( amount, $container ) {
 }
 
 /**
+ * Simulates a user click in the given container. Returns the scroll position at which the click occurred.
+ *
+ * @param   {jQuery} $container  should be $( window ) if the window is scrolled
+ * @returns {{x: number, y: number}}
+ */
+function userClicks ( $container ) {
+    var $clickable = $.isWindow( $container[0] ) ? $( $container[0].document.body ) : $container;
+
+    $clickable
+        .mousedown()
+        .mouseup()
+        .click();
+    
+    return {
+        x: $container.scrollLeft(),
+        y: $container.scrollTop()
+    };
+}
+
+/**
+ * Simulates a user tap in the given container. Returns the scroll position at which the tap occurred.
+ *
+ * ---------------------------------------------------------------------------------------------------------------------
+ * ATTN The tap gesture is async!
+ *
+ * The tap gesture takes 100ms by default. The position returned by the function is captured when the tap begins, not
+ * when it is complete.
+ *
+ * You can change it with the option capturePositionAsync. In that case, the positions object is set to { x: "invalid",
+ * y: "invalid" } initially, and is updated with the current scroll position when the tap ends.
+ *
+ * ---------------------------------------------------------------------------------------------------------------------
+ *
+ * Requires hammerjs/simulator to be installed.
+ *
+ * @param   {jQuery}  $container                            should be $( window ) if the window is scrolled
+ * @param   {Object}  [options]
+ * @param   {boolean} [options.capturePositionAsync=false]
+ *
+ * @returns {{x: number, y: number}}
+ */
+function userTaps ( $container, options ) {
+    var el = $.isWindow( $container[0] ) ? $container[0].document.body : $container[0],
+        startPosition = {
+            x: $container.scrollLeft(),
+            y: $container.scrollTop()
+        },
+        endPosition = {
+            x: "invalid",
+            y: "invalid"
+        };
+
+    if ( typeof Simulator === "undefined" ) {
+        throw new Error( "Test environment: Tap simulator is missing. Please install hammerjs/simulator." );
+    } else {
+        Simulator.gestures.tap( el, undefined, function () {
+            endPosition.x = $container.scrollLeft();
+            endPosition.y = $container.scrollTop();
+        } );
+    }
+
+    return ( options && options.capturePositionAsync ) ? endPosition : startPosition;
+}
+
+/**
  * Returns the current scroll location as a hash of (px) numbers: { x: ..., y: ... }.
  *
  * @param   {jQuery} $container  should be $( window ) if the window is scrolled

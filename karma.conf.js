@@ -35,6 +35,7 @@ module.exports = function(config) {
 
       // Test dependencies
       'node_modules/underscore/underscore.js',
+      'node_modules/hammer-simulator/index.js',
 
       // Test helpers
       'spec/helpers/**/*.js',
