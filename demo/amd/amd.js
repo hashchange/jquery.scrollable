@@ -154,8 +154,10 @@ require( [
             if ( addSeparator ) $entry.addClass( "done" );
             $entry.text( message ).appendTo( $log );
 
-            console.log( message );
-            if ( addSeparator ) console.log( "-------" );
+            if ( typeof console !== "undefined" ) {
+                console.log( message );
+                if ( addSeparator ) console.log( "-------" );
+            }
         }
 
         function getScrollMode () {
