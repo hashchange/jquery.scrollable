@@ -315,6 +315,8 @@ jQuery.scrollable has been tested with
 - Safari on iOS 8, Chrome on Android 5
 - SlimerJS
 
+IE8 can't hande the heavily asynchronous character of the unit tests. It has been tested manually instead, using the [AMD demo][tool-chain-commands] (run it with `grunt demo`).
+
 ## Build process and tests
 
 If you'd like to fix, customize or otherwise improve the project: here are your tools.
@@ -452,6 +454,7 @@ Copyright (c) 2015 Michael Heim.
 [scrolling-both-axes]: #scrolling-to-a-fixed-position-on-both-axes "Scrolling to a fixed position on both axes"
 [ignoring-the-user]: #ignoring-the-user "Ignoring the user"
 [tweaking-scroll-detection]: #tweaking-the-user-scroll-detection "Tweaking the user scroll detection"
+[tool-chain-commands]: #tool-chain-and-commands "Tool chain and commands"
 
 [Node.js]: http://nodejs.org/ "Node.js"
 [Bower]: http://bower.io/ "Bower: a package manager for the web"
