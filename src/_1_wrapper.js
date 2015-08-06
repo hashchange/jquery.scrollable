@@ -35,6 +35,7 @@ var mgr = {},
         // Internal config. Do not modify in production.
         _scrollDetectionThreshold: 5,
         _enableUserScrollDetection: !isIOS(),
+        _enableClickAndTouchDetection: true,
         _useScrollHistoryForDetection: isIOS()
     };
 

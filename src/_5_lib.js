@@ -168,6 +168,7 @@
             };
 
         options = addUserScrollDetection( options, history );
+        options = addUserClickTouchDetection( $elem, options );
 
         if ( hasPosX ) animated.scrollLeft = posX;
         if ( hasPosY ) animated.scrollTop = posY;
@@ -475,17 +476,21 @@
      */
     function addUserScrollDetection ( animationOptions, history ) {
         var queueName = animationOptions.queue,
+
+            enableDetection = $.scrollable._enableUserScrollDetection && animationOptions.ignoreUser !== true && animationOptions.ignoreUser !== norm.IGNORE_USER_SCROLL_ONLY,
             userScrollTriggerThreshold = animationOptions.userScrollThreshold !== undefined ? parseInt( animationOptions.userScrollThreshold, 10 ) : $.scrollable.userScrollThreshold,
             userScrollDetectionThreshold = $.scrollable._scrollDetectionThreshold,
             userStepCb = animationOptions.step,
+
             modifiedOptions = animationOptions ? $.extend( {}, animationOptions ) : {},
+
             lastExpected = {},
             cumulativeDelta = {
                 scrollTop: 0,
                 scrollLeft: 0
             };
 
-        if ( $.scrollable._enableUserScrollDetection ) {
+        if ( enableDetection ) {
 
             if ( userScrollTriggerThreshold < userScrollDetectionThreshold ) throw new Error( "User scroll detection: threshold too low. The threshold for detecting user scroll movement must be set to at least " + userScrollDetectionThreshold );
 
@@ -572,6 +577,60 @@
 
                 // Finally, call the user-provided step callback
                 return userStepCb && userStepCb.apply( this, $.makeArray( arguments ) );
+            };
+
+        }
+
+        return modifiedOptions;
+    }
+
+    /**
+     * Adds user click and touch detection to the animation options, and returns the updated options hash.
+     *
+     * An event handler for user click and touch is set up in the `start` callback, and removed in the `always`
+     * callback. If the user has provided callbacks of these types, they are invoked from the wrapper callbacks which
+     * are created here.
+     *
+     * An independent, modified options hash is returned. The original options hash remains unchanged.
+     *
+     * @param   {jQuery} $elem
+     * @param   {Object} animationOptions  must be normalized
+     * @returns {Object}
+     */
+    function addUserClickTouchDetection ( $elem, animationOptions ) {
+        var handler,
+            events = "mousedown touchstart pointerdown",
+
+            enableDetection = $.scrollable._enableClickAndTouchDetection && animationOptions.ignoreUser !== true && animationOptions.ignoreUser !== norm.IGNORE_USER_CLICK_TOUCH_ONLY,
+            queueName = animationOptions.queue,
+            userStartCb = animationOptions.start,
+            userAlwaysCb = animationOptions.always,
+            modifiedOptions = animationOptions ? $.extend( {}, animationOptions ) : {},
+
+            // Element for attaching the event handlers: If the scrollable element is the "html" element, use the body
+            // instead.
+            $clickable = $elem[0].tagName.toLowerCase() === "html" ? $( $elem[0].ownerDocument.body ) : $elem;
+
+        if ( enableDetection ) {
+
+            handler = function () {
+                lib.stopScrollAnimation( $elem, { queue: queueName } );
+            };
+
+            modifiedOptions.start = function () {
+                // Add the event handler for mousedown, touchstart, pointerdown
+                $clickable.on( events, handler );
+
+                // Call the user-provided `start` callback
+                return userStartCb && userStartCb.apply( this, $.makeArray( arguments ) );
+            };
+
+            modifiedOptions.always = function () {
+                // Remove the event handlers
+                $clickable.off( events, handler );
+
+                // Call the user-provided `always` callback
+                return userAlwaysCb && userAlwaysCb.apply( this, $.makeArray( arguments ) );
             };
 
         }

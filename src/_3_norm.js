@@ -28,8 +28,15 @@
     /** @type {Object}  default scroll options */
     norm.defaults = {
         axis: norm.VERTICAL,
-        queue: "internal.jquery.scrollable"
+        queue: "internal.jquery.scrollable",
+        ignoreUser: false
     };
+
+    /** @type {string}  ignoreUser option name for ignoring scroll */
+    norm.IGNORE_USER_SCROLL_ONLY = "scroll";
+
+    /** @type {string}  ignoreUser option name for ignoring clicks and touch */
+    norm.IGNORE_USER_CLICK_TOUCH_ONLY = "click";
 
     /** @type {string}  "replace" mode flag for chained scrollTo calls */
     norm.MODE_REPLACE = "replace";
@@ -297,6 +304,8 @@
 
         }
 
+        validateIgnoreUserOption( options );
+
         // Apply defaults where applicable
         return $.extend( {}, norm.defaults, { axis: axisDefault }, options );
 
@@ -325,6 +334,19 @@
         return name;
 
     };
+
+    /**
+     * Verifies that the value of the ignoreUserOption is valid, if it is set. Throws an error if the value isn't
+     * recognized.
+     *
+     * Falsy values are ok, no matter of which type.
+     *
+     * @param {Object} options
+     */
+    function validateIgnoreUserOption ( options ) {
+        var ignoreUser = options && options.ignoreUser;
+        if ( ignoreUser && !( ignoreUser === true || ignoreUser === norm.IGNORE_USER_SCROLL_ONLY || ignoreUser === norm.IGNORE_USER_CLICK_TOUCH_ONLY ) ) throw new Error( 'Invalid ignoreUser option value "' + ignoreUser + '"');
+    }
 
     /**
      * Returns the scroll mode after examining the animation options.
