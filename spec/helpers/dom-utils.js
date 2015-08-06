@@ -261,6 +261,37 @@ function forceReflow ( element ) {
 }
 
 /**
+ * Detects if the browser supports touch events.
+ *
+ * @returns {boolean}
+ */
+function supportsTouchEvents () {
+    return !!( "ontouchstart" in window );
+}
+
+/**
+ * Detects if the browser supports pointer events.
+ *
+ * @returns {boolean}
+ */
+function supportsPointerEvents () {
+    return !!( "onpointerdown" in window );
+}
+
+/**
+ * Detects if the browser is capable of responding to touch input, at least in theory. (It doesn't necessarily mean that
+ * the browser is running on a touch-enabled device.)
+ *
+ * @returns {boolean}
+ */
+function supportsTouchUI () {
+    // NB We must explicitly exclude desktop IE. IE11 advertises its support of pointer events, but it doesn't respond
+    // to (simulated) taps in a desktop environment.
+    var isDesktopIE = isIE() && !isIEMobile();
+    return ( supportsTouchEvents() || supportsPointerEvents() ) && !isDesktopIE;
+}
+
+/**
  * Detects if the browser is on iOS. Works for Safari as well as other browsers, say, Chrome on iOS.
  *
  * Required for some iOS behaviour which can't be feature-detected in any way.

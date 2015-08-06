@@ -52,6 +52,7 @@
     "hammer-simulator": "git+https://git@github.com/hammerjs/simulator#master",
     "jasmine-core": "~2.3.4",
     "jasmine-expect": "^2.0.0-beta1",
+    "jquery": "1",
     "karma": "~0.12.37",
     "karma-chrome-launcher": "~0.2.0",
     "karma-firefox-launcher": "~0.1.6",

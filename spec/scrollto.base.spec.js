@@ -318,27 +318,27 @@
                 describe( 'When the window is scrolled,', function () {
 
                     it( 'it binds the "start" callback to the window', function () {
-                        expect( callbackCalls.start.this ).toBe( window );
+                        expect( callbackCalls.start.context ).toBe( window );
                     } );
 
                     it( 'it binds the "step" callback to the window', function () {
-                        expect( callbackCalls.step.this ).toBe( window );
+                        expect( callbackCalls.step.context ).toBe( window );
                     } );
 
                     it( 'it binds the "progress" callback to the window', function () {
-                        expect( callbackCalls.progress.this ).toBe( window );
+                        expect( callbackCalls.progress.context ).toBe( window );
                     } );
 
                     it( 'it binds the "done" callback to the window', function () {
-                        expect( callbackCalls.done.this ).toBe( window );
+                        expect( callbackCalls.done.context ).toBe( window );
                     } );
 
                     it( 'it binds the "complete" callback to the window', function () {
-                        expect( callbackCalls.complete.this ).toBe( window );
+                        expect( callbackCalls.complete.context ).toBe( window );
                     } );
 
                     it( 'it binds the "always" callback to the window', function () {
-                        expect( callbackCalls.always.this ).toBe( window );
+                        expect( callbackCalls.always.context ).toBe( window );
                     } );
 
                 } );
@@ -440,27 +440,27 @@
                 describe( 'When the window is scrolled,', function () {
 
                     it( 'it binds the "start" callback to the window', function () {
-                        expect( callbackCalls.start.this ).toBe( window );
+                        expect( callbackCalls.start.context ).toBe( window );
                     } );
 
                     it( 'it binds the "step" callback to the window', function () {
-                        expect( callbackCalls.step.this ).toBe( window );
+                        expect( callbackCalls.step.context ).toBe( window );
                     } );
 
                     it( 'it binds the "progress" callback to the window', function () {
-                        expect( callbackCalls.progress.this ).toBe( window );
+                        expect( callbackCalls.progress.context ).toBe( window );
                     } );
 
                     it( 'it binds the "done" callback to the window', function () {
-                        expect( callbackCalls.done.this ).toBe( window );
+                        expect( callbackCalls.done.context ).toBe( window );
                     } );
 
                     it( 'it binds the "complete" callback to the window', function () {
-                        expect( callbackCalls.complete.this ).toBe( window );
+                        expect( callbackCalls.complete.context ).toBe( window );
                     } );
 
                     it( 'it binds the "always" callback to the window', function () {
-                        expect( callbackCalls.always.this ).toBe( window );
+                        expect( callbackCalls.always.context ).toBe( window );
                     } );
 
                 } );
@@ -570,27 +570,27 @@
                 describe( 'When the window is scrolled,', function () {
 
                     it( 'it binds the "start" callback to the window', function () {
-                        expect( callbackCalls.start.this ).toBe( window );
+                        expect( callbackCalls.start.context ).toBe( window );
                     } );
 
                     it( 'it binds the "step" callback to the window', function () {
-                        expect( callbackCalls.step.this ).toBe( window );
+                        expect( callbackCalls.step.context ).toBe( window );
                     } );
 
                     it( 'it binds the "progress" callback to the window', function () {
-                        expect( callbackCalls.progress.this ).toBe( window );
+                        expect( callbackCalls.progress.context ).toBe( window );
                     } );
 
                     it( 'it binds the "done" callback to the window', function () {
-                        expect( callbackCalls.done.this ).toBe( window );
+                        expect( callbackCalls.done.context ).toBe( window );
                     } );
 
                     it( 'it binds the "complete" callback to the window', function () {
-                        expect( callbackCalls.complete.this ).toBe( window );
+                        expect( callbackCalls.complete.context ).toBe( window );
                     } );
 
                     it( 'it binds the "always" callback to the window', function () {
-                        expect( callbackCalls.always.this ).toBe( window );
+                        expect( callbackCalls.always.context ).toBe( window );
                     } );
 
                 } );

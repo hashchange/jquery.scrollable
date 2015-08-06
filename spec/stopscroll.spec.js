@@ -130,17 +130,22 @@
 
                 beforeEach( function ( done ) {
 
-                    $window
-                        .scrollTo( "bottom" )
-                        .scrollTo( "right", { append: true } )
-                        .scrollTo( "top", { append: true } )
-                        .scrollTo( "90%", { axis: "x", append: true } );
+                    // IE 9 needed some extra time to recover after each test. Adding a delay of 100ms.
+                    _.delay( function () {
 
-                    inMidScroll( function () {
-                        $window.stopScroll();
-                        stopLocation = getCurrentScrollLocation( $window );
-                        done();
-                    } );
+                        $window
+                            .scrollTo( "bottom" )
+                            .scrollTo( "right", { append: true } )
+                            .scrollTo( "top", { append: true } )
+                            .scrollTo( "90%", { axis: "x", append: true } );
+
+                        inMidScroll( function () {
+                            $window.stopScroll();
+                            stopLocation = getCurrentScrollLocation( $window );
+                            done();
+                        } );
+
+                    }, 100 );
 
                 } );
 

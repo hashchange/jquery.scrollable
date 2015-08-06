@@ -18,7 +18,9 @@
 
             userClickDetectionEnabled = $.scrollable._enableClickAndTouchDetection,
 
-            msgTestSkippedDetectionDisabled = 'Skipped because user click and touch detection is disabled ($.scrollable._enableClickAndTouchDetection = false)';
+            msgTestSkippedDetectionDisabled = 'Skipped because user click and touch detection is disabled ($.scrollable._enableClickAndTouchDetection = false)',
+
+            msgTestSkippedNoTouchUI = 'Skipped because the browser does not support a touch-enabled UI';
 
 
         beforeEach( function ( done ) {
@@ -85,7 +87,7 @@
                     } );
                 } );
 
-                it( 'when the user taps in mid movement', function ( done ) {
+                itIf( supportsTouchUI(), msgTestSkippedNoTouchUI, 'when the user taps in mid movement', function ( done ) {
                     var userTarget;
                     $window.scrollTo( "bottom" );
 
@@ -133,7 +135,7 @@
                     } );
                 } );
 
-                it( 'when the user taps in mid movement', function ( done ) {
+                itIf( supportsTouchUI(), msgTestSkippedNoTouchUI, 'when the user taps in mid movement', function ( done ) {
                     var userTarget;
                     $window.scrollTo( "right" );
 
@@ -166,16 +168,21 @@
 
                 beforeEach( function ( done ) {
 
-                    $window
-                        .scrollTo( "bottom" )
-                        .scrollTo( "right", { append: true } )
-                        .scrollTo( "top", { append: true } )
-                        .scrollTo( "90%", { axis: "x", append: true } );
+                    // IE 9 needed some extra time to recover after each test. Adding a delay of 100ms.
+                    _.delay( function () {
 
-                    inMidScroll( function () {
-                        userTarget = userClicks( $window );
-                        done();
-                    } );
+                        $window
+                            .scrollTo( "bottom" )
+                            .scrollTo( "right", { append: true } )
+                            .scrollTo( "top", { append: true } )
+                            .scrollTo( "90%", { axis: "x", append: true } );
+
+                        inMidScroll( function () {
+                            userTarget = userClicks( $window );
+                            done();
+                        } );
+
+                    }, 100 );
 
                 } );
 
@@ -387,7 +394,7 @@
 
         } );
 
-        describeIf( userClickDetectionEnabled, msgTestSkippedDetectionDisabled, 'Ignoring user taps with the ignoreUser option.', function () {
+        describeIf( userClickDetectionEnabled && supportsTouchUI(), !userClickDetectionEnabled ? msgTestSkippedDetectionDisabled : msgTestSkippedNoTouchUI, 'Ignoring user taps with the ignoreUser option.', function () {
 
             describe( 'Setting the ignoreUser option to true', function () {
 

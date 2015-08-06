@@ -136,7 +136,7 @@ function getCallbackLogger( callbackName, callsCollector, $scrollContainer ) {
 
         collector = callsCollector[callbackName];
 
-        collector.this = this;
+        collector.context = this;
         collector.callCount++;
         collector.args = $.makeArray( arguments );
         // Scroll state is logged for last invocation of the callback.
