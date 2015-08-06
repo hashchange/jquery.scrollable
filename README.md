@@ -26,7 +26,24 @@ See? That's why you get a plugin for such a trivial task.
 
 It's super simple. And it gives you a lot of flexibility.
 
-<small>[Absolute target][absolute-scrolling] – [Relative target][relative-scrolling] – [Overlapping calls][overlapping-calls] – [User interaction][user-interaction] – [Options][animation-options] – [Stopping][stopping] – [Custom queues][custom-queues] – [Scrollable distance][scrollable-distance] – [Scrollable element][scrollable-element]</small>
+<small>[Window scrolling][window-scrolling] – [Absolute target][absolute-scrolling] – [Relative target][relative-scrolling] – [Overlapping calls][overlapping-calls] – [User interaction][user-interaction] – [Options][animation-options] – [Stopping][stopping] – [Custom queues][custom-queues] – [Scrollable distance][scrollable-distance] – [Scrollable element][scrollable-element]</small>
+
+### Scrolling a window
+
+For scrolling the window, call `scrollTo` on any object which would come to mind:
+
+```js
+$( window ).scrollTo( 1200 );     // scrolls the window
+$( "body" ).scrollTo( 1200 );     // scrolls the window
+$( "html" ).scrollTo( 1200 );     // scrolls the window
+$( document ).scrollTo( 1200 );   // scrolls the window
+``` 
+
+Likewise for an iframe (provided you are allowed access to its content). You can also call `scrollTo` on the iframe element itself.
+
+```js
+$iframeElement.scrollTo( 1200 );  // scrolls the iframe window
+``` 
 
 ### Scrolling to a fixed position, vertically
 
@@ -45,9 +62,9 @@ $elem.scrollTo( { vertical: 1200 } );
 $elem.scrollTo( { v: 1200 } );
 
 // ...or with a separate axis option.
-$elem.scrollTo( 1200, { axis: "y" );
-$elem.scrollTo( 1200, { axis: "vertical" );
-$elem.scrollTo( 1200, { axis: "v" );
+$elem.scrollTo( 1200, { axis: "y" } );
+$elem.scrollTo( 1200, { axis: "vertical" } );
+$elem.scrollTo( 1200, { axis: "v" } );
 ```
 
 As you can see, the **vertical axis names** `top`, `y`, `vertical`, and `v` can be used interchangeably. And of course, if the target position is beyond the maximum scroll range, it is adjusted automatically to ensure a smooth animation.
@@ -77,9 +94,9 @@ $elem.scrollTo( { horizontal: 800 } );
 $elem.scrollTo( { h: 800 } );
 
 // ...or with the axis option.
-$elem.scrollTo( 1200, { axis: "x" );
-$elem.scrollTo( 1200, { axis: "horizontal" );
-$elem.scrollTo( 1200, { axis: "h" );
+$elem.scrollTo( 1200, { axis: "x" } );
+$elem.scrollTo( 1200, { axis: "horizontal" } );
+$elem.scrollTo( 1200, { axis: "h" } );
 ```
 
 **Horizontal axis names** are `left`, `x`, `horizontal`, and `h`. Use what suits you best.
@@ -195,9 +212,13 @@ An animation initiated by `scrollTo` is automatically stopped as soon as
 - the user holds down a mouse button, clicks, or double-clicks in the scrolling area
 - the user touches the screen in the scrolling area, in a touch-enabled device.
 
-You might want to allow clicking or tapping on a few selected elements – controls with a fixed position, for instance – without stopping the scroll animation. That is easy to do. The click and touch detection responds to `mousedown`, `touchstart` and `pointerdown` events. We just have to prevent these events from bubbling up to the scroll container.   
+That way, the actions of the user are respected. They take precedence over automated animations.
 
-So we add an event handler to our controls which does just that:
+##### Exceptions for selected elements
+
+Occasionally, you might want to allow clicking or tapping on a few selected elements – controls with a fixed position, for instance – without stopping the scroll animation. That is easy to do. 
+
+The click and touch detection responds to `mousedown`, `touchstart` and `pointerdown` events. In order to keep the scroll animation running, you just have to prevent these events from bubbling up to the scroll container. Add an event handler to your controls which does just that:
  
 ```js
 $controls.on( "mousedown touchstart pointerdown", function ( event ) { 
@@ -211,7 +232,7 @@ Of course, you only need to do this if the controls are children of the scroll c
 
 You can override the built-in detection of user actions and force your scroll movement to proceed with the `ignoreUser` option: `$elem.scrollTo( 100, { ignoreUser: true } )`. And yes, that option name is chosen deliberately to make you cringe when you type it. 
 
-If you need to be more specific, use `ignoreUser: "click"` to ignore clicks and touch only. The scroll animation still stops when the user scrolls. Alternatively, you can ignore that scrolling, but respond to clicks and touch, with `ignoreUser: "scroll"`.
+If you need to be more specific, use `ignoreUser: "click"` to ignore clicks and touch only. The scroll animation still stops when the user scrolls. Alternatively, you can ignore scrolling, but respond to clicks and touch, with `ignoreUser: "scroll"`.
 
 It should be said, though, that overriding the user's intent in this way is a bad idea (tm) in almost every case. Use `ignoreUser` judiciously.
 
@@ -219,13 +240,15 @@ It should be said, though, that overriding the user's intent in this way is a ba
 
 A scroll animation is aborted when the user has tried to scroll by more than 10px, in any direction. Below that threshold, user scrolling is considered to be accidental and insufficient to signal intent.
 
-You can tweak that threshold, even though there hardly ever is any need to do so. The default setting is stored in a global: `$.scrollable.userScrollThreshold = 10`. You can set the threshold for an individual animation with the `userScrollThreshold` option: `$elem.scrollTo( 1000, { userScrollThreshold: 50 }`. The minimum value for the threshold is 5.
+You can tweak that threshold, even though there hardly ever is any need to do so. The default setting is stored in a global, which you can modify: `$.scrollable.userScrollThreshold = 50`. You can also set the threshold for an individual animation with the `userScrollThreshold` option: `$elem.scrollTo( 1000, { userScrollThreshold: 50 }`. 
+
+The minimum value for the threshold is 5.
 
 ### Animation options
 
-We have already [talked about][overlapping-calls] the options `axis`, `append`, and `merge`, and discussed ways to fine-tune the interaction with [with `ignoreUser`][ignoring-the-user] and [`userScrollThreshold`][tweaking-scroll-detection].
+We have already [talked about][overlapping-calls] the options `axis`, `append`, and `merge`. We have also discussed ways to fine-tune the interaction with [with `ignoreUser`][ignoring-the-user] and the [`userScrollThreshold` option][tweaking-scroll-detection].
 
-In addition to these, you can use [every option available to `jQuery.animate()`][jQuery-animate]. Set up `progress` or `complete` callbacks, specify a `duration` etc. Add what you need to the options object that you pass to `scrollTo()`:
+In addition to these, you can use [every option available to `jQuery.animate()`][jQuery-animate]. Set up `progress` or `complete` callbacks, specify a `duration` etc. Add what you need to the options object which you pass to `scrollTo()`:
 
 ```js
 $elem.scrollTo( 1200, { axis: "x", duration: 800 );
@@ -239,7 +262,9 @@ But there is an exception: window scroll animations are bound to the appropriate
 
 ### Stopping scroll animations
 
-Scroll animations run in their own, dedicated queue, so they don't interfere with other animations which may be going on at the same time. As a result, you can't and shouldn't stop scroll movements with the [generic jQuery `$elem.stop()` command][jquery-stop]. Use `$elem.stopScroll()` instead:
+Scroll animations run in their own, dedicated queue, so they don't interfere with other animations which may be going on at the same time. As a result, you can't and shouldn't stop scroll movements with the [generic jQuery `$elem.stop()` command][jquery-stop]. 
+
+Use `$elem.stopScroll()` instead:
 
 ```js
 $elem.stopScroll();
@@ -248,11 +273,11 @@ $elem.stopScroll( { jumpToTargetPosition: true } );
 
 With the option `jumpToTargetPosition`, the window or container element jumps to the target position as the animation is aborted. By default, the scroll animation just stops wherever it happens to be.
 
-Calling `stopScroll()` also removes queued scroll animations, should there be any. But it does not affect other, non-scroll animations and their queues – they proceed as normal.
+Calling `stopScroll()` also removes queued scroll animations, should there be any. But non-scroll animations and their queues are not affected – they proceed as normal.
 
-Please be aware that **you don't have to call `stopScroll()` before scrolling into a new direction**. When you call `scrollTo()` for a second time on the same container (e.g. the window), ongoing scroll movements are stopped automatically for you.
+**Important: You don't need to use `stopScroll()` when calling `scrollTo()` repeatedly**. 
 
-Rather, you have to act if you _don't_ want to stop the current scroll movement. Use the `append` option then ([see above][scrolling-both-axes]).
+When you call `scrollTo()` multiple times on the same container (e.g. the window), ongoing scroll movements are stopped automatically for you. In fact, you have to act if you _don't_ want to stop the current scroll movement. Use the `append` option then ([see above][scrolling-both-axes]).
 
 ### Custom queues
 
@@ -260,11 +285,13 @@ As already mentioned above, scroll animations run in their own, dedicated queue,
 
 However, if you want to get really fancy with your animations, you can merge scrolling and other animations in a custom queue of your own. But in most cases, you shouldn't.
 
-Sure enough, you can pass a custom queue name to `scrollTo()`. That is done in standard jQuery fashion: with the `queue` option. If you use it and you ever call `stopScroll()`, you need to provide the same queue name there, too. Call it as `$elem.stopScroll( { queue: "foo" } )`.
+Sure enough, you can pass a custom queue name to `scrollTo()`. That is done in standard jQuery fashion: with the `queue` option. If you use it and you ever call `stopScroll()`, you need to provide the same queue name there, too. Call it like this: `$elem.stopScroll( { queue: "foo" } )`.
 
-But in that custom queue, it is no longer possible to differentiate between scroll and non-scroll animations. A new invocation of `scrollTo()` stops _all_ animations in that queue, regardless of type, unless you use [the `append` option][scrolling-both-axes] (in which case nothing stops at all). And `stopScroll()` now works just the same as [jQuery's `$elem.stop( true )`][jquery-stop].
+But that flexibility comes at a price. In a custom queue of your own, it is no longer possible to differentiate between scroll and non-scroll animations. When you run `scrollTo()`, it stops _all_ animations in that queue, regardless of type, unless you use [the `append` option][scrolling-both-axes] (in which case nothing stops at all). And `stopScroll()` now works just the same as [jQuery's `$elem.stop( true )`][jquery-stop].
 
-My advice would be to stick to the standard scroll queue as a best practice – ie, simply don't specify a queue, and all will be well. Manage that queue implicitly with the [`append` and `merge` options][overlapping-calls] of `scrollTo()`, or perhaps call `stopScroll()` explicitly when really necessary, and leave it at that. If you need to link up with other, non-scroll animations, callbacks like `complete` give you the means to do so.
+My advice would be to stick to the standard scroll queue as a best practice – ie, simply don't specify a queue, and all will be well. Manage that queue implicitly with the [`append` and `merge` options][overlapping-calls] of `scrollTo()`, or perhaps call `stopScroll()` explicitly when really necessary, and leave it at that. 
+
+If you need to link up with other, non-scroll animations, [callbacks like `complete`][jQuery-animate-options] give you the means to do so.
 
 ### Retrieving the maximum scrollable distance within an element
 
@@ -302,9 +329,13 @@ Please remember that despite all that flexibility with names during input, when 
 
 Well, finally there is the method which gave the plugin its name. A call to `$elem.scrollable()` returns the element used for the scroll animation. 
 
-When called on an ordinary HTML element, the result is uninteresting - all you get back is the element itself. For `body`/`html`/`window`, either `body` or `documentElement` is returned, depending on the browser. The result is wrapped in a jQuery object.
+- When called on an ordinary HTML element, the result is uninteresting – all you get back is the element itself.
+- For `document`/`body`/`html`/`window`, either `body` or `documentElement` is returned, depending on the browser. 
+- When called on an iframe element, you get the scrollable element for content window.
 
-(It should go without saying that the result is established with feature testing, not browser sniffing, and is based on the actual behaviour of the browser.)
+The result is wrapped in a jQuery object.
+
+It should go without saying that the result is established with feature testing, not browser sniffing, and is based on the actual behaviour of the browser.
 
 ## Browser support
 
@@ -434,11 +465,13 @@ Copyright (c) 2015 Michael Heim.
 [so-comment-iframe-setup]: http://stackoverflow.com/questions/8149155/animate-scrolltop-not-working-in-firefox/21583714#comment46979441_21583714 "Stack Overflow: Animate scrollTop not working in firefox – Comment by @hashchange"
 [so-comment-callback-filtering]: http://stackoverflow.com/questions/8790752/callback-of-animate-gets-called-twice-jquery/8791175#comment48499212_8791175 "Stack Overflow: Callback of .animate() gets called twice jquery – Comment by @hashchange"
 [jQuery-animate]: http://api.jquery.com/animate/ "jQuery API Documentation: .animate()"
+[jQuery-animate-options]: http://api.jquery.com/animate/#animate-properties-options "jQuery API Documentation: .animate() with an options argument"
 [jquery-stop]: http://api.jquery.com/stop/ "jQuery API Documentation: .stop()"
 
 [setup]: #dependencies-and-setup "Dependencies and setup"
 [why]: #why "Why use it?"
 [usage]: #ok-how "How to use it"
+[window-scrolling]: #scrolling-a-window "Scrolling a window"
 [absolute-scrolling]: #scrolling-to-a-fixed-position-vertically "Scrolling to a fixed position"
 [relative-scrolling]: #relative-scrolling "Relative scrolling"
 [overlapping-calls]: #starting-a-scroll-movement-while-another-one-is-still-in-progress "Starting a scroll movement while another one is still in progress"

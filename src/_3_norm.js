@@ -51,7 +51,7 @@
     /**
      * Normalizes the container element, if it relates to a window. Other elements are returned unchanged.
      *
-     * - It maps `documentElement` and `body` to the window.
+     * - It maps `document`, `documentElement` and `body` to the window.
      * - It maps an iframe element to its content window.
      * - It returns other elements unchanged.
      * - It returns an empty jQuery set as is.
