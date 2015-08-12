@@ -1,18 +1,48 @@
+var _cachedGlobalDefaultDuration = $.scrollable.defaultDuration,
+    _cachedGlobalDefaultMinimumSpeed = $.scrollable.defaultMinimumSpeed,
+
+    _testDefaultDuration = 300;
+
 /**
- * Sets the default duration for animations during the tests. The duration is reduced in order to speed up the tests.
+ * Sets the default duration for jQuery animations, and for scrollTo animations, during the tests. The duration is
+ * reduced in order to speed up the tests.
  *
  * NB Reducing the duration too far makes the tests less reliable. Tests start failing randomly if the duration is too
  * short, relative to the distances scrolled (ie, relative to the size of the browser window).
  */
 function reduceDefaultDurationForAnimations () {
-    $.fx.speeds._default = 300;
+    $.fx.speeds._default = $.scrollable.defaultDuration = _testDefaultDuration;
 }
 
 /**
- * Restores the jQuery default duration for animations (400ms).
+ * Restores the default duration for jQuery animations, and the default scroll duration for jQuery.scrollable (400ms).
  */
 function restoreDefaultDurationForAnimations () {
     $.fx.speeds._default = 400;
+    $.scrollable.defaultDuration = _cachedGlobalDefaultDuration;
+}
+
+/**
+ * Sets a very low speed for $.scrollable.defaultMinimumSpeed to keep it from kicking in. It would make expected
+ * completion times for animations too difficult to calculate.
+ *
+ * The minimum speed is not turned off completely, so bugs caused by the minimum speed setting are still captured.
+ *
+ * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ * !
+ * !    ATTN To make it work, scroll movements during tests must be larger than 20px (by a fair margin, ideally).
+ * !
+ * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ */
+function setLowMinimumSpeed() {
+    $.scrollable.defaultMinimumSpeed = 20 / _testDefaultDuration;
+}
+
+/**
+ * Restores the default setting of $.scrollable.defaultMinimumSpeed.
+ */
+function restoreMinimumSpeed() {
+    $.scrollable.defaultMinimumSpeed = _cachedGlobalDefaultMinimumSpeed;
 }
 
 /**
@@ -26,7 +56,7 @@ function restoreDefaultDurationForAnimations () {
  */
 function afterScroll ( testFunc, waitForRubberBand, duration ) {
     if ( !_.isUndefined( waitForRubberBand ) && !_.isBoolean( waitForRubberBand ) ) throw new Error( "waitForRubberBand must be a boolean, or left undefined" );
-    if ( _.isUndefined( duration ) ) duration = Math.max( $.fx.speeds._default + 10, Math.ceil( $.fx.speeds._default * _getPaddingMultiplier() ) );
+    if ( _.isUndefined( duration ) ) duration = Math.max( $.scrollable.defaultDuration + 10, Math.ceil( $.scrollable.defaultDuration * _getPaddingMultiplier() ) );
     if ( waitForRubberBand ) duration += _getRubberBandEffectDuration();
 
     _.delay( testFunc, duration );
@@ -45,7 +75,7 @@ function afterScroll ( testFunc, waitForRubberBand, duration ) {
  *                                              bouncing to finish (useful on mobile). Only added for the last scroll.
  */
 function afterScrolls ( factor, testFunc, waitForRubberBand ) {
-    var duration = Math.max( $.fx.speeds._default * factor + 10, Math.ceil( $.fx.speeds._default * factor * _getPaddingMultiplier() ) );
+    var duration = Math.max( $.scrollable.defaultDuration * factor + 10, Math.ceil( $.scrollable.defaultDuration * factor * _getPaddingMultiplier() ) );
     afterScroll( testFunc, waitForRubberBand, duration );
 }
 
@@ -56,7 +86,7 @@ function afterScrolls ( factor, testFunc, waitForRubberBand ) {
  * @param {number}   [duration]  defaults to half of the jQuery default duration, which usually equates to 200ms
  */
 function inMidScroll ( func, duration ) {
-    _.delay( func, _.isUndefined( duration ) ? Math.ceil( $.fx.speeds._default / 2 ) : duration );
+    _.delay( func, _.isUndefined( duration ) ? Math.ceil( $.scrollable.defaultDuration / 2 ) : duration );
 }
 
 /**
@@ -67,7 +97,7 @@ function inMidScroll ( func, duration ) {
  * @param {number}   [duration]  defaults to 10% of the jQuery default duration, which usually equates to 40ms
  */
 function earlyInMidScroll ( func, duration ) {
-    _.delay( func, _.isUndefined( duration ) ? Math.ceil( $.fx.speeds._default / 10 ) : duration );
+    _.delay( func, _.isUndefined( duration ) ? Math.ceil( $.scrollable.defaultDuration / 10 ) : duration );
 }
 
 /**

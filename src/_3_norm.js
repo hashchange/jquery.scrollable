@@ -25,18 +25,24 @@
     /** @type {number}  scroll position value signalling that the axis should not be scrolled */
     norm.IGNORE_AXIS = -999;
 
-    /** @type {Object}  default scroll options */
+    /** @type {Object}  default scroll options (hard-coded, not configurable) */
     norm.defaults = {
+        // Identifier for an options object belonging to jQuery.scrollable
+        _jqScrollable: true,
+
         axis: norm.VERTICAL,
         queue: "internal.jquery.scrollable",
         ignoreUser: false
     };
 
-    /** @type {string}  ignoreUser option name for ignoring scroll */
+    /** @type {string}  ignoreUser option value for ignoring scroll only */
     norm.IGNORE_USER_SCROLL_ONLY = "scroll";
 
-    /** @type {string}  ignoreUser option name for ignoring clicks and touch */
+    /** @type {string}  ignoreUser option value for ignoring clicks and touch only */
     norm.IGNORE_USER_CLICK_TOUCH_ONLY = "click";
+
+    /** @type {string}  minimumSpeed option name for setting the minimum speed according to duration */
+    norm.MIN_SPEED_AUTO = "auto";
 
     /** @type {string}  "replace" mode flag for chained scrollTo calls */
     norm.MODE_REPLACE = "replace";
@@ -264,7 +270,8 @@
      * The options hash is normalized in the following ways:
      *
      * - It is converted to canonical axis names.
-     * - The `queue` property is filled in with its default value, unless a queue is provided explicitly.
+     * - The minimumSpeed option is set to a number (needed for "auto", "none" values)
+     * - The properties `queue`, `ignoreUser` and `duration` are set to their default values when not specified.
      *
      * Does not touch the original hash, returns a separate object instead.
      *
@@ -304,10 +311,12 @@
 
         }
 
+        options.minimumSpeed = normalizeMinimumSpeed( options );
+
         validateIgnoreUserOption( options );
 
         // Apply defaults where applicable
-        return $.extend( {}, norm.defaults, { axis: axisDefault }, options );
+        return $.extend( {}, norm.defaults, { axis: axisDefault, duration: $.scrollable.defaultDuration }, options );
 
     };
 
@@ -374,6 +383,34 @@
 
         return position;
 
+    }
+
+    /**
+     * Returns the minimum speed as a number, based on the current options and the global default settings.
+     *
+     * When the minimum speed is set to "auto", it adapts to the desired duration of the animation (is inversely
+     * proportional). If the duration is longer than the default (slower movement), the minimum speed is reduced
+     * accordingly, and likewise for shorter durations.
+     *
+     * The base of that calculation is defined in $.scrollable.baseMinimumSpeedAuto.
+     *
+     * Falsy and non-numeric values (e.g. minimumSpeed: "none") are returned as 0.
+     *
+     * @param   {Object} options
+     * @returns {number}
+     */
+    function normalizeMinimumSpeed ( options ) {
+        var duration = options.duration !== undefined ? options.duration : $.scrollable.defaultDuration,
+            minSpeed = options.minimumSpeed !== undefined ? options.minimumSpeed : $.scrollable.defaultMinimumSpeed;
+
+        if ( minSpeed === norm.MIN_SPEED_AUTO ) {
+            minSpeed = $.scrollable.defaultDuration / duration * $.scrollable.baseMinimumSpeedAuto;
+        } else {
+            minSpeed = parseFloat( minSpeed );
+            if ( isNaN( minSpeed ) ) minSpeed = 0;
+        }
+
+        return minSpeed;
     }
 
     /**

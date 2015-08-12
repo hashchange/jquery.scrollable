@@ -33,6 +33,13 @@
                 // Reduce the default duration for animations in order to speed up the tests
                 reduceDefaultDurationForAnimations();
 
+                // Set a very low speed for $.scrollable.defaultMinimumSpeed to keep it from kicking in. See
+                // setLowMinimumSpeed() for more.
+                //
+                // ATTN To make it work, scroll movements during tests must be larger than 20px (by a fair margin,
+                // ideally).
+                setLowMinimumSpeed();
+
                 // Give browsers some breathing space to complete the initial setup phase.
                 _.delay( done, 50 );
 
@@ -43,6 +50,7 @@
         afterEach( function () {
             f.cleanDom();
             restoreDefaultDurationForAnimations();
+            restoreMinimumSpeed();
         } );
 
         afterAll( function () {

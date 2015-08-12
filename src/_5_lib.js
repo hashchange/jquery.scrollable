@@ -706,6 +706,52 @@
 
 
     /**
+     * Calculates the distance, in pixels, from the current scroll position to the target position.
+     *
+     * If an axis is ignored in the target position, make sure it is set to norm.IGNORE_AXIS.
+     *
+     * @param   {jQuery}      $container
+     * @param   {Coordinates} targetPosition
+     * @returns {number}
+     */
+    function getCurrentTravelDistance ( $container, targetPosition ) {
+        var currentPosition = lib.getCurrentScrollPosition( $container ),
+            deltaX = targetPosition[norm.HORIZONTAL] === norm.IGNORE_AXIS ? 0 : targetPosition[norm.HORIZONTAL] - currentPosition[norm.HORIZONTAL],
+            deltaY = targetPosition[norm.VERTICAL] === norm.IGNORE_AXIS ? 0 : targetPosition[norm.VERTICAL] - currentPosition[norm.VERTICAL];
+
+        return Math.sqrt( Math.pow( deltaX, 2 ) + Math.pow( deltaY, 2 ) );
+    }
+
+    /**
+     * Adds a jQuery.animate prefilter which applies the minimumSpeed setting, and adjusts the duration of a scroll
+     * animation when necessary.
+     *
+     * For more about prefilters, see https://gist.github.com/gnarf/54829d408993526fe475#prefilters
+     */
+    $.Animation.prefilter( function ( elem, properties, options ) {
+        var $container, maxDuration,
+            targetPosition = {},
+
+            hasX = properties && "scrollLeft" in properties,
+            hasY = properties && "scrollTop" in properties,
+            isScrollAnimation = properties && ( hasX || hasY ) && options && options._jqScrollable;
+
+        if ( isScrollAnimation && options.minimumSpeed ) {
+
+            $container = norm.normalizeContainer( $( elem ) );
+
+            targetPosition[norm.HORIZONTAL] = hasX ? properties.scrollLeft : norm.IGNORE_AXIS;
+            targetPosition[norm.VERTICAL] = hasY ? properties.scrollTop : norm.IGNORE_AXIS;
+
+            maxDuration = getCurrentTravelDistance( $container, targetPosition ) / options.minimumSpeed;
+
+            this.duration = options.duration = Math.min( maxDuration, options.duration );
+
+        }
+    } );
+
+
+    /**
      * Custom types.
      *
      * For easier documentation and type inference.
