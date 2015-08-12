@@ -1,7 +1,5 @@
 var _cachedGlobalDefaultDuration = $.scrollable.defaultDuration,
-    _cachedGlobalDefaultMinimumSpeed = $.scrollable.defaultMinimumSpeed,
-
-    _testDefaultDuration = 300;
+    _cachedGlobalSpeedLockThreshold = $.scrollable.lockSpeedBelow;
 
 /**
  * Sets the default duration for jQuery animations, and for scrollTo animations, during the tests. The duration is
@@ -11,7 +9,7 @@ var _cachedGlobalDefaultDuration = $.scrollable.defaultDuration,
  * short, relative to the distances scrolled (ie, relative to the size of the browser window).
  */
 function reduceDefaultDurationForAnimations () {
-    $.fx.speeds._default = $.scrollable.defaultDuration = _testDefaultDuration;
+    $.fx.speeds._default = $.scrollable.defaultDuration = 300;
 }
 
 /**
@@ -23,10 +21,10 @@ function restoreDefaultDurationForAnimations () {
 }
 
 /**
- * Sets a very low speed for $.scrollable.defaultMinimumSpeed to keep it from kicking in. It would make expected
- * completion times for animations too difficult to calculate.
+ * Sets a very low threshold for $.scrollable.lockSpeedBelow to keep the speed lock from kicking in. It would make
+ * expected completion times for animations too difficult to calculate.
  *
- * The minimum speed is not turned off completely, so bugs caused by the minimum speed setting are still captured.
+ * The lock is not turned off completely, so bugs caused by the lockSpeedBelow setting are still captured.
  *
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  * !
@@ -35,14 +33,14 @@ function restoreDefaultDurationForAnimations () {
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
 function setLowMinimumSpeed() {
-    $.scrollable.defaultMinimumSpeed = 20 / _testDefaultDuration;
+    $.scrollable.lockSpeedBelow = 20;
 }
 
 /**
- * Restores the default setting of $.scrollable.defaultMinimumSpeed.
+ * Restores the default setting of $.scrollable.lockSpeedBelow.
  */
 function restoreMinimumSpeed() {
-    $.scrollable.defaultMinimumSpeed = _cachedGlobalDefaultMinimumSpeed;
+    $.scrollable.lockSpeedBelow = _cachedGlobalSpeedLockThreshold;
 }
 
 /**

@@ -30,13 +30,7 @@ var mgr = {},
     };
 
     $.scrollable = {
-        // When minimumSpeed is set to "auto":
-        //
-        // minimum speed, in px/ms, for an animation with default duration (as a base for calculating the real minimum
-        // speed, which varies with the actual duration length)
-        baseMinimumSpeedAuto: 1,
-
-        defaultMinimumSpeed: "auto",
+        lockSpeedBelow: 400,
         defaultDuration: $.fx.speeds._default,
 
         userScrollThreshold: 10,

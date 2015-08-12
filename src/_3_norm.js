@@ -41,9 +41,6 @@
     /** @type {string}  ignoreUser option value for ignoring clicks and touch only */
     norm.IGNORE_USER_CLICK_TOUCH_ONLY = "click";
 
-    /** @type {string}  minimumSpeed option name for setting the minimum speed according to duration */
-    norm.MIN_SPEED_AUTO = "auto";
-
     /** @type {string}  "replace" mode flag for chained scrollTo calls */
     norm.MODE_REPLACE = "replace";
 
@@ -270,8 +267,9 @@
      * The options hash is normalized in the following ways:
      *
      * - It is converted to canonical axis names.
-     * - The minimumSpeed option is set to a number (needed for "auto", "none" values)
-     * - The properties `queue`, `ignoreUser` and `duration` are set to their default values when not specified.
+     * - The lockSpeedBelow option is set to a number (needed for values such as "off", or false)
+     * - The properties `queue`, `ignoreUser`, `lockSpeedBelow` and `duration` are set to their default values when not
+     *   specified.
      *
      * Does not touch the original hash, returns a separate object instead.
      *
@@ -311,7 +309,7 @@
 
         }
 
-        options.minimumSpeed = normalizeMinimumSpeed( options );
+        options.lockSpeedBelow = normalizeSpeedLockThreshold( options );
 
         validateIgnoreUserOption( options );
 
@@ -386,31 +384,21 @@
     }
 
     /**
-     * Returns the minimum speed as a number, based on the current options and the global default settings.
+     * Returns the speed lock threshold as a number, in px, based on the current options and the global default settings.
      *
-     * When the minimum speed is set to "auto", it adapts to the desired duration of the animation (is inversely
-     * proportional). If the duration is longer than the default (slower movement), the minimum speed is reduced
-     * accordingly, and likewise for shorter durations.
+     * If the distance covered by the scroll animation is below the threshold, the duration is reduced to keep the speed
+     * of the animation from falling further.
      *
-     * The base of that calculation is defined in $.scrollable.baseMinimumSpeedAuto.
-     *
-     * Falsy and non-numeric values (e.g. minimumSpeed: "none") are returned as 0.
+     * Falsy and non-numeric values (e.g. lockSpeedBelow: "off") are returned as 0.
      *
      * @param   {Object} options
      * @returns {number}
      */
-    function normalizeMinimumSpeed ( options ) {
-        var duration = options.duration !== undefined ? options.duration : $.scrollable.defaultDuration,
-            minSpeed = options.minimumSpeed !== undefined ? options.minimumSpeed : $.scrollable.defaultMinimumSpeed;
+    function normalizeSpeedLockThreshold ( options ) {
+        var threshold = options.lockSpeedBelow !== undefined ? options.lockSpeedBelow : $.scrollable.lockSpeedBelow;
 
-        if ( minSpeed === norm.MIN_SPEED_AUTO ) {
-            minSpeed = $.scrollable.defaultDuration / duration * $.scrollable.baseMinimumSpeedAuto;
-        } else {
-            minSpeed = parseFloat( minSpeed );
-            if ( isNaN( minSpeed ) ) minSpeed = 0;
-        }
-
-        return minSpeed;
+        threshold = parseFloat( threshold );
+        return isNaN( threshold ) ? 0 : threshold;
     }
 
     /**

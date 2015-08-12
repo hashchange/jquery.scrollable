@@ -723,29 +723,34 @@
     }
 
     /**
-     * Adds a jQuery.animate prefilter which applies the minimumSpeed setting, and adjusts the duration of a scroll
+     * Adds a jQuery.animate prefilter which applies the lockSpeedBelow setting, and adjusts the duration of a scroll
      * animation when necessary.
      *
      * For more about prefilters, see https://gist.github.com/gnarf/54829d408993526fe475#prefilters
      */
     $.Animation.prefilter( function ( elem, properties, options ) {
-        var $container, maxDuration,
+        var $container, distance, thresholdDistance, minSpeed, maxDuration,
             targetPosition = {},
 
             hasX = properties && "scrollLeft" in properties,
             hasY = properties && "scrollTop" in properties,
             isScrollAnimation = properties && ( hasX || hasY ) && options && options._jqScrollable;
 
-        if ( isScrollAnimation && options.minimumSpeed ) {
+        if ( isScrollAnimation && options.lockSpeedBelow ) {
 
             $container = norm.normalizeContainer( $( elem ) );
 
             targetPosition[norm.HORIZONTAL] = hasX ? properties.scrollLeft : norm.IGNORE_AXIS;
             targetPosition[norm.VERTICAL] = hasY ? properties.scrollTop : norm.IGNORE_AXIS;
 
-            maxDuration = getCurrentTravelDistance( $container, targetPosition ) / options.minimumSpeed;
+            distance = getCurrentTravelDistance( $container, targetPosition );
+            thresholdDistance = options.lockSpeedBelow;
 
-            this.duration = options.duration = Math.min( maxDuration, options.duration );
+            if ( distance < thresholdDistance ) {
+                minSpeed = thresholdDistance / options.duration;
+                maxDuration = distance / minSpeed;
+                this.duration = options.duration = Math.min( maxDuration, options.duration );
+            }
 
         }
     } );
