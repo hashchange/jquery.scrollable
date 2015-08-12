@@ -6,7 +6,8 @@ requirejs.config( {
         'jquery': '../demo/bower_demo_components/jquery/dist/jquery',
         'jquery.documentsize': '/bower_components/jquery.documentsize/dist/amd/jquery.documentsize',
         'jquery.scrollable': '/dist/amd/jquery.scrollable',
-        'underscore': '../demo/bower_demo_components/underscore/underscore'
+        'underscore': '../demo/bower_demo_components/underscore/underscore',
+        'usertiming': '../demo/bower_demo_components/usertiming/src/usertiming'
     },
 
     shim: {
@@ -21,9 +22,10 @@ require( [
 
     'jquery',
     'underscore',
+    'usertiming',
     'jquery.scrollable'
 
-], function ( $, _ ) {
+], function ( $, _, performance ) {
 
     $( function () {
 
@@ -41,6 +43,9 @@ require( [
             $feedbackY_percent = $( ".y-percent", $feedbackPane ),
 
             $log = $( "#log", $feedbackPane );
+
+        performance.clearMarks();
+        performance.clearMeasures();
 
         // Make sure the document body is larger than the window by at least 2000px in each dimension
         $body
@@ -84,8 +89,20 @@ require( [
                     duration: 2000,
                     append: scrollMode === "append",
                     merge: scrollMode === "merge",
-                    done: function () {
-                        updateLog( actionLabel + " done.", true );
+                    lockSpeedBelow: 1500,
+                    start: function ( animation ) {
+                        var callId = _.uniqueId( "callId" );
+                        animation._callId = callId;
+                        performance.mark( callId + " - Start" );
+                    },
+                    done: function ( animation ) {
+                        var execTime,
+                            callId = animation._callId;
+
+                        performance.measure( callId, callId + " - Start" );
+                        execTime = getMeasuredDuration( callId, { rounded: true, unit: true } );
+
+                        updateLog( actionLabel + " done.", true, " (" + execTime + ")" );
                     }
                 };
 
@@ -146,7 +163,7 @@ require( [
             $feedbackY_percent.text( toPercent( posY, range.vertical, 4 ) + "%" );
         }
 
-        function updateLog ( message, addSeparator ) {
+        function updateLog ( message, addSeparator, appendedMessageConsoleOnly ) {
             var $entry = $( "<li/>" );
 
             if ( $.isArray( message ) ) message = message.join( "" );
@@ -155,6 +172,7 @@ require( [
             $entry.text( message ).appendTo( $log );
 
             if ( typeof console !== "undefined" ) {
+                if ( appendedMessageConsoleOnly ) message += appendedMessageConsoleOnly;
                 console.log( message );
                 if ( addSeparator ) console.log( "-------" );
             }
@@ -171,6 +189,14 @@ require( [
             shift = Math.pow( 10, decimals || 0 );
 
         return Math.round( percentage * shift ) / shift;
+    }
+
+    function getMeasuredDuration( entry, opts ) {
+        var duration = performance.getEntriesByName( entry )[0].duration;
+        if ( opts && opts.rounded ) duration = Math.round( duration );
+        if ( opts && opts.unit ) duration = duration  + "ms";
+
+        return duration;
     }
 
 } );
