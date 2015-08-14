@@ -607,6 +607,137 @@
 
         } );
 
+        describe( 'Minimum speed with lockSpeedBelow.', function () {
+
+            var callbacks, paddingMultiplier, duration, threshold, options;
+
+            beforeEach( function () {
+                callbacks = createObservedCallbacks( {}, $window );
+                paddingMultiplier = _getPaddingMultiplier();
+
+                duration = 600;
+                threshold = 300;
+            } );
+
+            describe( 'Setting the threshold with the lockSpeedBelow option.', function () {
+
+                beforeEach( function () {
+                    options = $.extend( { lockSpeedBelow: threshold, duration: duration }, callbacks );
+                } );
+
+                it( 'Scrolling half the threshold distance takes half of the specified duration', function ( done ) {
+                    $window.scrollTo( threshold / 2, options );
+
+                    _.delay( function () {
+                        expect( callbacks.complete ).toHaveBeenCalled();
+                    }, duration / 2 *paddingMultiplier );
+
+                    _.delay( done, duration * paddingMultiplier );
+                } );
+
+                it( 'Scrolling exactly the threshold distance takes the full specified duration', function ( done ) {
+                    $window.scrollTo( threshold, options );
+
+                    _.delay( function () {
+                        expect( callbacks.complete ).not.toHaveBeenCalled();
+                    }, duration / 2 * paddingMultiplier );
+
+                    _.delay( function () {
+                        expect( callbacks.complete ).toHaveBeenCalled();
+                        done();
+                    }, duration * paddingMultiplier );
+                } );
+
+                it( 'Scrolling twice the threshold distance takes the full specified duration', function ( done ) {
+                    $window.scrollTo( 2 * threshold, options );
+
+                    _.delay( function () {
+                        expect( callbacks.complete ).not.toHaveBeenCalled();
+                    }, duration / 2 * paddingMultiplier );
+
+                    _.delay( function () {
+                        expect( callbacks.complete ).toHaveBeenCalled();
+                        done();
+                    }, duration * paddingMultiplier );
+                } );
+
+                it( 'With lockSpeedBelow set to 0, Scrolling a minimal distance of just 1px takes the full duration', function ( done ) {
+                    options = $.extend( options, { lockSpeedBelow: 0 } );
+                    $window.scrollTo( 1, options );
+
+                    _.delay( function () {
+                        expect( callbacks.complete ).not.toHaveBeenCalled();
+                    }, duration / 2 * paddingMultiplier );
+
+                    _.delay( function () {
+                        expect( callbacks.complete ).toHaveBeenCalled();
+                        done();
+                    }, duration * paddingMultiplier );
+                } );
+
+            } );
+
+            describe( 'Setting the threshold globally with $.scrollable.lockSpeedBelow.', function () {
+
+                beforeEach( function () {
+                    options = $.extend( { duration: duration }, callbacks );
+                    $.scrollable.lockSpeedBelow = threshold;
+                } );
+
+                it( 'Scrolling half the threshold distance takes half of the specified duration', function ( done ) {
+                    $window.scrollTo( threshold / 2, options );
+
+                    _.delay( function () {
+                        expect( callbacks.complete ).toHaveBeenCalled();
+                    }, duration / 2 *paddingMultiplier );
+
+                    _.delay( done, duration * paddingMultiplier );
+                } );
+
+                it( 'Scrolling exactly the threshold distance takes the full specified duration', function ( done ) {
+                    $window.scrollTo( threshold, options );
+
+                    _.delay( function () {
+                        expect( callbacks.complete ).not.toHaveBeenCalled();
+                    }, duration / 2 * paddingMultiplier );
+
+                    _.delay( function () {
+                        expect( callbacks.complete ).toHaveBeenCalled();
+                        done();
+                    }, duration * paddingMultiplier );
+                } );
+
+                it( 'Scrolling twice the threshold distance takes the full specified duration', function ( done ) {
+                    $window.scrollTo( 2 * threshold, options );
+
+                    _.delay( function () {
+                        expect( callbacks.complete ).not.toHaveBeenCalled();
+                    }, duration / 2 * paddingMultiplier );
+
+                    _.delay( function () {
+                        expect( callbacks.complete ).toHaveBeenCalled();
+                        done();
+                    }, duration * paddingMultiplier );
+                } );
+
+                it( 'With lockSpeedBelow set to 0, Scrolling a minimal distance of just 1px takes the full duration', function ( done ) {
+                    $.scrollable.lockSpeedBelow = 0;
+                    $window.scrollTo( 1, options );
+
+                    _.delay( function () {
+                        expect( callbacks.complete ).not.toHaveBeenCalled();
+                    }, duration / 2 * paddingMultiplier );
+
+                    _.delay( function () {
+                        expect( callbacks.complete ).toHaveBeenCalled();
+                        done();
+                    }, duration * paddingMultiplier );
+                } );
+
+            } );
+
+        } );
+
     } );
 
 })();
