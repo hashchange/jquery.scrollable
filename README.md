@@ -26,8 +26,8 @@ See? That's why you get a plugin for such a trivial task.
 
 It's super simple. And it gives you a lot of flexibility.
 
-<small>[Window scrolling][window-scrolling] – [Absolute target][absolute-scrolling] – [Relative target][relative-scrolling]</small>
-<small>[Overlapping calls][overlapping-calls] – [Minimum speed][minimum-speed] – [User interaction][user-interaction] – [Options][animation-options]</small>
+<small>[Window scrolling][window-scrolling] – [Absolute target][absolute-scrolling] – [Relative target][relative-scrolling]</small><br>
+<small>[Overlapping calls][overlapping-calls] – [Minimum speed][minimum-speed] – [User interaction][user-interaction] – [Options][animation-options]</small><br>
 <small>[Stopping][stopping] – [Custom queues][custom-queues] – [Scrollable distance][scrollable-distance] – [Scrollable element][scrollable-element]</small>
 
 ### Scrolling a window
