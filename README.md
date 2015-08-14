@@ -18,7 +18,7 @@ Yes. And no – because you'll soon discover that your animations end rather abr
 
 Now you suddenly have to feature-test the browser for the right element, which involves injecting a test iframe that needs to be [designed rather carefully][so-comment-iframe-setup]. Or else you can animate both elements, with `$( "html, body" ).animate(...)`, which sounds great until you use animation callbacks (`complete`, `step` etc). They fire twice as often as they should because you animated two elements rather than one, so you find yourself filtering callback calls, which isn't [quite as easy][so-comment-callback-filtering] as it looks at first glance, and ... I'll stop here. You get the picture.
 
-And we haven't even started implementing [convenience][scrolling-both-axes] [options][relative-scrolling], handled [overlapping calls][overlapping-calls], or moved scrolling to a dedicated animation queue so as not to interfere with other animations on the page. We still ignore user interaction and fail to [stop an ongoing scroll animation][user-interaction] if the user taps, clicks, or scrolls, which we definitely should in most cases.
+And that's just the basic animation. We haven't even started implementing [convenience][scrolling-both-axes] [options][relative-scrolling], handled [overlapping calls][overlapping-calls], or moved scrolling to a [dedicated animation queue][stopping] so as not to interfere with other animations on the page. We still need to address that animations [turn into a crawl][minimum-speed] when covering short distances. Worst of all, we ignore user interaction and fail to [stop an ongoing scroll animation][user-interaction] if the user taps, clicks, or scrolls, which we definitely should in most cases.
 
 See? That's why you get a plugin for such a trivial task. 
 
@@ -26,7 +26,9 @@ See? That's why you get a plugin for such a trivial task.
 
 It's super simple. And it gives you a lot of flexibility.
 
-<small>[Window scrolling][window-scrolling] – [Absolute target][absolute-scrolling] – [Relative target][relative-scrolling] – [Overlapping calls][overlapping-calls] – [User interaction][user-interaction] – [Options][animation-options] – [Stopping][stopping] – [Custom queues][custom-queues] – [Scrollable distance][scrollable-distance] – [Scrollable element][scrollable-element]</small>
+<small>[Window scrolling][window-scrolling] – [Absolute target][absolute-scrolling] – [Relative target][relative-scrolling]</small>
+<small>[Overlapping calls][overlapping-calls] – [Minimum speed][minimum-speed] – [User interaction][user-interaction] – [Options][animation-options]</small>
+<small>[Stopping][stopping] – [Custom queues][custom-queues] – [Scrollable distance][scrollable-distance] – [Scrollable element][scrollable-element]</small>
 
 ### Scrolling a window
 
@@ -204,6 +206,34 @@ If `scrollTo` targets the exact same position it starts from, the call is ignore
 
   If you don't want that to happen and rather have the original animation complete uninterrupted, use merge mode instead.
 
+### Minimum speed
+
+Animations run with a fixed duration. That works fine for all sorts of transitions, but it doesn't work that well for scrolling.
+
+##### Default minimum speed
+
+Consider a scroll animation which takes 400ms to complete. If the initial scroll position is a fair distance away from the scroll target, the user will see a swift move. But if the position happens to be very close to the target to begin with, 400ms is a long time. The scroll animation is reduced to a crawl.
+
+That's why `scrollTo` shortens the duration of the animation when the initial position is close to the target. The adjustment kicks in at a **distance of 400px** or less. Below that threshold, the speed of the animation is prevented from falling further and kept constant instead. 
+
+The default behaviour is subtle and feels natural, but of course you can tweak it or turn it off.
+
+##### Customization
+
+You can change the default threshold of 400px with the option `lockSpeedBelow`. 
+
+Use it to modify the threshold for an individual `scrollTo` call:
+ 
+```js
+$elem.scrollTo( "50%", { lockSpeedBelow: 200 } );  // constant speed if less than 200px away
+```
+
+You can also change the default globally: `$.scrollable.lockSpeedBelow = 200`. 
+
+The threshold is specified in pixels, either as a number, or as a string that evaluates to a number (`"200px"`). A low threshold honours your duration setting even if the initial distance is short, allowing animations to become very slow. A threshold of 0 turns the **minimum speed off**. You can also set the threshold to a falsy value or any non-numeric string, such as a descriptive `"off"`.
+
+A larger threshold means a larger zone of constant speed, and larger variations in scroll duration. You can even enforce a **constant speed throughout**. To achieve that, make the threshold at least as large as the maximum distance that can be scrolled. Then tweak the speed indirectly: by changing the nominal `duration` (speed = threshold / duration). 
+
 ### Aborting when the user scrolls, clicks, or taps
 
 An animation initiated by `scrollTo` is automatically stopped as soon as
@@ -246,7 +276,7 @@ The minimum value for the threshold is 5.
 
 ### Animation options
 
-We have already [talked about][overlapping-calls] the options `axis`, `append`, and `merge`. We have also discussed ways to fine-tune the interaction with [with `ignoreUser`][ignoring-the-user] and the [`userScrollThreshold` option][tweaking-scroll-detection].
+We have already [talked about][overlapping-calls] the options `axis`, `append`, and `merge`. We have covered how to [set a minimum speed][minimum-speed] with `lockSpeedBelow`, and discussed how to fine-tune the response to user interaction with [with `ignoreUser`][ignoring-the-user] and the [`userScrollThreshold` option][tweaking-scroll-detection].
 
 In addition to these, you can use [every option available to `jQuery.animate()`][jQuery-animate]. Set up `progress` or `complete` callbacks, specify a `duration` etc. Add what you need to the options object which you pass to `scrollTo()`:
 
@@ -281,7 +311,7 @@ When you call `scrollTo()` multiple times on the same container (e.g. the window
 
 ### Custom queues
 
-As already mentioned above, scroll animations run in their own, dedicated queue, so they don't interfere with other animations which may be going on at the same time. That all happens behind the scenes, and you don't have to do anything to manage that process.  
+As already [mentioned above][stopping], scroll animations run in their own, dedicated queue, so they don't interfere with other animations which may be going on at the same time. That all happens behind the scenes, and you don't have to do anything to manage that process.  
 
 However, if you want to get really fancy with your animations, you can merge scrolling and other animations in a custom queue of your own. But in most cases, you shouldn't.
 
@@ -400,6 +430,11 @@ New test files in the `spec` directory are picked up automatically, no need to e
 
 ## Release Notes
 
+### v1.1.0
+
+- Fixed the issue of slow animations when scroll distance is short, by introducing a default minimum speed
+- Added `lockSpeedBelow` option and global `$.scrollable.lockSpeedBelow` setting
+
 ### v1.0.0
 
 - Made scroll animations abort automatically when the user clicks or taps
@@ -475,6 +510,7 @@ Copyright (c) 2015 Michael Heim.
 [absolute-scrolling]: #scrolling-to-a-fixed-position-vertically "Scrolling to a fixed position"
 [relative-scrolling]: #relative-scrolling "Relative scrolling"
 [overlapping-calls]: #starting-a-scroll-movement-while-another-one-is-still-in-progress "Starting a scroll movement while another one is still in progress"
+[minimum-speed]: #minimum-speed "Minimum speed"
 [user-interaction]: #aborting-when-the-user-scrolls-clicks-or-taps "Aborting when the user scrolls, clicks, or taps"
 [animation-options]: #animation-options "Animation options"
 [stopping]: #stopping-scroll-animations "Stopping scroll animations"
