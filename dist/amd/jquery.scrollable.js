@@ -1,4 +1,4 @@
-// jQuery.scrollable, v1.0.0
+// jQuery.scrollable, v1.1.0
 // Copyright (c)2015 Michael Heim, Zeilenwechsel.de
 // Distributed under MIT license
 // http://github.com/hashchange/jquery.scrollable
@@ -59,6 +59,9 @@
             };
         
             $.scrollable = {
+                lockSpeedBelow: 400,
+                defaultDuration: $.fx.speeds._default,
+        
                 userScrollThreshold: 10,
         
                 // Internal config. Do not modify in production.
@@ -229,17 +232,20 @@
             /** @type {number}  scroll position value signalling that the axis should not be scrolled */
             norm.IGNORE_AXIS = -999;
         
-            /** @type {Object}  default scroll options */
+            /** @type {Object}  default scroll options (hard-coded, not configurable) */
             norm.defaults = {
+                // Identifier for an options object belonging to jQuery.scrollable
+                _jqScrollable: true,
+        
                 axis: norm.VERTICAL,
                 queue: "internal.jquery.scrollable",
                 ignoreUser: false
             };
         
-            /** @type {string}  ignoreUser option name for ignoring scroll */
+            /** @type {string}  ignoreUser option value for ignoring scroll only */
             norm.IGNORE_USER_SCROLL_ONLY = "scroll";
         
-            /** @type {string}  ignoreUser option name for ignoring clicks and touch */
+            /** @type {string}  ignoreUser option value for ignoring clicks and touch only */
             norm.IGNORE_USER_CLICK_TOUCH_ONLY = "click";
         
             /** @type {string}  "replace" mode flag for chained scrollTo calls */
@@ -255,7 +261,7 @@
             /**
              * Normalizes the container element, if it relates to a window. Other elements are returned unchanged.
              *
-             * - It maps `documentElement` and `body` to the window.
+             * - It maps `document`, `documentElement` and `body` to the window.
              * - It maps an iframe element to its content window.
              * - It returns other elements unchanged.
              * - It returns an empty jQuery set as is.
@@ -468,7 +474,9 @@
              * The options hash is normalized in the following ways:
              *
              * - It is converted to canonical axis names.
-             * - The `queue` property is filled in with its default value, unless a queue is provided explicitly.
+             * - The lockSpeedBelow option is set to a number (needed for values such as "off", or false)
+             * - The properties `queue`, `ignoreUser`, `lockSpeedBelow` and `duration` are set to their default values when not
+             *   specified.
              *
              * Does not touch the original hash, returns a separate object instead.
              *
@@ -508,10 +516,12 @@
         
                 }
         
+                options.lockSpeedBelow = normalizeSpeedLockThreshold( options );
+        
                 validateIgnoreUserOption( options );
         
                 // Apply defaults where applicable
-                return $.extend( {}, norm.defaults, { axis: axisDefault }, options );
+                return $.extend( {}, norm.defaults, { axis: axisDefault, duration: $.scrollable.defaultDuration }, options );
         
             };
         
@@ -578,6 +588,24 @@
         
                 return position;
         
+            }
+        
+            /**
+             * Returns the speed lock threshold as a number, in px, based on the current options and the global default settings.
+             *
+             * If the distance covered by the scroll animation is below the threshold, the duration is reduced to keep the speed
+             * of the animation from falling further.
+             *
+             * Falsy and non-numeric values (e.g. lockSpeedBelow: "off") are returned as 0.
+             *
+             * @param   {Object} options
+             * @returns {number}
+             */
+            function normalizeSpeedLockThreshold ( options ) {
+                var threshold = options.lockSpeedBelow !== undefined ? options.lockSpeedBelow : $.scrollable.lockSpeedBelow;
+        
+                threshold = parseFloat( threshold );
+                return isNaN( threshold ) ? 0 : threshold;
             }
         
             /**
@@ -1562,6 +1590,57 @@
                 var info = queueWrapper.getFirstInfo();
                 return info ? info.history : undefined;
             }
+        
+        
+            /**
+             * Calculates the distance, in pixels, from the current scroll position to the target position.
+             *
+             * If an axis is ignored in the target position, make sure it is set to norm.IGNORE_AXIS.
+             *
+             * @param   {jQuery}      $container
+             * @param   {Coordinates} targetPosition
+             * @returns {number}
+             */
+            function getCurrentTravelDistance ( $container, targetPosition ) {
+                var currentPosition = lib.getCurrentScrollPosition( $container ),
+                    deltaX = targetPosition[norm.HORIZONTAL] === norm.IGNORE_AXIS ? 0 : targetPosition[norm.HORIZONTAL] - currentPosition[norm.HORIZONTAL],
+                    deltaY = targetPosition[norm.VERTICAL] === norm.IGNORE_AXIS ? 0 : targetPosition[norm.VERTICAL] - currentPosition[norm.VERTICAL];
+        
+                return Math.sqrt( Math.pow( deltaX, 2 ) + Math.pow( deltaY, 2 ) );
+            }
+        
+            /**
+             * Adds a jQuery.animate prefilter which applies the lockSpeedBelow setting, and adjusts the duration of a scroll
+             * animation when necessary.
+             *
+             * For more about prefilters, see https://gist.github.com/gnarf/54829d408993526fe475#prefilters
+             */
+            $.Animation.prefilter( function ( elem, properties, options ) {
+                var $container, distance, thresholdDistance, minSpeed, maxDuration,
+                    targetPosition = {},
+        
+                    hasX = properties && "scrollLeft" in properties,
+                    hasY = properties && "scrollTop" in properties,
+                    isScrollAnimation = properties && ( hasX || hasY ) && options && options._jqScrollable;
+        
+                if ( isScrollAnimation && options.lockSpeedBelow ) {
+        
+                    $container = norm.normalizeContainer( $( elem ) );
+        
+                    targetPosition[norm.HORIZONTAL] = hasX ? properties.scrollLeft : norm.IGNORE_AXIS;
+                    targetPosition[norm.VERTICAL] = hasY ? properties.scrollTop : norm.IGNORE_AXIS;
+        
+                    distance = getCurrentTravelDistance( $container, targetPosition );
+                    thresholdDistance = options.lockSpeedBelow;
+        
+                    if ( distance < thresholdDistance ) {
+                        minSpeed = thresholdDistance / options.duration;
+                        maxDuration = distance / minSpeed;
+                        this.duration = options.duration = Math.min( maxDuration, options.duration );
+                    }
+        
+                }
+            } );
         
         
             /**
