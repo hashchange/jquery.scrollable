@@ -1,22 +1,4 @@
-requirejs.config( {
-
-    baseUrl: '../../bower_components',
-
-    paths: {
-        'jquery': '../demo/bower_demo_components/jquery/dist/jquery',
-        'jquery.documentsize': '/bower_components/jquery.documentsize/dist/amd/jquery.documentsize',
-        'jquery.scrollable': '/dist/amd/jquery.scrollable',
-        'underscore': '../demo/bower_demo_components/underscore/underscore',
-        'usertiming': '../demo/bower_demo_components/usertiming/src/usertiming'
-    },
-
-    shim: {
-        'underscore': {
-            exports: '_'
-        }
-    }
-
-} );
+// amd.js
 
 require( [
 
@@ -119,7 +101,7 @@ require( [
                 $.each( chain, function ( index, position ) {
                     config.done = function () {
                         var isLastSubscroll = index === chain.length - 1;
-                        updateLog( [ actionLabel, " (", index + 1, ") done for { x: ", position.x, ", y: ", position.y, " }." ], isLastSubscroll );
+                        updateLog( [ actionLabel, " (", index + 1, ") done for { x: ", position.x || "n/a", ", y: ", position.y || "n/a", " }." ], isLastSubscroll );
                     };
 
                     $window.scrollTo( position, config );
