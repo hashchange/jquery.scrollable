@@ -14,6 +14,7 @@ require( [
         var $window = $( window ),
             $body = $( document.body ),
 
+            $header = $( "#header" ),
             $controlsPane = $( ".scroll-controls" ),
             $modeControls = $( "a.mode", $controlsPane ),
             $movementControls = $( "a.shift, a.jump", $controlsPane ),
@@ -45,10 +46,14 @@ require( [
         // (Adding the gradient class after setting the final body size didn't change this, either.)
         $( "<div/>" ).appendTo( $body ).addClass( "maxed gradient" );
 
-        // Hide the info header, show controls
-        $( "#header" ).delay( 2000 ).fadeOut( 800, function () {
+        // Hide the info header (if present), show controls
+        if ( $header.length ) {
+            $header.delay( 2000 ).fadeOut( 800, function () {
+                $controlsPane.show();
+            } );
+        } else {
             $controlsPane.show();
-        } );
+        }
 
         // Clicks on controls should not stop an ongoing scroll animation. Keep events from propagating.
         $movementControls.on( "mousedown touchstart pointerdown", function ( event ) {

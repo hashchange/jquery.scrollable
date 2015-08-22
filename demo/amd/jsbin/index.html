@@ -1,0 +1,163 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>jQuery.scrollable 1.1.1, demo (AMD)</title>
+    <meta name="description" content="jQuery.scrollable 1.1.1, demo (AMD)">
+
+    <!-- ATTN Foundation loaded without JS - stay clear of JS-driven widgets, or add the JS setup -->
+    <!--
+        ATTN jQuery 1.x is used here, making the demo compatible with oldIE. As a side effect,
+        Foundation 5 JS can't be used reliably (requires jQuery 2.x). Stay clear, or switch to
+        jQuery 2.x.
+    -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundation/5.5.2/css/normalize.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundation/5.5.2/css/foundation.css">
+
+    <link rel="stylesheet" href="https://cdn.rawgit.com/hashchange/jquery.scrollable/1.1.1/demo/amd/amd.css">
+
+    <!-- Fix HTML5 tags in oldIE and other lacking legacy browsers -->
+    <script src="http://modernizr.com/downloads/modernizr-latest.js"></script>
+
+</head>
+<body>
+
+    <section class="scroll-controls">
+
+        <ul class="button-group even-3">
+            <!-- Chaining mode -->
+
+            <!-- number -->
+            <li><a class="button mode default" data-mode="replace" href="#">replace</a></li>
+            <!-- px unit -->
+            <li><a class="button mode" data-mode="append" href="#">append</a></li>
+            <!-- percentage -->
+            <li><a class="button mode" data-mode="merge" href="#">merge</a></li>
+
+        </ul>
+
+        <hr>
+
+        <ul class="button-group even-3">
+            <!-- Relative movement, vertical down -->
+
+            <!-- number -->
+            <li><a class="button shift" data-y="+=100" href="#">↓<br>100</a></li>
+            <!-- px unit -->
+            <li><a class="button shift" data-y="+=1000px" href="#">↓<br>1000px</a></li>
+            <!-- percentage -->
+            <li><a class="button shift" data-y="+=25%" href="#">↓<br>25%</a></li>
+
+        </ul>
+
+        <ul class="button-group even-3">
+            <!-- Relative movement, horizontal right -->
+
+            <!-- number -->
+            <li><a class="button shift" data-x="+=100" href="#">→<br>100</a></li>
+            <!-- px unit -->
+            <li><a class="button shift" data-x="+=1000px" href="#">→<br>1000px</a></li>
+            <!-- percentage -->
+            <li><a class="button shift" data-x="+=25%" href="#">→<br>25%</a></li>
+
+        </ul>
+
+        <ul class="button-group even-3">
+            <!-- Relative movement, vertical up -->
+
+            <!-- number -->
+            <li><a class="button shift" data-y="-=100" href="#">↑<br>100</a></li>
+            <!-- px unit -->
+            <li><a class="button shift" data-y="-=1000px" href="#">↑<br>1000px</a></li>
+            <!-- percentage -->
+            <li><a class="button shift" data-y="-=25%" href="#">↑<br>25%</a></li>
+
+        </ul>
+
+        <ul class="button-group even-3">
+            <!-- Relative movement, horizontal left -->
+
+            <!-- number -->
+            <li><a class="button shift" data-x="-=100" href="#">←<br>100</a></li>
+            <!-- px unit -->
+            <li><a class="button shift" data-x="-=1000px" href="#">←<br>1000px</a></li>
+            <!-- percentage -->
+            <li><a class="button shift" data-x="-=25%" href="#">←<br>25%</a></li>
+
+        </ul>
+
+        <ul class="button-group even-3">
+            <!-- Relative movement, vertical and horizontal simultaneously -->
+
+            <!-- number -->
+            <li><a class="button shift" data-x="+=100" data-y="+=100" href="#">↘<br>100</a></li>
+            <!-- px unit -->
+            <li><a class="button shift" data-x="+=1000px" data-y="+=1000px" href="#">↘<br>1000px</a></li>
+            <!-- percentage -->
+            <li><a class="button shift" data-x="+=25%" data-y="+=25%" href="#">↘<br>25%</a></li>
+
+        </ul>
+
+        <ul class="button-group even-3">
+            <!-- Absolute movement, up or left -->
+
+            <!-- number -->
+            <li><a class="button jump" data-y="0" href="#">⇑</a></li>
+            <!-- px unit -->
+            <li><a class="button jump" data-x="0" href="#">⇐</a></li>
+            <!-- percentage -->
+            <li><a class="button jump" data-x="0" data-y="0" href="#">⇖</a></li>
+
+        </ul>
+
+        <ul class="button-group even-3">
+            <!-- Absolute movement, down or right -->
+
+            <!-- number -->
+            <li><a class="button jump" data-y="bottom" href="#">⇓</a></li>
+            <!-- px unit -->
+            <li><a class="button jump" data-x="right" href="#">⇒</a></li>
+            <!-- percentage -->
+            <li><a class="button jump" data-x="right" data-y="bottom" href="#">⇘</a></li>
+
+        </ul>
+
+        <hr>
+
+        <ul class="button-group even-3">
+            <!-- Chained, relative vertical and horizontal movements in a circle -->
+            <!-- not affected by the scroll mode settings, always in mode "append" -->
+
+            <!-- number -->
+            <li><a class="button shift" data-chain=",+=100|+=100,|,-=100|-=100," href="#">↳↰<br>100</a></li>
+            <!-- px unit -->
+            <li><a class="button shift" data-chain=",+=1000px|+=1000px,|,-=1000px|-=1000px," href="#">↳↰<br>1000px</a></li>
+            <!-- percentage -->
+            <li><a class="button shift" data-chain=",+=25%|+=25%,|,-=25%|-=25%," href="#">↳↰<br>25%</a></li>
+
+        </ul>
+
+    </section>
+
+    <section class="feedback panel">
+        <dl>
+            <dt>X</dt>
+            <dd class="pos x-px"></dd>
+            <dd class="pos x-percent"></dd>
+            <dt>Y</dt>
+            <dd class="pos y-px"></dd>
+            <dd class="pos y-percent"></dd>
+        </dl>
+
+        <p>Log</p>
+        <ul id="log"></ul>
+    </section>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.14/require.js"></script>
+    <script src="https://cdn.rawgit.com/hashchange/jquery.scrollable/1.1.1/demo/amd/jsbin/require-config.js"></script>
+
+</body>
+</html>

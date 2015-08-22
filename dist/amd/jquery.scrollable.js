@@ -1,4 +1,4 @@
-// jQuery.scrollable, v1.1.0
+// jQuery.scrollable, v1.1.1
 // Copyright (c)2015 Michael Heim, Zeilenwechsel.de
 // Distributed under MIT license
 // http://github.com/hashchange/jquery.scrollable
