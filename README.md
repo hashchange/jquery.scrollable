@@ -276,7 +276,7 @@ The minimum value for the threshold is 5.
 
 ### Animation options
 
-We have already [talked about][overlapping-calls] the options `axis`, `append`, and `merge`. We have covered how to [set a minimum speed][minimum-speed] with `lockSpeedBelow`, and discussed how to fine-tune the response to user interaction with [with `ignoreUser`][ignoring-the-user] and the [`userScrollThreshold` option][tweaking-scroll-detection].
+We have already talked about the options [`axis`][absolute-scrolling], [`append`][overlapping-calls], and [`merge`][overlapping-calls]. We have covered how to [set a minimum speed][minimum-speed] with `lockSpeedBelow`, and discussed how to fine-tune the response to user interaction with [with `ignoreUser`][ignoring-the-user] and the [`userScrollThreshold` option][tweaking-scroll-detection].
 
 In addition to these, you can use [every option available to `jQuery.animate()`][jQuery-animate]. Set up `progress` or `complete` callbacks, specify a `duration` etc. Add what you need to the options object which you pass to `scrollTo()`:
 
