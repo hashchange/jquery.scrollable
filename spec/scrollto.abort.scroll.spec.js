@@ -22,6 +22,11 @@
             /** @type {number}  the number of px within which an aborted scroll movement must stop, relative to where it was initiated */
             abortTolerance,
 
+            /** @type {number}  the number of px which a scroll movement can fall short of reaching its intended target
+             *                  (used in conjunction with abortTolerance, which describes tolerance on the other side of
+             *                  that target */
+            borderFuzziness,
+
             userScrollDetectionEnabled = $.scrollable._enableUserScrollDetection,
 
             /** @type {boolean}  true if there is a default user scroll threshold */
@@ -45,6 +50,7 @@
             $window = $( window );
 
             abortTolerance = 1;
+            borderFuzziness = 2;
 
             afterScreenUpdate( function () {
 
@@ -53,8 +59,9 @@
 
                 $window.scrollTop( 0 ).scrollLeft( 0 );
 
-                intentionalUserScrollMovement = Math.max( $.scrollable.userScrollThreshold + 1, 1 );
-                accidentalUserScrollMovement = Math.max( $.scrollable.userScrollThreshold, 1 );
+                // We give a bit of extra leeway with the borderFuzziness variable (specifically for Chrome on Android)
+                intentionalUserScrollMovement = Math.max( $.scrollable.userScrollThreshold + 1 + borderFuzziness, 1 );
+                accidentalUserScrollMovement = Math.max( $.scrollable.userScrollThreshold - borderFuzziness, 1 );
 
                 // Reduce the default duration for animations in order to speed up the tests
                 reduceDefaultDurationForAnimations();
@@ -98,7 +105,7 @@
 
                     afterScroll( function () {
 
-                        expect( $window.scrollTop() ).toBeLocatedCloselyBelow( userTarget.y, abortTolerance );
+                        expect( $window.scrollTop() ).toBeLocatedCloselyBelow( userTarget.y, abortTolerance, borderFuzziness );
                         expect( $window.scrollTop() ).toBeLocatedStrictlyAbove( maxScrollHeight );
 
                         expect( $window.scrollLeft() ).toEqual( 0 );
@@ -115,7 +122,7 @@
                     } );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toBeLocatedCloselyBelow( userTarget.y, abortTolerance );
+                        expect( $window.scrollTop() ).toBeLocatedCloselyBelow( userTarget.y, abortTolerance, borderFuzziness );
                         expect( $window.scrollTop() ).toBeLocatedStrictlyAbove( maxScrollHeight );
 
                         expect( $window.scrollLeft() ).toEqual( 0 );
@@ -132,7 +139,7 @@
                     } );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toBeLocatedCloselyBelow( userTarget.y, abortTolerance );
+                        expect( $window.scrollTop() ).toBeLocatedCloselyBelow( userTarget.y, abortTolerance, borderFuzziness );
                         expect( $window.scrollTop() ).toBeLocatedStrictlyAbove( maxScrollHeight );
 
                         expect( $window.scrollLeft() ).toFuzzyEqual( userTarget.x );
@@ -151,7 +158,7 @@
                     } );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toBeLocatedCloselyBelow( userTarget.y, abortTolerance );
+                        expect( $window.scrollTop() ).toBeLocatedCloselyBelow( userTarget.y, abortTolerance, borderFuzziness );
                         expect( $window.scrollTop() ).toBeLocatedStrictlyAbove( maxScrollHeight );
 
                         expect( $window.scrollLeft() ).toFuzzyEqual( userTarget.x );
@@ -249,7 +256,7 @@
                     } );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toBeLocatedCloselyAbove( userTarget.y, abortTolerance );
+                        expect( $window.scrollTop() ).toBeLocatedCloselyAbove( userTarget.y, abortTolerance, borderFuzziness );
                         expect( $window.scrollTop() ).toBeLocatedStrictlyBelow( 0 );
 
                         expect( $window.scrollLeft() ).toEqual( 0 );
@@ -266,7 +273,7 @@
                     } );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toBeLocatedCloselyAbove( userTarget.y, abortTolerance );
+                        expect( $window.scrollTop() ).toBeLocatedCloselyAbove( userTarget.y, abortTolerance, borderFuzziness );
                         expect( $window.scrollTop() ).toBeLocatedStrictlyBelow( 0 );
 
                         expect( $window.scrollLeft() ).toEqual( 0 );
@@ -283,7 +290,7 @@
                     } );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toBeLocatedCloselyAbove( userTarget.y, abortTolerance );
+                        expect( $window.scrollTop() ).toBeLocatedCloselyAbove( userTarget.y, abortTolerance, borderFuzziness );
                         expect( $window.scrollTop() ).toBeLocatedStrictlyBelow( 0 );
 
                         expect( $window.scrollLeft() ).toFuzzyEqual( userTarget.x );
@@ -302,7 +309,7 @@
                     } );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toBeLocatedCloselyAbove( userTarget.y, abortTolerance );
+                        expect( $window.scrollTop() ).toBeLocatedCloselyAbove( userTarget.y, abortTolerance, borderFuzziness );
                         expect( $window.scrollTop() ).toBeLocatedStrictlyBelow( 0 );
 
                         expect( $window.scrollLeft() ).toFuzzyEqual( userTarget.x );
@@ -395,7 +402,7 @@
                     afterScroll( function () {
                         expect( $window.scrollTop() ).toEqual( 0 );
 
-                        expect( $window.scrollLeft() ).toBeLocatedCloselyRightOf( userTarget.x, abortTolerance );
+                        expect( $window.scrollLeft() ).toBeLocatedCloselyRightOf( userTarget.x, abortTolerance, borderFuzziness );
                         expect( $window.scrollLeft() ).toBeLocatedStrictlyLeftOf( maxScrollWidth );
                         done();
                     } );
@@ -412,7 +419,7 @@
                     afterScroll( function () {
                         expect( $window.scrollTop() ).toEqual( 0 );
 
-                        expect( $window.scrollLeft() ).toBeLocatedCloselyRightOf( userTarget.x, abortTolerance );
+                        expect( $window.scrollLeft() ).toBeLocatedCloselyRightOf( userTarget.x, abortTolerance, borderFuzziness );
                         expect( $window.scrollLeft() ).toBeLocatedStrictlyLeftOf( maxScrollWidth );
                         done();
                     } );
@@ -429,7 +436,7 @@
                     afterScroll( function () {
                         expect( $window.scrollTop() ).toFuzzyEqual( userTarget.y );
 
-                        expect( $window.scrollLeft() ).toBeLocatedCloselyRightOf( userTarget.x, abortTolerance );
+                        expect( $window.scrollLeft() ).toBeLocatedCloselyRightOf( userTarget.x, abortTolerance, borderFuzziness );
                         expect( $window.scrollLeft() ).toBeLocatedStrictlyLeftOf( maxScrollWidth );
                         done();
                     } );
@@ -451,7 +458,7 @@
                         afterScroll( function () {
                             expect( $window.scrollTop() ).toFuzzyEqual( userTarget.y );
 
-                            expect( $window.scrollLeft() ).toBeLocatedCloselyRightOf( userTarget.x, abortTolerance );
+                            expect( $window.scrollLeft() ).toBeLocatedCloselyRightOf( userTarget.x, abortTolerance, borderFuzziness );
                             expect( $window.scrollLeft() ).toBeLocatedStrictlyLeftOf( maxScrollWidth );
                             done();
                         } );
@@ -553,7 +560,7 @@
                     afterScroll( function () {
                         expect( $window.scrollTop() ).toEqual( 0 );
 
-                        expect( $window.scrollLeft() ).toBeLocatedCloselyLeftOf( userTarget.x, abortTolerance );
+                        expect( $window.scrollLeft() ).toBeLocatedCloselyLeftOf( userTarget.x, abortTolerance, borderFuzziness );
                         expect( $window.scrollLeft() ).toBeLocatedStrictlyRightOf( 0 );
                         done();
                     } );
@@ -570,7 +577,7 @@
                     afterScroll( function () {
                         expect( $window.scrollTop() ).toEqual( 0 );
 
-                        expect( $window.scrollLeft() ).toBeLocatedCloselyLeftOf( userTarget.x, abortTolerance );
+                        expect( $window.scrollLeft() ).toBeLocatedCloselyLeftOf( userTarget.x, abortTolerance, borderFuzziness );
                         expect( $window.scrollLeft() ).toBeLocatedStrictlyRightOf( 0 );
                         done();
                     } );
@@ -587,7 +594,7 @@
                     afterScroll( function () {
                         expect( $window.scrollTop() ).toFuzzyEqual( userTarget.y );
 
-                        expect( $window.scrollLeft() ).toBeLocatedCloselyLeftOf( userTarget.x, abortTolerance );
+                        expect( $window.scrollLeft() ).toBeLocatedCloselyLeftOf( userTarget.x, abortTolerance, borderFuzziness );
                         expect( $window.scrollLeft() ).toBeLocatedStrictlyRightOf( 0 );
                         done();
                     } );
@@ -609,7 +616,7 @@
                         afterScroll( function () {
                             expect( $window.scrollTop() ).toFuzzyEqual( userTarget.y );
 
-                            expect( $window.scrollLeft() ).toBeLocatedCloselyLeftOf( userTarget.x, abortTolerance );
+                            expect( $window.scrollLeft() ).toBeLocatedCloselyLeftOf( userTarget.x, abortTolerance, borderFuzziness );
                             expect( $window.scrollLeft() ).toBeLocatedStrictlyRightOf( 0 );
                             done();
                         } );
@@ -725,7 +732,7 @@
                         expect( userTarget2.y ).toBeGreaterThan( maxScrollHeight * 0.4 );
 
                         // Verify that the movement stops after the second time.
-                        expect( $window.scrollTop() ).toBeLocatedCloselyBelow( userTarget2.y, abortTolerance );
+                        expect( $window.scrollTop() ).toBeLocatedCloselyBelow( userTarget2.y, abortTolerance, borderFuzziness );
                         expect( $window.scrollTop() ).toBeLocatedStrictlyAbove( maxScrollHeight );
 
                         expect( $window.scrollLeft() ).toEqual( 0 );
@@ -751,7 +758,7 @@
                         expect( userTarget2.y ).toBeGreaterThan( maxScrollHeight * 0.4 );
 
                         // Verify that the movement stops after the second time.
-                        expect( $window.scrollTop() ).toBeLocatedCloselyBelow( userTarget2.y, abortTolerance );
+                        expect( $window.scrollTop() ).toBeLocatedCloselyBelow( userTarget2.y, abortTolerance, borderFuzziness );
                         expect( $window.scrollTop() ).toBeLocatedStrictlyAbove( maxScrollHeight );
 
                         expect( $window.scrollLeft() ).toFuzzyEqual( userTarget2.x );
@@ -784,7 +791,7 @@
 
                 it( 'the ongoing animation is aborted', function ( done ) {
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toBeLocatedCloselyBelow( userTarget.y, abortTolerance );
+                        expect( $window.scrollTop() ).toBeLocatedCloselyBelow( userTarget.y, abortTolerance, borderFuzziness );
                         expect( $window.scrollTop() ).toBeLocatedStrictlyAbove( maxScrollHeight );
 
                         expect( $window.scrollLeft() ).toFuzzyEqual( userTarget.x );
@@ -795,7 +802,7 @@
 
                 it( 'the queued animations are removed as well', function ( done ) {
                     afterScrolls( 4, function () {
-                        expect( $window.scrollTop() ).toBeLocatedCloselyBelow( userTarget.y, abortTolerance );
+                        expect( $window.scrollTop() ).toBeLocatedCloselyBelow( userTarget.y, abortTolerance, borderFuzziness );
                         expect( $window.scrollTop() ).toBeLocatedStrictlyAbove( maxScrollHeight );
 
                         expect( $window.scrollLeft() ).toFuzzyEqual( userTarget.x );
@@ -862,7 +869,7 @@
                     expect( callbacks_1.always ).toHaveBeenCalled();
                     expect( callbackCalls_1.always.callCount ).toEqual( 1 );
                     expect( callbackCalls_1.always.scrollState.x ).toFuzzyEqual( userTarget.x );
-                    expect( callbackCalls_1.always.scrollState.y ).toBeLocatedCloselyBelow( userTarget.y, abortTolerance );
+                    expect( callbackCalls_1.always.scrollState.y ).toBeLocatedCloselyBelow( userTarget.y, abortTolerance, borderFuzziness );
                     expect( callbackCalls_1.always.scrollState.y ).toBeLocatedStrictlyAbove( maxScrollHeight );
                 } );
 
@@ -870,7 +877,7 @@
                     expect( callbacks_1.fail ).toHaveBeenCalled();
                     expect( callbackCalls_1.fail.callCount ).toEqual( 1 );
                     expect( callbackCalls_1.fail.scrollState.x ).toFuzzyEqual( userTarget.x );
-                    expect( callbackCalls_1.always.scrollState.y ).toBeLocatedCloselyBelow( userTarget.y, abortTolerance );
+                    expect( callbackCalls_1.always.scrollState.y ).toBeLocatedCloselyBelow( userTarget.y, abortTolerance, borderFuzziness );
                     expect( callbackCalls_1.always.scrollState.y ).toBeLocatedStrictlyAbove( maxScrollHeight );
                 } );
 
@@ -939,7 +946,7 @@
                         } );
 
                         afterScroll( function () {
-                            expect( $window.scrollTop() ).toBeLocatedCloselyBelow( userTarget.y, abortTolerance );
+                            expect( $window.scrollTop() ).toBeLocatedCloselyBelow( userTarget.y, abortTolerance, borderFuzziness );
                             expect( $window.scrollTop() ).toBeLocatedStrictlyAbove( maxScrollHeight );
 
                             expect( $window.scrollLeft() ).toEqual( 0 );
@@ -979,7 +986,7 @@
                         } );
 
                         afterScroll( function () {
-                            expect( $window.scrollTop() ).toBeLocatedCloselyBelow( userTarget.y, abortTolerance );
+                            expect( $window.scrollTop() ).toBeLocatedCloselyBelow( userTarget.y, abortTolerance, borderFuzziness );
                             expect( $window.scrollTop() ).toBeLocatedStrictlyAbove( maxScrollHeight );
 
                             expect( $window.scrollLeft() ).toEqual( 0 );
@@ -1019,7 +1026,7 @@
                         } );
 
                         afterScroll( function () {
-                            expect( $window.scrollTop() ).toBeLocatedCloselyBelow( userTarget.y, abortTolerance );
+                            expect( $window.scrollTop() ).toBeLocatedCloselyBelow( userTarget.y, abortTolerance, borderFuzziness );
                             expect( $window.scrollTop() ).toBeLocatedStrictlyAbove( maxScrollHeight );
 
                             expect( $window.scrollLeft() ).toEqual( 0 );
@@ -1055,7 +1062,7 @@
                         } );
 
                         afterScroll( function () {
-                            expect( $window.scrollTop() ).toBeLocatedCloselyBelow( userTarget.y, abortTolerance );
+                            expect( $window.scrollTop() ).toBeLocatedCloselyBelow( userTarget.y, abortTolerance, borderFuzziness );
                             expect( $window.scrollTop() ).toBeLocatedStrictlyAbove( maxScrollHeight );
 
                             expect( $window.scrollLeft() ).toEqual( 0 );
@@ -1128,7 +1135,7 @@
                     } );
 
                     afterScroll( function () {
-                        expect( $window.scrollTop() ).toBeLocatedCloselyBelow( userTarget.y, abortTolerance );
+                        expect( $window.scrollTop() ).toBeLocatedCloselyBelow( userTarget.y, abortTolerance, borderFuzziness );
                         expect( $window.scrollTop() ).toBeLocatedStrictlyAbove( maxScrollHeight );
 
                         expect( $window.scrollLeft() ).toEqual( 0 );

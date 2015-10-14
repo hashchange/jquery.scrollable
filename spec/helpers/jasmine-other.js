@@ -9,18 +9,27 @@ if ( ! jasmine._addTheseCustomMatchers ) jasmine._addTheseCustomMatchers = {};
  * The acceptable tolerance, in pixels, must be passed to the matcher as the second argument.
  *
  * Designed to make reasonably sure the position is within the desired zone, without being tricked by sub-pixel
- * differences in Android which would make the match fail for no reason. Adds a little extra tolerance, aka fuzziness,
- * by treating decimal differences very generously.
+ * differences in Android, or by 1px deviations (also in Android), which would make the match fail for no reason.
+ *
+ * - Requires a `tolerance` argument. That is the amount of pixels which is still considered "close" to the target in
+ *   "closelyBelow", "closelyAbove" etc. That kind of precision or tolerance defines the essence of the actual test, and
+ *   it must be specified.
+ *
+ * - Optionally, the test adds tolerance to the other side of the target as well (called borderFuzziness here). So a
+ *   value which is expected to be below the target can actually be above it by a little bit. Again, this is to deal
+ *   with Android errors. By default, that tolerance is 0.
+ *
+ * - Adds a little extra tolerance, aka fuzziness, by treating decimal differences very generously.
  */
 jasmine._addTheseCustomMatchers.toBeLocatedCloselyBelow =
 jasmine._addTheseCustomMatchers.toBeLocatedCloselyRightOf = function () {
 
-    function compare ( actual, expected, tolerance ) {
+    function compare ( actual, expected, tolerance, borderFuzziness ) {
         var result = {},
 
             actualFloor = Math.floor( actual ),
             actualCeil = Math.ceil( actual ),
-            expectedFloor = Math.floor( expected ),
+            expectedFloor = Math.floor( expected ) - ( borderFuzziness || 0 ),
             expectedCeil = Math.ceil( expected ) + tolerance,
 
             satisfiesLowerLimit = actualCeil >= expectedFloor,
@@ -65,19 +74,28 @@ jasmine._addTheseCustomMatchers.toBeLocatedCloselyRightOf = function () {
  * acceptable tolerance, in pixels, must be passed to the matcher as the second argument.
  *
  * Designed to make reasonably sure the position is within the desired zone, without being tricked by sub-pixel
- * differences in Android which would make the match fail for no reason. Adds a little extra tolerance, aka fuzziness,
- * by treating decimal differences very generously.
+ * differences in Android, or by 1px deviations (also in Android), which would make the match fail for no reason.
+ *
+ * - Requires a `tolerance` argument. That is the amount of pixels which is still considered "close" to the target in
+ *   "closelyBelow", "closelyAbove" etc. That kind of precision or tolerance defines the essence of the actual test, and
+ *   it must be specified.
+ *
+ * - Optionally, the test adds tolerance to the other side of the target as well (called borderFuzziness here). So a
+ *   value which is expected to be below the target can actually be above it by a little bit. Again, this is to deal
+ *   with Android errors. By default, that tolerance is 0.
+ *
+ * - Adds a little extra tolerance, aka fuzziness, by treating decimal differences very generously.
  */
 jasmine._addTheseCustomMatchers.toBeLocatedCloselyAbove =
 jasmine._addTheseCustomMatchers.toBeLocatedCloselyLeftOf = function () {
 
-    function compare ( actual, expected, tolerance ) {
+    function compare ( actual, expected, tolerance, borderFuzziness ) {
         var result = {},
 
             actualFloor = Math.floor( actual ),
             actualCeil = Math.ceil( actual ),
             expectedFloor = Math.floor( expected ) - tolerance,
-            expectedCeil = Math.ceil( expected ),
+            expectedCeil = Math.ceil( expected ) + ( borderFuzziness || 0 ),
 
             satisfiesLowerLimit = actualCeil >= expectedFloor,
             satisfiesUpperLimit = actualFloor <= expectedCeil;
@@ -173,7 +191,7 @@ jasmine._addTheseCustomMatchers.toBeLocatedStrictlyRightOf = function () {
 };
 
 /**
- * Synonym of toBeCloseTo. Code lifted from there.
+ * Similar to toBeCloseTo. Code lifted from there and adjusted.
  *
  * Useful for testing equality roughly, allowing for random sub-pixel differences in Android which would make an exact
  * equality test fail.
@@ -181,10 +199,10 @@ jasmine._addTheseCustomMatchers.toBeLocatedStrictlyRightOf = function () {
 jasmine._addTheseCustomMatchers.toFuzzyEqual = function () {
     return {
         compare: function ( actual, expected, precision ) {
-            if ( precision !== 0 ) precision = precision || 2;
+            precision || ( precision = 0 );
 
             return {
-                pass: Math.abs( expected - actual ) < ( Math.pow( 10, -precision ) / 2 )
+                pass: Math.abs( expected - actual ) <= ( Math.pow( 10, -precision ) )
             };
         }
     };

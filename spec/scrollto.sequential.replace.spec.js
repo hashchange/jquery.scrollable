@@ -134,9 +134,10 @@
                         $window.scrollTo( { x: 100 } );
 
                         afterScroll( function () {
-                            // We have to disable this expectation in iOS due to a lack of accuracy in the values reported
-                            // by mobile Safari
-                            if ( !isIOS() ) expect( $window.scrollTop() ).toFuzzyEqual( posAtCall );
+                            // We have to disable this expectation in iOS due to a lack of accuracy in the values
+                            // reported by mobile Safari. Same in Chrome 45 on Android. On Android, it was ok before -
+                            // some new kind of kinetic scroll effect may play into this.
+                            if ( !isIOS() && !isAndroid() ) expect( $window.scrollTop() ).toFuzzyEqual( posAtCall );
                             expect( $window.scrollTop() ).toBeLocatedStrictlyAbove( maxScrollHeight );
                             done();
                         } );

@@ -221,7 +221,7 @@ function createObservedCallbacks ( callsCollector, $scrollContainer ) {
  * @returns {{x: number, y: number}}
  */
 function userScrollsBy ( amount, $container ) {
-    var target, result;
+    var target, result, roundedDelta;
 
     if ( _.isNumber( amount ) ) amount = { x: 0, y: amount };
 
@@ -239,7 +239,16 @@ function userScrollsBy ( amount, $container ) {
         y: $container.scrollTop()
     };
 
-    if ( Math.round( target.x ) !== Math.round( result.x ) || Math.round( target.y ) !== Math.round ( result.y ) ) throw new Error( "userScrollsBy: target is beyond the scrollable distance (horizontally by " + ( target.x - result.x ) + "px, vertically by " + ( target.y - result.y ) + "px)" );
+    // Checking if the target has been scrolled to. If not, the target is beyond the scrollable distance, so we throw an
+    // error.
+    //
+    // In Chrome on Android, though, the reported result can be off by up to 2px, so let's allow a deviation up to that
+    // amount. (Observed in Chrome 45 on Android 5.1.1, was ok previously.)
+    roundedDelta = {
+        x: Math.abs( Math.round( target.x ) - Math.round ( result.x ) ),
+        y: Math.abs( Math.round( target.y ) - Math.round ( result.y ) )
+    };
+    if ( roundedDelta.x > 2 || roundedDelta.y > 2 ) throw new Error( "userScrollsBy: target is beyond the scrollable distance (horizontally by " + ( target.x - result.x ) + "px, vertically by " + ( target.y - result.y ) + "px)" );
 
     return result;
 }
