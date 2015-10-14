@@ -44,9 +44,11 @@
     "karma.conf.js",
     "package.json"
   ],
-  "devDependencies": {},
   "dependencies": {
     "jquery": ">=1.7.0 <2.2",
     "jquery.documentsize": "^1.1.0"
+  },
+  "devDependencies": {
+    "jquery-legacy": "jquery#^1"
   }
 }

@@ -16,7 +16,7 @@ module.exports = function (grunt) {
     meta: {
       version: '<%= pkg.version %>',
       banner: '// jQuery.scrollable, v<%= meta.version %>\n' +
-        '// Copyright (c)<%= grunt.template.today("yyyy") %> Michael Heim, Zeilenwechsel.de\n' +
+        '// Copyright (c) <%= grunt.template.today("yyyy") %> Michael Heim, Zeilenwechsel.de\n' +
         '// Distributed under MIT license\n' +
         '// http://github.com/hashchange/jquery.scrollable\n' +
         '\n'
