@@ -373,7 +373,7 @@ jQuery.scrollable has been tested with
 
 - 2015 versions of Chrome, Firefox, Safari, and Opera on the Desktop
 - IE8+
-- Safari on iOS 8, Chrome on Android 5
+- Safari on iOS 8, iOS 9, Chrome on Android 5
 - SlimerJS
 
 IE8 can't hande the heavily asynchronous character of the unit tests. It has been tested manually instead, using the [AMD demo][tool-chain-commands] (run it with `grunt demo`).
