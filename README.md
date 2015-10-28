@@ -373,12 +373,12 @@ It should go without saying that the result is established with feature testing,
 
 jQuery.scrollable has been tested with 
 
-- 2015 versions of Chrome, Firefox, Safari, and Opera on the Desktop
+- 2015 versions of Chrome, Firefox, Safari, Edge, and Opera on the desktop
 - IE8+
 - Safari on iOS 8, iOS 9, Chrome on Android 5
 - SlimerJS
 
-IE8 can't hande the heavily asynchronous character of the unit tests. It has been tested manually instead, using the [AMD demo][tool-chain-commands] (run it with `grunt demo`).
+IE8 can't handle the heavily asynchronous character of the unit tests. It has been tested manually instead, using the [AMD demo][tool-chain-commands] (run it with `grunt demo`).
 
 ## Build process and tests
 
@@ -430,17 +430,23 @@ In case anything about the test and build process needs to be changed, have a lo
 
 New test files in the `spec` directory are picked up automatically, no need to edit the configuration for that.
 
-## Donations
+## Facilitating development
 
 To my own surprise, [a kind soul][donations-idea] wanted to donate to one of my projects, but there hadn't been a link. [Now there is.][donations-paypal-link]
 
 Please don't feel obliged in the slightest. It's [MIT][license], and so it's free. That said, if you do want to support the maintenance and development of this component, or any of my [other open-source projects][hashchange-projects-overview], I _am_ thankful for your contribution.
 
-Naturally, these things don't pay for themselves – not even remotely. The components I write aim to be well tested, performant, and reliable. That may not sound terribly fascinating, but at the end of the day, these attributes make all the difference in production. And maintaining that standard is rather costly, time-wise. That's why donations are welcome, no matter how small, and be it as nod of appreciation to keep spirits up. [Thank you!][donations-paypal-link]
+Naturally, these things don't pay for themselves – not even remotely. The components I write aim to be well tested, performant, and reliable. These qualities may not seem particularly fascinating, but I put a lot of emphasis on them because they make all the difference in production. They are also rather costly to maintain, time-wise.
+
+That's why donations are welcome, no matter how small, and be it as nod of appreciation to keep spirits up. [Thank you!][donations-paypal-link]
 
 [![Donate with Paypal][donations-paypal-button]][donations-paypal-link]
 
 ## Release Notes
+
+### v1.1.2
+
+- Added support for the document.scrollingElement API
 
 ### v1.1.0
 
@@ -545,7 +551,7 @@ Copyright (c) 2015 Michael Heim.
 [Jasmine]: http://jasmine.github.io/ "Jasmine: Behavior-Driven JavaScript"
 [JSHint]: http://www.jshint.com/ "JSHint, a JavaScript Code Quality Tool"
 
-[donations]: #donations "Donations"
+[donations]: #facilitating-development "Facilitating development"
 [donations-idea]: https://github.com/hashchange/jquery.documentsize/issues/1 "jQuery.documentSize, issue #1: Thank you!"
 [donations-paypal-link]: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=RXZYTYWYSVJ2N "Donate with Paypal"
 [donations-paypal-button]: https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif "Donate with Paypal"
