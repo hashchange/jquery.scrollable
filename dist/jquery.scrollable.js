@@ -1,5 +1,5 @@
-// jQuery.scrollable, v1.1.1
-// Copyright (c)2015 Michael Heim, Zeilenwechsel.de
+// jQuery.scrollable, v1.1.2
+// Copyright (c) 2015 Michael Heim, Zeilenwechsel.de
 // Distributed under MIT license
 // http://github.com/hashchange/jquery.scrollable
 
@@ -1728,11 +1728,26 @@
          * @returns {jQuery}
          */
         function getWindowScrollable ( currentWindow ) {
-            var iframe,
+            var iframe, element, tagName,
                 currentDocument = ( currentWindow || window ).document;
     
             // In quirks mode, we have to scroll the body, regardless of the normal browser behaviour
             if ( currentDocument.compatMode === "BackCompat" ) return $( currentDocument.body );
+    
+            // Use the document.scrollingElement API if available.
+            //
+            // This API is experimental and currently supported by Chrome 44+, Opera 33+, Safari 9+ and Edge.
+            // See https://developer.mozilla.org/en-US/docs/Web/API/document/scrollingElement
+            if ( ! _windowScrollable ) {
+                // Being very defensive here because the API is experimental and potentially buggy, unstable, or slow.
+                element = document.scrollingElement;
+                tagName = element && element.tagName;
+    
+                if ( tagName && tagName.toLowerCase ) {
+                    tagName = tagName.toLowerCase();
+                    if ( tagName === "html" || tagName === "body" ) _windowScrollable = tagName;
+                }
+            }
     
             if ( ! _windowScrollable ) {
                 iframe = createScrollableTestIframe();
