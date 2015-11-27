@@ -82,7 +82,7 @@ require( [
                         animation._callId = callId;
                         performance.mark( callId + " - Start" );
                     },
-                    done: function ( animation ) {
+                    done: function ( animation, jumpedToEnd, messages ) {
                         var execTime,
                             callId = animation._callId;
 
@@ -90,6 +90,12 @@ require( [
                         execTime = getMeasuredDuration( callId, { rounded: true, unit: true } );
 
                         updateLog( actionLabel + " done.", true, " (" + execTime + ")" );
+                    },
+                    fail: function ( animation, jumpedToEnd, messages ) {
+                        var cause = messages.cancelled,
+                            addSeparator = cause === "scroll" || cause === "click";
+
+                        updateLog ( "Interrupted by " + cause, addSeparator );
                     }
                 };
 
