@@ -51,7 +51,7 @@
      * For functions which are not jQuery effects, arguments can be whatever you like.
      *
      * @param {Object}        config
-     * @param {Function}      config.func    the "payload" function to be executed; invoked in the context of config.$elem
+     * @param {Function}      config.func    the "payload" function to be executed; invoked in the context of queueWrapper.$elem
      * @param {Array}         config.args    of config.func
      * @param {AnimationInfo} [config.info]  info to be attached to the sentinel, in an `info` property
      */

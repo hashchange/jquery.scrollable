@@ -66,33 +66,6 @@
     };
 
     /**
-     * Expects an object of animation options, deletes the callbacks in it and returns a new object consisting only of
-     * the callbacks.
-     *
-     * Returns an empty object if the animation options are undefined, or if no callbacks are present in there.
-     *
-     * @param   {Object|undefined} [animationOptions]
-     * @returns {Callbacks}
-     */
-    lib.extractCallbacks = function ( animationOptions ) {
-        var callbacks = {};
-
-        if ( animationOptions ) {
-
-            $.each( animationCallbacks, function ( index, name ) {
-                var callback = animationOptions[name];
-                if ( callback ) {
-                    callbacks[name] = callback;
-                    delete animationOptions[name];
-                }
-            } );
-
-        }
-
-        return callbacks;
-    };
-
-    /**
      * Expects an object of animation options and returns a new object consisting only of the callbacks. Does not modify
      * the input object.
      *
@@ -102,18 +75,7 @@
      * @returns {Callbacks}
      */
     lib.getCallbacks = function ( animationOptions ) {
-        var callbacks = {};
-
-        if ( animationOptions ) {
-
-            $.each( animationCallbacks, function ( index, name ) {
-                var callback = animationOptions[name];
-                if ( callback ) callbacks[name] = callback;
-            } );
-
-        }
-
-        return callbacks;
+        return pick( animationOptions, animationCallbacks );
     };
 
     /**
@@ -163,7 +125,6 @@
             history = options._history || { real: [], expected: [] },
             animationInfo = {
                 position: position,
-                callbacks: lib.getCallbacks( options ),
                 history: history
             };
 
@@ -723,6 +684,33 @@
     }
 
     /**
+     * Expects a hash and returns a copy of it, filtered to only have values for the whitelisted keys. Also omits
+     * existing, matching properties if their value is undefined. Does not modify the input object.
+     *
+     * Returns an empty object if the hash doesn't have any matching properties, or if the hash itself is undefined.
+     *
+     * Roughly replicates the functionality of _.pick() in the Underscore library.
+     *
+     * @param   {Object|undefined} hash
+     * @param   {string[]}         keyNames
+     * @returns {Object}
+     */
+    function pick ( hash, keyNames ) {
+        var picked = {};
+
+        if ( hash ) {
+
+            $.each( keyNames, function ( index, name ) {
+                var value = hash[name];
+                if ( value !== undefined ) picked[name] = value;
+            } );
+
+        }
+
+        return picked;
+    }
+
+    /**
      * Adds a jQuery.animate prefilter which applies the lockSpeedBelow setting, and adjusts the duration of a scroll
      * animation when necessary.
      *
@@ -780,7 +768,6 @@
      * @type {Object}
      *
      * @property {Coordinates} position
-     * @property {Callbacks}   callbacks
      * @property {StepHistory} history
      */
 
