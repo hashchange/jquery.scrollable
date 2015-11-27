@@ -187,6 +187,9 @@
      *
      * Requires the actual scrollable element, as returned by $.fn.scrollable(). The options must have been normalized.
      *
+     * The last argument allows you to pass messages to the `fail` callbacks of ongoing and queued animations. Pass the
+     * messages as a hash, and they will show up in the messages argument received by the callbacks.
+     *
      * Scroll animation queue
      * ----------------------
      *
@@ -208,9 +211,10 @@
      * @param   {Object}         options
      * @param   {string|boolean} options.queue
      * @param   {boolean}        [options.jumpToTargetPosition=false]
+     * @param   {Object}         [messages]
      * @returns {StepHistory|undefined}
      */
-    lib.stopScrollAnimation = function ( $scrollable, options ) {
+    lib.stopScrollAnimation = function ( $scrollable, options, messages ) {
         var history;
 
         options = $.extend( { jumpToTargetPosition: false }, options );
@@ -236,7 +240,7 @@
             // Ongoing and queued scroll animations are about to be stopped or removed. Allow for custom messages to be
             // sent to their fail callbacks. Messages are carried by the options object, so transfer its properties to
             // the message container of each callback.
-            lib.notifyScrollCallbacks( $scrollable, options, ["fail"], options.queue );
+            lib.notifyScrollCallbacks( $scrollable, messages, ["fail"], options.queue );
 
             $scrollable.stop( options.queue, true, options.jumpToTargetPosition );
         }
@@ -568,7 +572,7 @@
                         // the current step. We want to remain at the position the user has scrolled to, so we reduce
                         // the current step to a no-op.
                         tween.now = lastReal[animatedProp];
-                        lib.stopScrollAnimation( $( tween.elem ), { queue: queueName, cancelled: "scroll" } );
+                        lib.stopScrollAnimation( $( tween.elem ), { queue: queueName }, { cancelled: "scroll" } );
                     }
                 }
 
@@ -626,7 +630,7 @@
         if ( enableDetection ) {
 
             handler = function () {
-                lib.stopScrollAnimation( $elem, { queue: queueName, cancelled: "click" } );
+                lib.stopScrollAnimation( $elem, { queue: queueName }, { cancelled: "click" } );
             };
 
             modifiedOptions.start = function () {

@@ -24,8 +24,8 @@ var mgr = {},
         return this;
     };
 
-    $.fn.stopScroll = function ( options ) {
-        stopScroll( this, options );
+    $.fn.stopScroll = function ( options, messages ) {
+        stopScroll( this, options, messages );
         return this;
     };
 
@@ -94,11 +94,12 @@ var mgr = {},
      * @param {Object}         [options]
      * @param {boolean}        [options.jumpToTargetPosition=false]
      * @param {string|boolean} [options.queue]                       usually not required, set to the scroll queue by default
+     * @param {Object}         [messages]
      */
-    function stopScroll( $container, options ) {
+    function stopScroll( $container, options, messages ) {
         $container = norm.normalizeContainer( $container );
         options = norm.normalizeOptions( options );
-        mgr.stopScroll( $container, options );
+        mgr.stopScroll( $container, options, messages );
     }
 
     /**
