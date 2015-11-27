@@ -29,6 +29,8 @@
      * @param {Object}               options     must be normalized
      */
     mgr.scrollTo = function ( $container, position, options ) {
+        var stopOptions;
+
         // Callbacks for window animations are bound to the window, not the animated element
         if ( $.isWindow( $container[0] ) ) options = lib.bindAnimationCallbacks( options, $container[0] );
 
@@ -45,7 +47,8 @@
                 options._history = lib.getLastStepHistory( $container, options );
             } else {
                 // Not appending, so stop an ongoing scroll and empty the queue
-                options._history = mgr.stopScroll( $container, options );
+                stopOptions = $.extend( { cancelled: options.merge ? "merge" : "replace" }, options );
+                options._history = mgr.stopScroll( $container, stopOptions );
             }
 
             core.animateScroll( $container, position, options );

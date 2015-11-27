@@ -96,7 +96,8 @@
         }
 
         // In the internal custom queue, add a sentinel function as the next item to the queue, in order to track the
-        // queue progress. Sentinels also serve as a store for animation info (scroll target position, callbacks).
+        // queue progress. Sentinels also serve as a store for animation info (scroll target position, step history,
+        // callback messaging).
         //
         // The sentinel must be added to any other queue as well. Sentinels are not needed for tracking progress there
         // (no auto start management for those queues), but we must have the animation info around.
