@@ -139,7 +139,7 @@
             hasPosY = posY !== norm.IGNORE_AXIS,
             animated = {},
             history = options._history || { real: [], expected: [] },
-            callbackMessageContainer = {},
+            callbackMessageContainer = createOuterMessageContainer(),
             animationInfo = {
                 position: position,
                 history: history,
@@ -211,7 +211,7 @@
      * @returns {StepHistory|undefined}
      */
     lib.stopScrollAnimation = function ( $scrollable, options ) {
-        var history, callbackMessageContainers;
+        var history;
 
         options = $.extend( { jumpToTargetPosition: false }, options );
 
@@ -232,18 +232,40 @@
             $scrollable.stop( true, options.jumpToTargetPosition );
         } else {
             history = getCurrentStepHistory( $scrollable, options );
-            
-            // Copy all option properties to the message containers. It makes the properties available to the exit
-            // callbacks of ongoing and queued scroll animations, in preparation for the stop() call.
-            callbackMessageContainers = getMessageContainers( $scrollable, options );
-            $.each( callbackMessageContainers, function ( index, messageContainer ) {
-                $.extend( messageContainer, options );
-            } );
+
+            // Ongoing and queued scroll animations are about to be stopped or removed. Allow for custom messages to be
+            // sent to their fail callbacks. Messages are carried by the options object, so transfer its properties to
+            // the message container of each callback.
+            lib.notifyScrollCallbacks( $scrollable, options, ["fail"], options.queue );
 
             $scrollable.stop( options.queue, true, options.jumpToTargetPosition );
         }
 
         return history;
+    };
+
+    /**
+     * Transfers all properties of a message object to the message containers in the queue. Can be restricted to message
+     * containers for specific types of callbacks (e.g. for `done`, `always` callbacks only).
+     *
+     * Affects all scroll animations which are ongoing or queued at the time of this transfer. Later on, the message
+     * containers are going to be passed to the exit callbacks of these animations, as they are invoked.
+     *
+     * Leaves the original message object (the input object) unchanged.
+     *
+     * @param {jQuery}   $scrollable
+     * @param {Object}   message
+     * @param {string[]} [callbackNames] defaults to all exit callbacks ("complete", "done", "fail", "always")
+     * @param {string}   [queueName]     usually not required, set to the scroll queue by default
+     */
+    lib.notifyScrollCallbacks = function ( $scrollable, message, callbackNames, queueName ) {
+        var callbackMessageContainers = getMessageContainers( $scrollable, { queue: queueName }, callbackNames );
+
+        if ( !$.isPlainObject( message ) ) throw new Error( 'Invalid message argument. Expected a hash but got type ' + $.type( message ) );
+
+        $.each( callbackMessageContainers, function ( index, messageContainer ) {
+            $.extend( messageContainer, message );
+        } );
     };
 
     /**
@@ -632,29 +654,30 @@
      * Replaces each animation exit callback (complete, done, fail, always) in the animation options with a wrapper
      * function which calls the original callback, adding a message container to the callback arguments.
      *
-     * Expects the animation options and the message container as arguments. Returns the modified animation options.
-     * Leaves the original options untouched.
+     * Expects the animation options and the (outer) message container as arguments. Returns the modified animation
+     * options. Leaves the original options untouched.
      *
      * For callbacks which receive two arguments (done, fail, always), the message container is added as the third one.
      * The complete callback, which is called without arguments out of the box, receives the message container as the
      * only argument.
      *
      * @param   {Object} animationOptions
-     * @param   {Object} messageContainer
+     * @param   {Object} outerMessageContainer
      * @returns {Object}
      */
-    function addMessagingToCallbacks ( animationOptions, messageContainer ) {
+    function addMessagingToCallbacks ( animationOptions, outerMessageContainer ) {
         var callbacks = lib.getExitCallbacks( animationOptions ),
             modifiedOptions = animationOptions ? $.extend( {}, animationOptions ) : {};
 
         $.each( callbacks, function ( callbackName, callback ) {
+            var messageContainer = outerMessageContainer[callbackName];
 
             modifiedOptions[callbackName] = function () {
                 var args = $.makeArray( arguments );
 
                 // Callbacks with arguments (done, fail, always) are supposed to receive two arguments, but jQuery omits
-                // the second argument, jumpToEnd, if the jumpToEnd flag has not been used. Add it with value undefined
-                // if necessary.
+                // the second argument, jumpedToEnd, if the jumpedToEnd flag has not been used. Add it with value
+                // undefined if necessary.
                 if ( args.length === 1 ) args.push( undefined );
 
                 // Add the message container as the third argument (or, in the case of the `complete` callback, as the
@@ -740,7 +763,27 @@
     }
 
     /**
-     * Returns all message containers in the queue, as an array. 
+     * Creates a message container, for passing messages to animation callbacks.
+     *
+     * It consists of an outer container, which holds the actual message containers for each exit callback (complete,
+     * done, fail, always). These "real" message containers, which are just empty hashes at this point, are passed to
+     * the callbacks when they are invoked.
+     *
+     * @returns {OuterMessageContainer}
+     */
+    function createOuterMessageContainer () {
+        var outer = {};
+
+        $.each( animationExitCallbacks, function ( index, callbackName ) {
+            outer[callbackName] = {};
+        } );
+
+        return outer;
+    }
+
+    /**
+     * Returns all message containers in the queue, as an array. Can be restricted to message containers for specific
+     * types of callbacks.
      *
      * If there aren't any sentinels of scroll animations in the queue, and hence no message containers, an empty array
      * is returned.
@@ -748,29 +791,44 @@
      * The message containers are attached to the sentinels, as part of the info entries. Message containers are used 
      * for communicating with animation callbacks (more specifically, with the exit callbacks `complete`, `done`, `fail`,
      * `always`).
+     *
+     * The method returns an array of the actual message containers which are passed to the callbacks, not the outer
+     * message container which keeps them separated by callback type.
      * 
-     * @param   {jQuery} $scrollable  the real scrollable element
-     * @param   {Object} options      must be normalized, therefore containing options.queue
+     * @param   {jQuery}   $scrollable      the real scrollable element
+     * @param   {Object}   options          must be normalized, therefore containing options.queue
+     * @param   {string[]} [callbackNames]  defaults to all exit callbacks ("complete", "done", "fail", "always")
      * @returns {Object[]}
      */
-    function getMessageContainers ( $scrollable, options ) {
-        return getMessageContainers_QW( new queue.QueueWrapper( $scrollable, options.queue ) );
+    function getMessageContainers ( $scrollable, options, callbackNames ) {
+        return getMessageContainers_QW( new queue.QueueWrapper( $scrollable, options.queue ), callbackNames );
     }
 
     /**
      * Does the actual work of getMessageContainers(). See there for more.
      *
-     * @param   {queue.QueueWrapper} queueWrapper
+     * @param   {queue.QueueWrapper}        queueWrapper
+     * @param   {string[]} [callbackNames]  defaults to all exit callbacks ("complete", "done", "fail", "always")
      * @returns {Object[]}
      */
-    function getMessageContainers_QW ( queueWrapper ) {
-        var infoEntries = queueWrapper.getInfo(),
-            
-            messageContainers = $.map( infoEntries, function ( info ) {
+    function getMessageContainers_QW ( queueWrapper, callbackNames ) {
+        var messageContainers = [],
+            infoEntries = queueWrapper.getInfo(),
+            outerMessageContainers = $.map( infoEntries, function ( info ) {
                 return info.callbackMessages;
             } );
 
-        return messageContainers || [];
+        callbackNames || ( callbackNames = animationExitCallbacks );
+
+        $.each( callbackNames, function ( index, callbackName ) {
+            if ( !$.inArray( callbackName, animationExitCallbacks ) ) throw new Error( 'Invalid animation callback name. Expected the name of an exit callback ("' + animationExitCallbacks.join( '", "' ) + '"), but got "' + callbackName + '"' );
+
+            $.each( outerMessageContainers, function ( index, outerMessageContainer ) {
+                messageContainers.push( outerMessageContainer[callbackName] );
+            } );
+        } );
+
+        return messageContainers;
     }
 
     /**
@@ -874,9 +932,19 @@
      * @name AnimationInfo
      * @type {Object}
      *
-     * @property {Coordinates} position
-     * @property {Object}      callbackMessages
-     * @property {StepHistory} history
+     * @property {Coordinates}           position
+     * @property {OuterMessageContainer} callbackMessages
+     * @property {StepHistory}           history
+     */
+
+    /**
+     * @name OuterMessageContainer
+     * @type {Object}
+     *
+     * @property {Object} complete
+     * @property {Object} done
+     * @property {Object} fail
+     * @property {Object} always
      */
 
     /**

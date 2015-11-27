@@ -29,6 +29,11 @@ var mgr = {},
         return this;
     };
 
+    $.fn.notifyScrollCallbacks = function ( message, callbackNames, queueName ) {
+        notifyScrollCallbacks( this, message, callbackNames, queueName );
+        return this;
+    };
+
     $.scrollable = {
         lockSpeedBelow: 400,
         defaultDuration: $.fx.speeds._default,
@@ -94,6 +99,20 @@ var mgr = {},
         $container = norm.normalizeContainer( $container );
         options = norm.normalizeOptions( options );
         mgr.stopScroll( $container, options );
+    }
+
+    /**
+     * Does the actual work of $.fn.notifyScrollCallbacks.
+     *
+     * @param {jQuery}          $container
+     * @param {Object}          message
+     * @param {string|string[]} [callbackNames]  defaults to all exit callbacks ("complete", "done", "fail", "always")
+     * @param {string}          [queueName]      usually not required, set to the scroll queue by default
+     */
+    function notifyScrollCallbacks ( $container, message, callbackNames, queueName ) {
+        $container = norm.normalizeContainer( $container );
+        if ( !$.isArray( callbackNames ) ) callbackNames = [callbackNames];
+        mgr.notifyScrollCallbacks( $container, message, callbackNames, queueName );
     }
 
     /**

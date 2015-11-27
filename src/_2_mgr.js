@@ -68,4 +68,15 @@
         return lib.stopScrollAnimation( $scrollable, options );
     };
 
+    /**
+     * @param {jQuery}   $container       must be normalized
+     * @param {Object}   message
+     * @param {string[]} [callbackNames]  defaults to all exit callbacks ("complete", "done", "fail", "always")
+     * @param {string}   [queueName]      usually not required, set to the scroll queue by default
+     */
+    mgr.notifyScrollCallbacks = function ( $container, message, callbackNames, queueName ) {
+        var $scrollable = mgr.getScrollable( $container );
+        lib.notifyScrollCallbacks( $scrollable, message, callbackNames, queueName );
+    };
+
 } )( mgr, lib, core );
