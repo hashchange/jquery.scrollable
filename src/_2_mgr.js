@@ -29,6 +29,9 @@
      * @param {Object}               options     must be normalized
      */
     mgr.scrollTo = function ( $container, position, options ) {
+        var stopOptions,
+            notifyCancelled = extractNotifyCancelled( options ) || {};
+
         // Callbacks for window animations are bound to the window, not the animated element
         if ( $.isWindow( $container[0] ) ) options = lib.bindAnimationCallbacks( options, $container[0] );
 
@@ -45,7 +48,9 @@
                 options._history = lib.getLastStepHistory( $container, options );
             } else {
                 // Not appending, so stop an ongoing scroll and empty the queue
-                options._history = mgr.stopScroll( $container, options, { cancelled: options.merge ? "merge" : "replace" } );
+                $.extend( notifyCancelled, { cancelled: options.merge ? "merge" : "replace" } );
+                stopOptions = $.extend( { notifyCancelled: notifyCancelled }, options );
+                options._history = mgr.stopScroll( $container, stopOptions );
             }
 
             core.animateScroll( $container, position, options );
@@ -58,12 +63,14 @@
      * @param   {Object}         options                               must be normalized
      * @param   {string|boolean} options.queue                         set during options normalization if not provided explicitly
      * @param   {boolean}        [options.jumpToTargetPosition=false]
-     * @param   {Object}         [messages]
+     * @param   {Object}         [options.notifyCancelled]
      * @returns {StepHistory}    the step history of the stopped animation
      */
-    mgr.stopScroll = function ( $container, options, messages ) {
-        var $scrollable = mgr.getScrollable( $container );
-        return lib.stopScrollAnimation( $scrollable, options, messages );
+    mgr.stopScroll = function ( $container, options ) {
+        var notifyCancelled = extractNotifyCancelled( options ),
+            $scrollable = mgr.getScrollable( $container );
+
+        return lib.stopScrollAnimation( $scrollable, options, notifyCancelled );
     };
 
     /**
@@ -76,5 +83,27 @@
         var $scrollable = mgr.getScrollable( $container );
         lib.notifyScrollCallbacks( $scrollable, message, callbackNames, queueName );
     };
+
+    /**
+     * Extracts the notifyCancelled option from the options object. Removes the notifyCancelled property from the input
+     * object, modifying it. Returns an independent copy of the notifyCancelled object.
+     *
+     * Returns undefined if the notifyCancelled option does not exist.
+     *
+     * @param   {Object} [options]
+     * @returns {Object|undefined}
+     */
+    function extractNotifyCancelled ( options ) {
+        var notifyCancelled;
+
+        if ( options && options.notifyCancelled ) {
+            if ( !$.isPlainObject( options.notifyCancelled ) ) throw new Error( 'Invalid notifyCancelled option. Expected a hash but got type ' + $.type( options.notifyCancelled ) );
+
+            notifyCancelled = $.extend( {}, options.notifyCancelled );
+            delete options.notifyCancelled;
+        }
+
+        return notifyCancelled;
+    }
 
 } )( mgr, lib, core );
