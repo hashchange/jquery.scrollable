@@ -237,10 +237,9 @@
         } else {
             history = getCurrentStepHistory( $scrollable, options );
 
-            // Ongoing and queued scroll animations are about to be stopped or removed. Allow for custom messages to be
-            // sent to their fail callbacks. Messages are carried by the options object, so transfer its properties to
-            // the message container of each callback.
-            if ( messages ) lib.notifyScrollCallbacks( $scrollable, messages, ["fail"], options.queue );
+            // Ongoing and queued scroll animations are about to be stopped or removed. Allow messages to be sent to
+            // their callbacks.
+            if ( messages ) lib.notifyScrollCallbacks( $scrollable, messages, animationExitCallbacks, options.queue );
 
             $scrollable.stop( options.queue, true, options.jumpToTargetPosition );
         }
