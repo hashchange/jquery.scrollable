@@ -176,12 +176,14 @@
                         expect( callbacks_1.complete ).not.toHaveBeenCalled();
                     } );
 
-                    it( 'the "fail" callback has fired', function () {
+                    it( 'the "fail" callback has fired, and been called with a cancelled: "replace" message', function () {
                         expect( callbacks_1.fail ).toHaveBeenCalled();
+                        expect( callbackCalls_1.fail.args[2] ).toEqual( { cancelled: "replace" } );
                     } );
 
-                    it( 'the "always" callback has fired', function () {
+                    it( 'the "always" callback has fired, and been called with a cancelled: "replace" message', function () {
                         expect( callbacks_1.always ).toHaveBeenCalled();
+                        expect( callbackCalls_1.always.args[2] ).toEqual( { cancelled: "replace" } );
                     } );
 
                 } );
@@ -214,22 +216,28 @@
 
                 describe( 'When the new movement is complete,', function () {
 
-                    it( 'it fires the "done" callback', function () {
+                    it( 'it fires the "done" callback, called with an empty message argument', function () {
                         expect( callbacks_2.done ).toHaveBeenCalled();
                         expect( callbackCalls_2.done.callCount ).toEqual( 1 );
                         expect( callbackCalls_2.done.scrollState.y ).toFuzzyEqual( targetPx );
+
+                        expect( callbackCalls_2.done.args[2] ).toEqual( {} );
                     } );
 
-                    it( 'it fires the "complete" callback', function () {
+                    it( 'it fires the "complete" callback, called with an empty message argument', function () {
                         expect( callbacks_2.complete ).toHaveBeenCalled();
                         expect( callbackCalls_2.complete.callCount ).toEqual( 1 );
                         expect( callbackCalls_2.complete.scrollState.y ).toFuzzyEqual( targetPx );
+
+                        expect( callbackCalls_2.complete.args[0] ).toEqual( {} );
                     } );
 
-                    it( 'it fires the "always" callback', function () {
+                    it( 'it fires the "always" callback, called with an empty message argument', function () {
                         expect( callbacks_2.always ).toHaveBeenCalled();
                         expect( callbackCalls_2.always.callCount ).toEqual( 1 );
                         expect( callbackCalls_2.always.scrollState.y ).toFuzzyEqual( targetPx );
+
+                        expect( callbackCalls_2.always.args[2] ).toEqual( {} );
                     } );
 
                     it( 'it has not fired the fail callback', function () {
@@ -293,12 +301,14 @@
                         expect( callbacks_1.complete ).not.toHaveBeenCalled();
                     } );
 
-                    it( 'the "fail" callback has fired', function () {
+                    it( 'the "fail" callback has fired, and been called with a cancelled: "replace" message', function () {
                         expect( callbacks_1.fail ).toHaveBeenCalled();
+                        expect( callbackCalls_1.fail.args[2] ).toEqual( { cancelled: "replace" } );
                     } );
 
-                    it( 'the "always" callback has fired', function () {
+                    it( 'the "always" callback has fired, and been called with a cancelled: "replace" message', function () {
                         expect( callbacks_1.always ).toHaveBeenCalled();
+                        expect( callbackCalls_1.always.args[2] ).toEqual( { cancelled: "replace" } );
                     } );
 
                 } );
@@ -313,12 +323,14 @@
                         expect( callbacks_2.complete ).not.toHaveBeenCalled();
                     } );
 
-                    it( 'the "fail" callback has fired', function () {
+                    it( 'the "fail" callback has fired, and been called with a cancelled: "replace" message', function () {
                         expect( callbacks_2.fail ).toHaveBeenCalled();
+                        expect( callbackCalls_2.fail.args[2] ).toEqual( { cancelled: "replace" } );
                     } );
 
-                    it( 'the "always" callback has fired', function () {
+                    it( 'the "always" callback has fired, and been called with a cancelled: "replace" message', function () {
                         expect( callbacks_2.always ).toHaveBeenCalled();
+                        expect( callbackCalls_2.always.args[2] ).toEqual( { cancelled: "replace" } );
                     } );
 
                 } );
@@ -333,12 +345,14 @@
                         expect( callbacks_3.complete ).not.toHaveBeenCalled();
                     } );
 
-                    it( 'the "fail" callback has fired', function () {
+                    it( 'the "fail" callback has fired, and been called with a cancelled: "replace" message', function () {
                         expect( callbacks_3.fail ).toHaveBeenCalled();
+                        expect( callbackCalls_3.fail.args[2] ).toEqual( { cancelled: "replace" } );
                     } );
 
-                    it( 'the "always" callback has fired', function () {
+                    it( 'the "always" callback has fired, and been called with a cancelled: "replace" message', function () {
                         expect( callbacks_3.always ).toHaveBeenCalled();
+                        expect( callbackCalls_3.always.args[2] ).toEqual( { cancelled: "replace" } );
                     } );
 
                 } );
@@ -371,22 +385,28 @@
 
                 describe( 'When the final movement is complete,', function () {
 
-                    it( 'it fires the "done" callback', function () {
+                    it( 'it fires the "done" callback, called with an empty message argument', function () {
                         expect( callbacks_4.done ).toHaveBeenCalled();
                         expect( callbackCalls_4.done.callCount ).toEqual( 1 );
                         expect( callbackCalls_4.done.scrollState.y ).toFuzzyEqual( targetPx );
+
+                        expect( callbackCalls_4.done.args[2] ).toEqual( {} );
                     } );
 
-                    it( 'it fires the "complete" callback', function () {
+                    it( 'it fires the "complete" callback, called with an empty message argument', function () {
                         expect( callbacks_4.complete ).toHaveBeenCalled();
                         expect( callbackCalls_4.complete.callCount ).toEqual( 1 );
                         expect( callbackCalls_4.complete.scrollState.y ).toFuzzyEqual( targetPx );
+
+                        expect( callbackCalls_4.complete.args[0] ).toEqual( {} );
                     } );
 
-                    it( 'it fires the "always" callback', function () {
+                    it( 'it fires the "always" callback, called with an empty message argument', function () {
                         expect( callbacks_4.always ).toHaveBeenCalled();
                         expect( callbackCalls_4.always.callCount ).toEqual( 1 );
                         expect( callbackCalls_4.always.scrollState.y ).toFuzzyEqual( targetPx );
+
+                        expect( callbackCalls_4.always.args[2] ).toEqual( {} );
                     } );
 
                     it( 'it has not fired the fail callback', function () {

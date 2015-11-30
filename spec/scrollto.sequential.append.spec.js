@@ -145,26 +145,32 @@
 
                 describe( 'For the initial scrollTo call,', function () {
 
-                    it( 'the "done" callback has fired', function () {
+                    it( 'the "done" callback has fired, and was called with an empty message argument', function () {
                         expect( callbacks_1.done ).toHaveBeenCalled();
                         expect( callbackCalls_1.done.callCount ).toEqual( 1 );
                         expect( callbackCalls_1.done.scrollState.y ).toFuzzyEqual( targetPx_1 );
+
+                        expect( callbackCalls_1.done.args[2] ).toEqual( {} );
                     } );
 
-                    it( 'the "complete" callback has fired', function () {
+                    it( 'the "complete" callback has fired, and was called with an empty message argument', function () {
                         expect( callbacks_1.complete ).toHaveBeenCalled();
                         expect( callbackCalls_1.complete.callCount ).toEqual( 1 );
                         expect( callbackCalls_1.complete.scrollState.y ).toFuzzyEqual( targetPx_1 );
+
+                        expect( callbackCalls_1.complete.args[0] ).toEqual( {} );
                     } );
 
                     it( 'the "fail" callback has not fired', function () {
                         expect( callbacks_1.fail ).not.toHaveBeenCalled();
                     } );
 
-                    it( 'the "always" callback has fired', function () {
+                    it( 'the "always" callback has fired, and was called with an empty message argument', function () {
                         expect( callbacks_1.always ).toHaveBeenCalled();
                         expect( callbackCalls_1.always.callCount ).toEqual( 1 );
                         expect( callbackCalls_1.always.scrollState.y ).toFuzzyEqual( targetPx_1 );
+
+                        expect( callbackCalls_1.always.args[2] ).toEqual( {} );
                     } );
 
                 } );
@@ -197,22 +203,28 @@
 
                 describe( 'When the new movement is complete,', function () {
 
-                    it( 'it fires the "done" callback', function () {
+                    it( 'it fires the "done" callback, called with an empty message argument', function () {
                         expect( callbacks_2.done ).toHaveBeenCalled();
                         expect( callbackCalls_2.done.callCount ).toEqual( 1 );
                         expect( callbackCalls_2.done.scrollState.y ).toFuzzyEqual( targetPx_2 );
+
+                        expect( callbackCalls_2.done.args[2] ).toEqual( {} );
                     } );
 
-                    it( 'it fires the "complete" callback', function () {
+                    it( 'it fires the "complete" callback, called with an empty message argument', function () {
                         expect( callbacks_2.complete ).toHaveBeenCalled();
                         expect( callbackCalls_2.complete.callCount ).toEqual( 1 );
                         expect( callbackCalls_2.complete.scrollState.y ).toFuzzyEqual( targetPx_2 );
+
+                        expect( callbackCalls_2.complete.args[0] ).toEqual( {} );
                     } );
 
-                    it( 'it fires the "always" callback', function () {
+                    it( 'it fires the "always" callback, called with an empty message argument', function () {
                         expect( callbacks_2.always ).toHaveBeenCalled();
                         expect( callbackCalls_2.always.callCount ).toEqual( 1 );
                         expect( callbackCalls_2.always.scrollState.y ).toFuzzyEqual( targetPx_2 );
+
+                        expect( callbackCalls_2.always.args[2] ).toEqual( {} );
                     } );
 
                     it( 'it has not fired the fail callback', function () {
@@ -276,78 +288,96 @@
 
                 describe( 'For the first scrollTo call,', function () {
 
-                    it( 'the "done" callback has fired', function () {
+                    it( 'the "done" callback has fired, and was called with an empty message argument', function () {
                         expect( callbacks_1.done ).toHaveBeenCalled();
                         expect( callbackCalls_1.done.callCount ).toEqual( 1 );
                         expect( callbackCalls_1.done.scrollState.y ).toFuzzyEqual( targetPx_1 );
+
+                        expect( callbackCalls_1.done.args[2] ).toEqual( {} );
                     } );
 
-                    it( 'the "complete" callback has fired', function () {
+                    it( 'the "complete" callback has fired, and was called with an empty message argument', function () {
                         expect( callbacks_1.complete ).toHaveBeenCalled();
                         expect( callbackCalls_1.complete.callCount ).toEqual( 1 );
                         expect( callbackCalls_1.complete.scrollState.y ).toFuzzyEqual( targetPx_1 );
+
+                        expect( callbackCalls_1.complete.args[0] ).toEqual( {} );
                     } );
 
                     it( 'the "fail" callback has not fired', function () {
                         expect( callbacks_1.fail ).not.toHaveBeenCalled();
                     } );
 
-                    it( 'the "always" callback has fired', function () {
+                    it( 'the "always" callback has fired, and was called with an empty message argument', function () {
                         expect( callbacks_1.always ).toHaveBeenCalled();
                         expect( callbackCalls_1.always.callCount ).toEqual( 1 );
                         expect( callbackCalls_1.always.scrollState.y ).toFuzzyEqual( targetPx_1 );
+
+                        expect( callbackCalls_1.always.args[2] ).toEqual( {} );
                     } );
 
                 } );
 
                 describe( 'For the second scrollTo call,', function () {
 
-                    it( 'the "done" callback has fired', function () {
+                    it( 'the "done" callback has fired, and was called with an empty message argument', function () {
                         expect( callbacks_2.done ).toHaveBeenCalled();
                         expect( callbackCalls_2.done.callCount ).toEqual( 1 );
                         expect( callbackCalls_2.done.scrollState.x ).toFuzzyEqual( targetPx_2 );
+
+                        expect( callbackCalls_2.done.args[2] ).toEqual( {} );
                     } );
 
-                    it( 'the "complete" callback has fired', function () {
+                    it( 'the "complete" callback has fired, and was called with an empty message argument', function () {
                         expect( callbacks_2.complete ).toHaveBeenCalled();
                         expect( callbackCalls_2.complete.callCount ).toEqual( 1 );
                         expect( callbackCalls_2.complete.scrollState.x ).toFuzzyEqual( targetPx_2 );
+
+                        expect( callbackCalls_2.complete.args[0] ).toEqual( {} );
                     } );
 
                     it( 'the "fail" callback has not fired', function () {
                         expect( callbacks_2.fail ).not.toHaveBeenCalled();
                     } );
 
-                    it( 'the "always" callback has fired', function () {
+                    it( 'the "always" callback has fired, and was called with an empty message argument', function () {
                         expect( callbacks_2.always ).toHaveBeenCalled();
                         expect( callbackCalls_2.always.callCount ).toEqual( 1 );
                         expect( callbackCalls_2.always.scrollState.x ).toFuzzyEqual( targetPx_2 );
+
+                        expect( callbackCalls_2.always.args[2] ).toEqual( {} );
                     } );
 
                 } );
 
                 describe( 'For the third scrollTo call,', function () {
 
-                    it( 'the "done" callback has fired', function () {
+                    it( 'the "done" callback has fired, and was called with an empty message argument', function () {
                         expect( callbacks_3.done ).toHaveBeenCalled();
                         expect( callbackCalls_3.done.callCount ).toEqual( 1 );
                         expect( callbackCalls_3.done.scrollState.y ).toFuzzyEqual( targetPx_3 );
+
+                        expect( callbackCalls_3.done.args[2] ).toEqual( {} );
                     } );
 
-                    it( 'the "complete" callback has fired', function () {
+                    it( 'the "complete" callback has fired, and was called with an empty message argument', function () {
                         expect( callbacks_3.complete ).toHaveBeenCalled();
                         expect( callbackCalls_3.complete.callCount ).toEqual( 1 );
                         expect( callbackCalls_3.complete.scrollState.y ).toFuzzyEqual( targetPx_3 );
+
+                        expect( callbackCalls_3.complete.args[0] ).toEqual( {} );
                     } );
 
                     it( 'the "fail" callback has not fired', function () {
                         expect( callbacks_3.fail ).not.toHaveBeenCalled();
                     } );
 
-                    it( 'the "always" callback has fired', function () {
+                    it( 'the "always" callback has fired, and was called with an empty message argument', function () {
                         expect( callbacks_3.always ).toHaveBeenCalled();
                         expect( callbackCalls_3.always.callCount ).toEqual( 1 );
                         expect( callbackCalls_3.always.scrollState.y ).toFuzzyEqual( targetPx_3 );
+
+                        expect( callbackCalls_3.always.args[2] ).toEqual( {} );
                     } );
 
                 } );
@@ -379,25 +409,31 @@
 
                 describe( 'When the final movement is complete,', function () {
 
-                    it( 'it fires the "done" callback', function () {
+                    it( 'it fires the "done" callback, called with an empty message argument', function () {
                         expect( callbacks_4.done ).toHaveBeenCalled();
                         expect( callbackCalls_4.done.callCount ).toEqual( 1 );
                         expect( callbackCalls_4.done.scrollState.x ).toFuzzyEqual( targetPx_4 );
                         expect( callbackCalls_4.done.scrollState.y ).toFuzzyEqual( targetPx_3 );
+
+                        expect( callbackCalls_4.done.args[2] ).toEqual( {} );
                     } );
 
-                    it( 'it fires the "complete" callback', function () {
+                    it( 'it fires the "complete" callback, called with an empty message argument', function () {
                         expect( callbacks_4.complete ).toHaveBeenCalled();
                         expect( callbackCalls_4.complete.callCount ).toEqual( 1 );
                         expect( callbackCalls_4.complete.scrollState.x ).toFuzzyEqual( targetPx_4 );
                         expect( callbackCalls_4.complete.scrollState.y ).toFuzzyEqual( targetPx_3 );
+
+                        expect( callbackCalls_4.complete.args[0] ).toEqual( {} );
                     } );
 
-                    it( 'it fires the "always" callback', function () {
+                    it( 'it fires the "always" callback, called with an empty message argument', function () {
                         expect( callbacks_4.always ).toHaveBeenCalled();
                         expect( callbackCalls_4.always.callCount ).toEqual( 1 );
                         expect( callbackCalls_4.always.scrollState.x ).toFuzzyEqual( targetPx_4 );
                         expect( callbackCalls_4.always.scrollState.y ).toFuzzyEqual( targetPx_3 );
+
+                        expect( callbackCalls_4.always.args[2] ).toEqual( {} );
                     } );
 
                     it( 'it has not fired the fail callback', function () {

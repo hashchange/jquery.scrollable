@@ -767,6 +767,7 @@
                 } );
 
             } );
+
         } );
 
         describe( 'Clearing the queue.', function () {
@@ -873,12 +874,28 @@
                     expect( callbackCalls_1.always.scrollState.y ).toBeLocatedStrictlyAbove( maxScrollHeight );
                 } );
 
+                it( 'the "always" callback is called with a cancelled: "scroll" message as the third argument', function () {
+                    var args = callbackCalls_1.always.args;
+                    expect( args ).toBeArray();
+                    expect( args.length ).toEqual( 3 );
+                    expect( args[2] ).toBeNonEmptyObject();
+                    expect( args[2].cancelled ).toEqual( "scroll" );
+                } );
+
                 it( 'the fail callback runs', function () {
                     expect( callbacks_1.fail ).toHaveBeenCalled();
                     expect( callbackCalls_1.fail.callCount ).toEqual( 1 );
                     expect( callbackCalls_1.fail.scrollState.x ).toFuzzyEqual( userTarget.x );
                     expect( callbackCalls_1.always.scrollState.y ).toBeLocatedCloselyBelow( userTarget.y, abortTolerance, borderFuzziness );
                     expect( callbackCalls_1.always.scrollState.y ).toBeLocatedStrictlyAbove( maxScrollHeight );
+                } );
+
+                it( 'the fail callback is called with a cancelled: "scroll" message as the third argument', function () {
+                    var args = callbackCalls_1.fail.args;
+                    expect( args ).toBeArray();
+                    expect( args.length ).toEqual( 3 );
+                    expect( args[2] ).toBeNonEmptyObject();
+                    expect( args[2].cancelled ).toEqual( "scroll" );
                 } );
 
             } );
@@ -1002,6 +1019,7 @@
                         $.scrollable.userScrollThreshold = $.scrollable._scrollDetectionThreshold - 1;
                         expect( function () { $window.scrollTo( 100 ); } ).toThrowError( /^User scroll detection: threshold too low/ );
                     } );
+
                 } );
 
             } );
@@ -1082,6 +1100,7 @@
                 } );
 
             } );
+
         } );
 
         describeIf( userScrollDetectionEnabled, msgTestSkippedDetectionDisabled, 'Ignoring user scrolling with the ignoreUser option.', function () {

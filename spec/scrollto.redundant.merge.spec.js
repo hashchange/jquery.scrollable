@@ -197,6 +197,27 @@
                 } );
             } );
 
+            it( 'The "done", "complete", and "always" callbacks of the initial scroll animation fire, and are called with an empty message argument', function ( done ) {
+                // First scroll movement.
+                $window.scrollTo( 100, callbacks );
+
+                inMidScroll( function () {
+                    $window.scrollTo( 100, { merge: true } );
+
+                    afterScroll( function () {
+                        expect( callbacks.done ).toHaveBeenCalled();
+                        expect( callbacks.complete ).toHaveBeenCalled();
+                        expect( callbacks.always ).toHaveBeenCalled();
+
+                        expect( callbackCalls.done.args[2] ).toEqual( {} );
+                        expect( callbackCalls.complete.args[0] ).toEqual( {} );
+                        expect( callbackCalls.always.args[2] ).toEqual( {} );
+
+                        done();
+                    } );
+                } );
+            } );
+
         } );
 
         describe( 'A scroll movement is in progress, and and another scroll animation is waiting in the queue. Their eventual target location and the target of the new call are the same.', function () {
@@ -238,6 +259,52 @@
                     expect( callbacks.complete ).not.toHaveBeenCalled();
                     expect( callbacks.always ).not.toHaveBeenCalled();
                     expect( callbacks.fail ).not.toHaveBeenCalled();
+                    done();
+                } );
+            } );
+
+            it( 'The "done", "complete", and "always" callbacks of the initial scroll animation fire, and are called with an empty message argument', function ( done ) {
+                // First and second scroll movement.
+                $window
+                    .scrollTo( 50, callbacks )
+                    .scrollTo( 100, { append: true } );
+
+                earlyInMidScroll( function () {
+                    $window.scrollTo( 100, { merge: true } );
+                } );
+
+                afterScrolls( 3, function () {
+                    expect( callbacks.done ).toHaveBeenCalled();
+                    expect( callbacks.complete ).toHaveBeenCalled();
+                    expect( callbacks.always ).toHaveBeenCalled();
+
+                    expect( callbackCalls.done.args[2] ).toEqual( {} );
+                    expect( callbackCalls.complete.args[0] ).toEqual( {} );
+                    expect( callbackCalls.always.args[2] ).toEqual( {} );
+
+                    done();
+                } );
+            } );
+
+            it( 'The "done", "complete", and "always" callbacks of the second scroll animation fire, and are called with an empty message argument', function ( done ) {
+                // First and second scroll movement.
+                $window
+                    .scrollTo( 50 )
+                    .scrollTo( 100, $.extend( { append: true }, callbacks ) );
+
+                earlyInMidScroll( function () {
+                    $window.scrollTo( 100, { merge: true } );
+                } );
+
+                afterScrolls( 3, function () {
+                    expect( callbacks.done ).toHaveBeenCalled();
+                    expect( callbacks.complete ).toHaveBeenCalled();
+                    expect( callbacks.always ).toHaveBeenCalled();
+
+                    expect( callbackCalls.done.args[2] ).toEqual( {} );
+                    expect( callbackCalls.complete.args[0] ).toEqual( {} );
+                    expect( callbackCalls.always.args[2] ).toEqual( {} );
+
                     done();
                 } );
             } );

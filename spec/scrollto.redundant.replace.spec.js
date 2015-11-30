@@ -194,6 +194,33 @@
                         expect( callbacks.complete ).toHaveBeenCalled();
                         expect( callbacks.always ).toHaveBeenCalled();
                         expect( callbacks.fail ).not.toHaveBeenCalled();
+
+                        expect( callbackCalls.complete.args[0] ).toEqual( {} );
+                        expect( callbackCalls.done.args[2] ).toEqual( {} );
+                        expect( callbackCalls.always.args[2] ).toEqual( {} );
+
+                        done();
+                    } );
+                } );
+            } );
+
+            it( 'The "fail" and "always" callbacks of the initial scroll animation fire, and are called with a cancelled: "replace" message', function ( done ) {
+                // First scroll movement.
+                $window.scrollTo( 100, callbacks );
+
+                inMidScroll( function () {
+                    $window.scrollTo( 100 );
+
+                    afterScroll( function () {
+                        expect( callbacks.done ).not.toHaveBeenCalled();
+                        expect( callbacks.complete ).not.toHaveBeenCalled();
+
+                        expect( callbacks.always ).toHaveBeenCalled();
+                        expect( callbacks.fail ).toHaveBeenCalled();
+
+                        expect( callbackCalls.fail.args[2] ).toEqual( { cancelled: "replace" } );
+                        expect( callbackCalls.always.args[2] ).toEqual( { cancelled: "replace" } );
+
                         done();
                     } );
                 } );
@@ -241,6 +268,58 @@
                         expect( callbacks.complete ).toHaveBeenCalled();
                         expect( callbacks.always ).toHaveBeenCalled();
                         expect( callbacks.fail ).not.toHaveBeenCalled();
+
+                        expect( callbackCalls.complete.args[0] ).toEqual( {} );
+                        expect( callbackCalls.done.args[2] ).toEqual( {} );
+                        expect( callbackCalls.always.args[2] ).toEqual( {} );
+
+                        done();
+                    } );
+                } );
+            } );
+
+            it( 'The "fail" and "always" callbacks of the initial scroll animation fire, and are called with a cancelled: "replace" message', function ( done ) {
+                // First and second scroll movement.
+                $window
+                    .scrollTo( 50, callbacks )
+                    .scrollTo( 100, { append: true } );
+
+                inMidScroll( function () {
+                    $window.scrollTo( 100 );
+
+                    afterScroll( function () {
+                        expect( callbacks.done ).not.toHaveBeenCalled();
+                        expect( callbacks.complete ).not.toHaveBeenCalled();
+
+                        expect( callbacks.always ).toHaveBeenCalled();
+                        expect( callbacks.fail ).toHaveBeenCalled();
+
+                        expect( callbackCalls.fail.args[2] ).toEqual( { cancelled: "replace" } );
+                        expect( callbackCalls.always.args[2] ).toEqual( { cancelled: "replace" } );
+
+                        done();
+                    } );
+                } );
+            } );
+
+            it( 'The callbacks of the second, queued scroll animation do not fire', function ( done ) {
+                // First and second scroll movement.
+                $window
+                    .scrollTo( 50 )
+                    .scrollTo( 100, $.extend( { append: true }, callbacks ) );
+
+                inMidScroll( function () {
+                    $window.scrollTo( 100 );
+
+                    afterScroll( function () {
+                        expect( callbacks.start ).not.toHaveBeenCalled();
+                        expect( callbacks.step ).not.toHaveBeenCalled();
+                        expect( callbacks.progress ).not.toHaveBeenCalled();
+                        expect( callbacks.done ).not.toHaveBeenCalled();
+                        expect( callbacks.complete ).not.toHaveBeenCalled();
+                        expect( callbacks.always ).not.toHaveBeenCalled();
+                        expect( callbacks.fail ).not.toHaveBeenCalled();
+
                         done();
                     } );
                 } );
