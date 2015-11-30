@@ -4,10 +4,17 @@ module.exports = function (grunt) {
   var LIVERELOAD_PORT = 35731,
       HTTP_PORT = 9400,
       KARMA_PORT = 9877,
-      WATCHED_FILES = [
-        'demo/**/*',
-        'spec/**/*',
+      WATCHED_FILES_SRC = [
         'src/**/*'
+      ],
+      WATCHED_FILES_SPEC = [
+        'spec/**/*'
+      ],
+      WATCHED_FILES_DIST = [
+        'dist/**/*'
+      ],
+      WATCHED_FILES_DEMO = [
+        'demo/**/*',
       ];
 
   // Project configuration.
@@ -139,38 +146,53 @@ module.exports = function (grunt) {
       }
     },
 
+    // Use focus to run Grunt watch with a hand-picked set of simultaneous watch targets.
     focus: {
       demo: {
-        exclude: ['build', 'buildDirty']
+        include: ['livereloadDemo']
       },
       demoCi: {
-        exclude: ['buildDirty']
+        include: ['build', 'livereloadDemo']
       },
       demoCiDirty: {
-        exclude: ['build']
+        include: ['buildDirty', 'livereloadDemo']
       }
     },
 
+    // Use watch to monitor files for changes, and to kick off a task then.
     watch: {
       options: {
         nospawn: false
       },
-      livereload: {
+      // Live-reloads the web page when the source files or the spec files change. Meant for test pages.
+      livereloadTest: {
         options: {
           livereload: LIVERELOAD_PORT
         },
-        files: WATCHED_FILES
+        files: WATCHED_FILES_SRC.concat( WATCHED_FILES_SPEC )
       },
+      // Live-reloads the web page when the dist files or the demo files change. Meant for demo pages.
+      livereloadDemo: {
+        options: {
+          livereload: LIVERELOAD_PORT
+        },
+        files: WATCHED_FILES_DEMO.concat( WATCHED_FILES_DIST )
+      },
+      // Runs the "build" task (ie, runs linter and tests, then compiles the dist files) when the source files or the
+      // spec files change. Meant for continuous integration tasks ("ci", "demo-ci").
       build: {
-        tasks: ['default'],
-        files: WATCHED_FILES
+        tasks: ['build'],
+        files: WATCHED_FILES_SRC.concat( WATCHED_FILES_SPEC )
       },
+      // Runs the "build-dirty" task (ie, compiles the dist files without running linter and tests) when the source
+      // files change. Meant for "dirty" continuous integration tasks ("ci-dirty", "demo-ci-dirty").
       buildDirty: {
         tasks: ['build-dirty'],
-        files: WATCHED_FILES
+        files: WATCHED_FILES_SRC
       }
     },
 
+    // Spins up a web server.
     connect: {
       options: {
         port: HTTP_PORT,
@@ -241,7 +263,7 @@ module.exports = function (grunt) {
   grunt.registerTask('hint', ['jshint:components']);        // alias
   grunt.registerTask('test', ['jshint:components', 'karma:test']);
   grunt.registerTask('webtest', ['preprocess:interactive', 'sails-linker:interactive_spec', 'connect:testNoReload']);
-  grunt.registerTask('interactive', ['preprocess:interactive', 'sails-linker:interactive_spec', 'connect:test', 'watch:livereload']);
+  grunt.registerTask('interactive', ['preprocess:interactive', 'sails-linker:interactive_spec', 'connect:test', 'watch:livereloadTest']);
   grunt.registerTask('demo', ['connect:demo', 'focus:demo']);
   grunt.registerTask('build', ['jshint:components', 'karma:build', 'preprocess:build', 'concat', 'uglify', 'jshint:concatenated']);
   grunt.registerTask('ci', ['build', 'watch:build']);
@@ -257,12 +279,15 @@ module.exports = function (grunt) {
   //
   // - build-dirty:
   //   builds the project without running checks (no linter, no tests)
+  // - ci-dirty:
+  //   builds the project without running checks (no linter, no tests) on every source change
   // - demo-ci:
   //   Runs the demo (= "demo" task), and also rebuilds the project on every source change (= "ci" task)
   // - demo-ci-dirty:
   //   Runs the demo (= "demo" task), and also rebuilds the project "dirty", without tests or linter, on every source
-  //   change (= "build-dirty"/"ci" cross-over task)
+  //   change (= "ci-dirty" task)
   grunt.registerTask('build-dirty', ['preprocess:build', 'concat', 'uglify']);
+  grunt.registerTask('ci-dirty', ['build-dirty', 'watch:buildDirty']);
   grunt.registerTask('demo-ci', ['build', 'connect:demo', 'focus:demoCi']);
   grunt.registerTask('demo-ci-dirty', ['build-dirty', 'connect:demo', 'focus:demoCiDirty']);
 
