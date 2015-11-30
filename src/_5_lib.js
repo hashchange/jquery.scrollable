@@ -824,7 +824,7 @@
         callbackNames || ( callbackNames = animationExitCallbacks );
 
         $.each( callbackNames, function ( index, callbackName ) {
-            if ( !$.inArray( callbackName, animationExitCallbacks ) ) throw new Error( 'Invalid animation callback name. Expected the name of an exit callback ("' + animationExitCallbacks.join( '", "' ) + '"), but got "' + callbackName + '"' );
+            if ( !lib.isInArray( callbackName, animationExitCallbacks ) ) throw new Error( 'Invalid animation callback name. Expected the name of an exit callback ("' + animationExitCallbacks.join( '", "' ) + '"), but got "' + callbackName + '"' );
 
             $.each( outerMessageContainers, function ( index, outerMessageContainer ) {
                 messageContainers.push( outerMessageContainer[callbackName] );
