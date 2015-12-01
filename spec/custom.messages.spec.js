@@ -553,6 +553,280 @@
 
         } );
 
+        describe( 'Sending a message with notifyScrollCallbacks().', function () {
+
+            describe( 'Basics.', function () {
+
+                // Tests without specifying callback names.
+
+                describe( 'Preceding animations, completed successfully. The message', function () {
+
+                    beforeEach( function ( done ) {
+                        $window
+                            .scrollTo( "bottom", callbacks_1 )
+                            .scrollTo( "top", $.extend( { append: true }, callbacks_2 ) );
+
+                        inMidScroll( function () {
+                            $window.notifyScrollCallbacks( message );
+                        } );
+
+                        afterScrolls( 2, done );
+                    } );
+
+                    it( 'is passed to the complete, done, always callbacks of an ongoing animation', function () {
+                        expect( callbackCalls_1.complete.args[0] ).toEqual( message );
+                        expect( callbackCalls_1.done.args[2] ).toEqual( message );
+                        expect( callbackCalls_1.always.args[2] ).toEqual( message );
+                    } );
+
+                    it( 'is passed to the complete, done, always callbacks of a queued animation, once it has executed', function () {
+                        expect( callbackCalls_2.complete.args[0] ).toEqual( message );
+                        expect( callbackCalls_2.done.args[2] ).toEqual( message );
+                        expect( callbackCalls_2.always.args[2] ).toEqual( message );
+                    } );
+
+                } );
+
+                describe( 'Preceding animations, stopped before completion. The message', function () {
+
+                    // The new message is merged with the `cancelled` message.
+
+                    beforeEach( function () {
+                        $window
+                            .scrollTo( "bottom", callbacks_1 )
+                            .scrollTo( "top", $.extend( { append: true }, callbacks_2 ) )
+                            .notifyScrollCallbacks( message );
+                    } );
+
+                    it( 'is passed to the fail, always callbacks of an ongoing animation which is replaced later, in "replace" mode', function ( done ) {
+                        inMidScroll( function () {
+                            $window.scrollTo( 100 );
+                        } );
+
+                        afterScrolls( 2, function () {
+                            var expected = $.extend( message, { cancelled: "replace" } );
+                            expect( callbackCalls_1.fail.args[2] ).toEqual( expected );
+                            expect( callbackCalls_1.always.args[2] ).toEqual( expected );
+                            done();
+                        } );
+                    } );
+
+                    it( 'is passed to the fail, always callbacks of an ongoing animation which is replaced later, in "merge" mode', function ( done ) {
+                        inMidScroll( function () {
+                            $window.scrollTo( 100, { merge: true } );
+                        } );
+
+                        afterScrolls( 2, function () {
+                            var expected = $.extend( message, { cancelled: "merge" } );
+                            expect( callbackCalls_1.fail.args[2] ).toEqual( expected );
+                            expect( callbackCalls_1.always.args[2] ).toEqual( expected );
+                            done();
+                        } );
+                    } );
+
+                    it( 'is passed to the fail, always callbacks of a queued animation which later, while executing, is replaced in "replace" mode', function ( done ) {
+                        afterScroll( function () {
+                            inMidScroll( function () {
+                                $window.scrollTo( 100 );
+                            } );
+                        } );
+
+                        afterScrolls( 2, function () {
+                            var expected = $.extend( message, { cancelled: "replace" } );
+                            expect( callbackCalls_2.fail.args[2] ).toEqual( expected );
+                            expect( callbackCalls_2.always.args[2] ).toEqual( expected );
+                            done();
+                        } );
+                    } );
+
+                    it( 'is passed to the fail, always callbacks of a queued animation which later, while executing, is replaced in "merge" mode', function ( done ) {
+                        afterScroll( function () {
+                            inMidScroll( function () {
+                                $window.scrollTo( 100, { merge: true } );
+                            } );
+                        } );
+
+                        afterScrolls( 2, function () {
+                            var expected = $.extend( message, { cancelled: "merge" } );
+                            expect( callbackCalls_2.fail.args[2] ).toEqual( expected );
+                            expect( callbackCalls_2.always.args[2] ).toEqual( expected );
+                            done();
+                        } );
+                    } );
+
+                } );
+
+                describe( 'Animations created after the call. The message', function () {
+
+                    beforeEach( function () {
+                        $window
+                            .scrollTo( "bottom" )
+                            .notifyScrollCallbacks( message );
+                    } );
+
+                    it( 'is not passed to an animation which is initiated and running after the notifyScrollCallbacks() call', function ( done ) {
+                        $window.scrollTo( 100, callbacks_1 );
+
+                        afterScroll( function () {
+                            expect( callbackCalls_1.complete.args[0] ).toEqual( {} );
+                            expect( callbackCalls_1.done.args[2] ).toEqual( {} );
+                            expect( callbackCalls_1.always.args[2] ).toEqual( {} );
+
+                            done();
+                        } );
+                    } );
+
+                    it( 'is not passed to an animation which is added to the end of an existing queue after the notifyScrollCallbacks() call', function ( done ) {
+                        $window.scrollTo( 100, $.extend( { append: true } , callbacks_1 ) );
+
+                        afterScrolls( 2, function () {
+                            expect( callbackCalls_1.complete.args[0] ).toEqual( {} );
+                            expect( callbackCalls_1.done.args[2] ).toEqual( {} );
+                            expect( callbackCalls_1.always.args[2] ).toEqual( {} );
+
+                            done();
+                        } );
+                    } );
+
+                } );
+
+                describe( 'Interaction with other messages. The current message', function () {
+
+                    beforeEach( function () {
+                        $window.scrollTo( "bottom", callbacks_1 );
+                    } );
+
+                    it( 'is merged with a previous message to the same callbacks, sent with notifyScrollCallbacks()', function ( done ) {
+                        $window.notifyScrollCallbacks( { first: "1" } );
+
+                        inMidScroll( function () {
+                            $window.notifyScrollCallbacks( { second: "2" } );
+                        } );
+
+                        afterScroll( function () {
+                            var expected = {
+                                first: "1",
+                                second: "2"
+                            };
+
+                            expect( callbackCalls_1.complete.args[0] ).toEqual( expected );
+                            expect( callbackCalls_1.done.args[2] ).toEqual( expected );
+                            expect( callbackCalls_1.always.args[2] ).toEqual( expected );
+
+                            done();
+                        } );
+                    } );
+
+                    it( 'overwrites an identical property in a previous message, sent with notifyScrollCallbacks()', function ( done ) {
+                        $window.notifyScrollCallbacks( { conflict: "1" } );
+
+                        inMidScroll( function () {
+                            $window.notifyScrollCallbacks( { conflict: "2" } );
+                        } );
+
+                        afterScroll( function () {
+                            var expected = {
+                                conflict: "2"
+                            };
+
+                            expect( callbackCalls_1.complete.args[0] ).toEqual( expected );
+                            expect( callbackCalls_1.done.args[2] ).toEqual( expected );
+                            expect( callbackCalls_1.always.args[2] ).toEqual( expected );
+
+                            done();
+                        } );
+                    } );
+
+                } );
+
+            } );
+
+            describe( 'Callback names.', function () {
+
+                beforeEach( function () {
+                    $window.scrollTo( "bottom", callbacks_1 );
+                } );
+
+                describe( 'When specifying a single callback name as a string,', function () {
+
+                    // Using "complete".
+
+                    beforeEach( function ( done ) {
+                        $window.notifyScrollCallbacks( message, "complete" );
+                        afterScroll( done );
+                    } );
+
+                    it( 'the message is passed to the callback of that name', function () {
+                        expect( callbackCalls_1.complete.args[0] ).toEqual( message );
+                    } );
+
+                    it( 'the message is not passed to the other callbacks', function () {
+                        expect( callbackCalls_1.done.args[2] ).toEqual( {} );
+                        expect( callbackCalls_1.always.args[2] ).toEqual( {} );
+                    } );
+
+                } );
+
+                describe( 'When specifying an array of callback names,', function () {
+
+                    // Using ["complete", "always"]
+
+                    beforeEach( function ( done ) {
+                        $window.notifyScrollCallbacks( message, ["complete", "always"] );
+                        afterScroll( done );
+                    } );
+
+                    it( 'the message is passed to the callbacks named in the array', function () {
+                        expect( callbackCalls_1.complete.args[0] ).toEqual( message );
+                        expect( callbackCalls_1.always.args[2] ).toEqual( message );
+                    } );
+
+                    it( 'the message is not passed to the other callbacks', function () {
+                        expect( callbackCalls_1.done.args[2] ).toEqual( {} );
+                    } );
+
+                } );
+
+                describe( 'Specifying an invalid callback name. The call throws an error', function () {
+                    var errorMessage;
+
+                    beforeEach( function () {
+                        errorMessage = /^Invalid animation callback name/;
+                    } );
+
+                    it( 'with the name being passed as a string', function ( done ) {
+                        // Testing all existing, but invalid callback names: "start", "step", "progress".
+                        expect( function () { $window.notifyScrollCallbacks( message, "start" ); } ).toThrowError( errorMessage );
+                        expect( function () { $window.notifyScrollCallbacks( message, "step" ); } ).toThrowError( errorMessage );
+                        expect( function () { $window.notifyScrollCallbacks( message, "progress" ); } ).toThrowError( errorMessage );
+
+                        afterScroll( done );
+                    } );
+
+                    it( 'with the name being passed as part of an array', function ( done ) {
+                        // Testing all existing, but invalid callback names, one by one: "start", "step", "progress".
+                        expect( function () { $window.notifyScrollCallbacks( message, ["complete", "start", "fail"] ); } ).toThrowError( errorMessage );
+                        expect( function () { $window.notifyScrollCallbacks( message, ["complete", "step", "fail"] ); } ).toThrowError( errorMessage );
+                        expect( function () { $window.notifyScrollCallbacks( message, ["complete", "progress", "fail"] ); } ).toThrowError( errorMessage );
+
+                        afterScroll( done );
+                    } );
+                    
+                } );
+
+
+            } );
+
+            describe( 'Calling notifyScrollCallbacks() without an animation in progress or pending.', function () {
+
+                it( 'The call does not throw an error', function () {
+                    expect( function () { $window.notifyScrollCallbacks( message ); } ).not.toThrow();
+                } );
+
+            } );
+
+        } );
+
     } );
 
 })();
