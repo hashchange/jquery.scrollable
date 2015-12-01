@@ -112,7 +112,7 @@ var mgr = {},
      */
     function notifyScrollCallbacks ( $container, message, callbackNames, queueName ) {
         $container = norm.normalizeContainer( $container );
-        if ( !$.isArray( callbackNames ) ) callbackNames = [callbackNames];
+        if ( callbackNames !== undefined && !$.isArray( callbackNames ) ) callbackNames = [callbackNames];
         mgr.notifyScrollCallbacks( $container, message, callbackNames, queueName );
     }
 
