@@ -16,21 +16,40 @@ The stable version of jQuery.scrollable is available in the `dist` directory ([d
 
 On the face of it, animated scrolling is such a trivial task with jQuery that you'd be forgiven to think a plugin is foolish. Doesn't a one liner get you there? Is a call along the lines of `$elem.animate( { scrollTop: 1200 } )` not enough?
 
-Yes. And no – because you'll soon discover that your animations end rather abruptly when your target position is beyond the scrollable distance, so you need to check and adjust for that. And then, the most common object to scroll is `window`, which unfortunately can't be scrolled with `animate`. Turns out you need to target either `body` or `documentElement`, depending on the browser.
+Yes. And no. In a number of respects, the jQuery solution isn't quite good enough – or, depending on your priorities, nowhere near good enough. And your users might share that view.
 
-Now you suddenly have to feature-test the browser for the right element, which involves injecting a test iframe that needs to be [designed rather carefully][so-comment-iframe-setup]. Or else you can animate both elements, with `$( "html, body" ).animate(...)`, which sounds great until you use animation callbacks (`complete`, `step` etc). They fire twice as often as they should because you animated two elements rather than one, so you find yourself filtering callback calls, which isn't [quite as easy][so-comment-callback-filtering] as it looks at first glance, and ... I'll stop here. You get the picture.
+###### User experience
 
-And that's just the basic animation. We haven't even started implementing [convenience][scrolling-both-axes] [options][relative-scrolling], handled [overlapping calls][overlapping-calls], or moved scrolling to a [dedicated animation queue][stopping] so as not to interfere with other animations on the page. We still need to address that animations [turn into a crawl][minimum-speed] when covering short distances. Worst of all, we ignore user interaction and fail to [stop an ongoing scroll animation][user-interaction] if the user taps, clicks, or scrolls, which we definitely should in most cases.
+- A jQuery animation doesn't respond to user actions. Once the animation has begun, it carries on, no matter how often the user clicks, taps, or tries to scroll. By contrast, jQuery.scrollable [respects user actions][user-interaction], and allows you to customize your response.
 
-See? That's why you get a plugin for such a trivial task. 
+- jQuery doesn't deal well with overlapping calls. What happens when there is a button triggering a scroll, and a user clicks it seven times in a row? Or when a scroll movement is supposed to begin, but a previous one hasn't finished yet? jQuery.scrollable lets you [choose the outcome][overlapping-calls], in a way that always works.
+
+- jQuery animations turn into a crawl when covering short distances. jQuery.scrollable prevents that by introducing a [minimum speed][minimum-speed].
+
+###### Navigating the gotchas
+
+- The right way to animate window scrolling depends on the browser. Common solutions cause callbacks to [behave weirdly][so-callbacks-called-twice], leading to workarounds which introduce [other inconsistencies][so-comment-callback-filtering]. 
+
+  jQuery.scrollable establishes the correct approach, behind the scenes, by actually testing the browser behaviour. Callbacks work as they should, or perhaps even [a bit better][animation-callbacks].
+
+- Let a component do the math. For instance, if your scroll target happens to be near the bottom of the page, it can't be scrolled to the top of the window. Account for that, or else the scroll animation hits the end of its run at full speed, and stops jarringly. 
+
+  That kind of thing. One would assume that it's taken care of in a component like jQuery.scrollable, and it is.
+
+- Keep things separate. jQuery.scrollable manages scrolling in its own [dedicated animation queue][stopping] so as not to interfere with other animations on the page.
+
+###### Ease of use
+
+- Well, you get [relative scrolling][relative-scrolling], [simultaneous or sequential][scrolling-both-axes] scrolling on both axes, a [very][window-scrolling] [permissive][absolute-scrolling] syntax, keywords, percentages, and stuff.
 
 ## OK. How?
 
 It's super simple. And it gives you a lot of flexibility.
 
-<small>[Window scrolling][window-scrolling] – [Absolute target][absolute-scrolling] – [Relative target][relative-scrolling]</small><br>
-<small>[Overlapping calls][overlapping-calls] – [Minimum speed][minimum-speed] – [User interaction][user-interaction] – [Options][animation-options]</small><br>
-<small>[Stopping][stopping] – [Custom queues][custom-queues] – [Scrollable distance][scrollable-distance] – [Scrollable element][scrollable-element]</small>
+Target positions: [Window scrolling][window-scrolling] – [Absolute target][absolute-scrolling] – [Relative target][relative-scrolling]<br>
+User experience: [Overlapping calls][overlapping-calls] – [Minimum speed][minimum-speed] – [User interaction][user-interaction]<br>
+Animation: [Callbacks][animation-callbacks] – [Options][animation-options] – [Stopping][stopping] – [Custom queues][custom-queues]<br>
+Helpers: [Scrollable distance][scrollable-distance] – [Scrollable element][scrollable-element]
 
 ### Scrolling a window
 
@@ -133,7 +152,7 @@ $elem
     .scrollTo( { x: 800 }, { append: true } );
 ```
 
-When chaining scroll movements, the `append` option does the trick. Normally, when you call `scrollTo()`, a previous, ongoing scroll animation is stopped in its tracks and replaced by the new one. With `append: true`, you can prevent that and queue your scroll movements. 
+When chaining scroll movements, the `append` option does the trick. Normally, when you call `scrollTo()`, a previous, ongoing scroll animation is [stopped in its tracks][overlapping-calls] and replaced by the new one. With `append: true`, you can prevent that and queue your scroll movements. 
 
 ### Relative scrolling
 
@@ -184,7 +203,7 @@ In an event-driven system, `scrollTo` calls can overlap. Suppose a scroll animat
 
 In **replace** mode and **merge** mode, preceding animations are cancelled when a new one comes along. 
 
-If an animation is cancelled while it is in progress, its `fail` and `always` callbacks run. However, if an animation is cancelled while it is still waiting in the queue, it simply disappears, and none of its callbacks are called.
+If an animation is cancelled while it is in progress, its `fail` and `always` callbacks run. The callbacks receive a `cancelled: "replace"` or `cancelled: "merge"` [message][animation-callbacks-message-arg], depending on the mode of the replacement. However, if an animation is cancelled while it is still waiting in the queue, it simply disappears, and none of its callbacks are called.
 
 In **append** mode, preceding animations always run their course, and their callbacks are called as usual.
 
@@ -192,7 +211,7 @@ In **append** mode, preceding animations always run their course, and their call
 
 If `scrollTo` targets the exact same position it starts from, the call is ignored. There is no animation, and animation callbacks don't run, either. This policy manifests itself in a number of ways, with subtle differences.
 
-- The first case is obvious. Suppose the browser is at rest, without another scroll animation in progress. If a `scrollTo` call is targeting a position which has already been reached, the call is ignored. The scroll mode (replace, append, merge) does not matter in this case.
+- The first case is obvious. Suppose the browser is **at rest**, without another scroll animation in progress. If a `scrollTo` call is targeting a position which has already been reached, the call is ignored. The scroll mode (replace, append, merge) does not matter in this case.
 
 - Now suppose another scroll movement is in progress when `scrollTo` is called. In **append** or **merge** mode, the new movement is compared to ongoing and queued animations. If those animations end up in the position which the new `scrollTo` call is aiming for, the new call is ignored.
 
@@ -234,7 +253,7 @@ You can also change the default globally: `$.scrollable.lockSpeedBelow = 200`.
 
 The threshold is specified in pixels, either as a number, or as a string that evaluates to a number (`"200px"`). A low threshold honours your duration setting even if the initial distance is short, allowing animations to become very slow. A threshold of 0 turns the **minimum speed off**. You can also set the threshold to a falsy value or any non-numeric string, such as a descriptive `"off"`.
 
-A larger threshold means a larger zone of constant speed, and larger variations in scroll duration. You can even enforce a **constant speed throughout**. To achieve that, make the threshold at least as large as the maximum distance that can be scrolled. Then tweak the speed indirectly: by changing the nominal `duration` (speed = threshold / duration). 
+A larger threshold means a larger zone of constant speed, and larger variations in scroll duration. You can even enforce a **constant speed throughout**. To achieve that, make the threshold at least as large as the [maximum distance][scrollable-distance] that can be scrolled. Then tweak the speed indirectly: by changing the nominal `duration` (speed = threshold / duration). 
 
 ### Aborting when the user scrolls, clicks, or taps
 
@@ -245,6 +264,8 @@ An animation initiated by `scrollTo` is automatically stopped as soon as
 - the user touches the screen in the scrolling area, in a touch-enabled device.
 
 That way, the actions of the user are respected. They take precedence over automated animations.
+
+The `fail` and `always` callbacks of a stopped animation are notified of the cause with a [`cancelled: "click"`][animation-callbacks-message-arg] or [`cancelled: "scroll"`][animation-callbacks-message-arg] message. The `"click"` value of the message also covers touch.
 
 ##### Exceptions for selected elements
 
@@ -266,7 +287,7 @@ You can override the built-in detection of user actions and force your scroll mo
 
 If you need to be more specific, use `ignoreUser: "click"` to ignore clicks and touch only. The scroll animation still stops when the user scrolls. Alternatively, you can ignore scrolling, but respond to clicks and touch, with `ignoreUser: "scroll"`.
 
-It should be said, though, that overriding the user's intent in this way is a bad idea (tm) in almost every case. Use `ignoreUser` judiciously.
+It should be said, though, that overriding the user's intent in this way is a Bad Idea (tm) in almost every case. Use `ignoreUser` judiciously.
 
 ##### Tweaking the user scroll detection
 
@@ -276,21 +297,114 @@ You can tweak that threshold, even though there hardly ever is any need to do so
 
 The minimum value for the threshold is 5.
 
-### Animation options
+### Animation callbacks
 
-We have already talked about the options [`axis`][absolute-scrolling], [`append`][overlapping-calls], and [`merge`][overlapping-calls]. We have covered how to [set a minimum speed][minimum-speed] with `lockSpeedBelow`, and discussed how to fine-tune the response to user interaction with [with `ignoreUser`][ignoring-the-user] and the [`userScrollThreshold` option][tweaking-scroll-detection].
+The animation callbacks are the same as the standard [`jQuery.animate()` callbacks][jQuery-animate-options]. But beyond being fully compatible with the `animate()` format, the callbacks have been enhanced a bit.
 
-In addition to these, you can use [every option available to `jQuery.animate()`][jQuery-animate]. Set up `progress` or `complete` callbacks, specify a `duration` etc. Add what you need to the options object which you pass to `scrollTo()`:
-
-```js
-$elem.scrollTo( 1200, { axis: "x", duration: 800 );
-```
-
-##### A note on callbacks
+##### Context
 
 In jQuery fashion, animation callbacks such as `start`, `complete`, etc are bound to the animated element. 
 
 But there is an exception: window scroll animations are bound to the appropriate `window`. Ie, inside the callbacks, the `this` keyword represents the window object, not the real scrollable element (`documentElement` or `body`).
+
+##### Arguments
+
+All callbacks are called with the [same arguments as in `animate()`][jQuery-animate-options]. Beyond that, some callbacks receive an additional `message` argument. It is passed to `complete`, `done`, `fail`, `always` – ie, the callbacks which run when the animation exits. 
+
+- `complete` signature: `function( message )`
+- `done`, `fail`, `always` signature: `function( animation, jumpedToEnd, message )`
+
+The `animation` and `jumpedToEnd` arguments are the ones you know from `animate()`. The `message` argument is exclusive to `scrollTo` calls.
+
+###### The message argument
+
+The `message` argument is a hash – an empty one by default. It can be used to send information to callbacks of animations which have already been kicked off. These animations are either already running, or waiting their turn in the queue. The `message` argument is where that information arrives.
+
+In some cases, the message argument is populated automatically. That happens when an animation is stopped, or removed from the queue, by a built-in mechanism of jQuery.scrollable. Then, the cause of the cancellation is exposed in the message hash, in the property `cancelled`.
+
+- `cancelled: "replace"`:<br>
+  The animation is replaced by a new scroll which has started in [`replace`][overlapping-calls] mode.
+- `cancelled: "merge"`<br>
+  The animation is replaced by a new scroll which has started in [`merge`][overlapping-calls] mode.
+- `cancelled: "click"`:<br>
+  The animation is stopped because the user has [clicked or tapped][user-interaction].
+- `cancelled: "scroll"`:<br>
+  The animation is stopped because the user [has scrolled][user-interaction].
+ 
+A callback which uses the `cancelled` flag would look somewhat like this:
+
+```js
+$elem.scrollTo( "bottom", { 
+    fail: function ( animation, jumpedToEnd, message ) {
+        if ( message.cancelled === "merge" ) {
+            // do stuff
+        }
+    }
+} );
+```
+
+Because these messages appear when a scroll animation ends prematurely, they only show up in `fail` and `always` callbacks. The `complete` and `done` callbacks don't fire then. 
+
+###### Sending messages
+
+You can send your own messages to the callbacks of ongoing and queued animations. Such a message must be a hash (e.g. `{ status: "foo", someFlag: true }`). If there are multiple messages to the same callbacks, their content is merged.
+
+You can pass messages to callbacks in a number of ways.
+
+- With **`stopScroll`**:
+
+  ```js
+  $elem.stopScroll( { notifyCancelled: message } );
+  ```
+
+  Use the `notifyCancelled` option to send a message. It is passed to the `fail` and `always` callbacks of the scroll animation which is stopped.
+
+- With **`scrollTo`**:
+
+  ```js
+  $elem.scrollTo( position, { notifyCancelled: message } );
+  ```
+
+  Again, use the `notifyCancelled` option to attach a message. The message is passed to the `fail` and `always` callbacks of a preceding, ongoing scroll animation. But it is passed only if that animation is being stopped and replaced by the current `scrollTo` call. 
+
+  The callbacks of that preceding animation [also receive][animation-callbacks-message-arg] a `cancelled: "replace"` or `cancelled: "merge"` message, and your custom message is merged with it.
+
+  There are cases when an ongoing scroll animation is _not_ being stopped and replaced. The `notifyCancelled` option does not apply then. If you call `scrollTo()` with the `append` option, [existing animations continue][overlapping-calls], and the `notifyCancelled` option is ignored.
+
+  Likewise, if `scrollTo()` is called with the [`merge`][overlapping-calls] option, and it is aiming for the same position as the preceding scroll animations, the current call [is ignored][overlapping-calls-same-position]. Those other scroll animations continue. Because they aren't cancelled, the `notifyCancelled` option in the current call does not have any effect, either.
+
+  As already said, the message is passed to the callbacks of _preceding_ scroll animations. It is not passed to the callbacks of the current `scrollTo` call, nor to future ones.
+
+- With **`notifyScrollCallbacks`**:
+
+  ```js
+  $elem.notifyScrollCallbacks( message, [callbackNames], [queueName] );
+  ```
+
+  The `notifyScrollCallbacks` method exists specifically for dispatching messages. It sends a message to the callbacks of scroll animations which are currently executing or waiting for their turn in the queue.
+
+  You can restrict the delivery of a message to a specific callback type (e.g. `"done"`), or to a number of types (e.g. `["complete", "done"]`). Pass the name of the callback, or an array of names, as the **`callbackNames`** argument. If omitted, the message is sent to the callback types `complete`, `done`, `fail`, and `always`. 
+
+  Messages can only be sent to exit callbacks (`complete`, `done`, `fail`, `always`). The `start`, `step`, and `progress` callbacks don't get called with a message argument. If you name them in the `callbackNames` argument, an error is thrown.
+
+  A `notifyScrollCallbacks` call only acts on animations which are running or in the queue at the time the call is made. It does not affect callbacks of animations which are initiated or queued later on.
+
+  You'll rarely need to use the last argument, **`queueName`**. You must pass a queue name if you use your [own custom queue][custom-queues], otherwise omit it. The name defaults to the [dedicated, internal queue][stopping] that the scroll animations run in. And usually, is is a good idea to [leave it that way][custom-queues].
+
+### Animation options
+
+We have already covered
+
+- the options [`axis`][absolute-scrolling], [`append`][overlapping-calls], and [`merge`][overlapping-calls]
+- the [animation callbacks][animation-callbacks], and how to [send messages][animation-sending-messages] to them with `notifyCancelled`
+- how to [set a minimum speed][minimum-speed] with `lockSpeedBelow`
+- how to fine-tune the response to user interaction with [`ignoreUser`][ignoring-the-user] and the [`userScrollThreshold`][tweaking-scroll-detection] option.
+
+In addition to these, you can use [every option available to `jQuery.animate()`][jQuery-animate-options]. Specify a `duration`, an `easing` etc. Add what you need to the options object which you pass to `scrollTo()`:
+
+```js
+$elem.scrollTo( 1200, { axis: "x", duration: 800 );
+```
 
 ### Stopping scroll animations
 
@@ -305,11 +419,13 @@ $elem.stopScroll( { jumpToTargetPosition: true } );
 
 With the option `jumpToTargetPosition`, the window or container element jumps to the target position as the animation is aborted. By default, the scroll animation just stops wherever it happens to be.
 
-Calling `stopScroll()` also removes queued scroll animations, should there be any. But non-scroll animations and their queues are not affected – they proceed as normal.
+Use the `notifyCancelled` option to [send a message][animation-sending-messages] to the `fail` and `always` callbacks of the scroll animation which is stopped.
+
+In addition to stopping the ongoing animation, `stopScroll()` removes queued scroll animations, should there be any. But non-scroll animations and their queues are not affected – they proceed as normal.
 
 **Important: You don't need to use `stopScroll()` when calling `scrollTo()` repeatedly**. 
 
-When you call `scrollTo()` multiple times on the same container (e.g. the window), ongoing scroll movements are stopped automatically for you. In fact, you have to act if you _don't_ want to stop the current scroll movement. Use the `append` option then ([see above][scrolling-both-axes]).
+When you call `scrollTo()` multiple times on the same container (e.g. the window), ongoing scroll movements are [stopped automatically][overlapping-calls] for you. In fact, you have to act if you _don't_ want to stop the current scroll movement. Use the [`append` option][scrolling-both-axes] then.
 
 ### Custom queues
 
@@ -373,8 +489,8 @@ It should go without saying that the result is established with feature testing,
 
 jQuery.scrollable has been tested with 
 
-- 2015 versions of Chrome, Firefox, Safari, Edge, and Opera on the desktop
-- IE8+
+- 2015 versions of Chrome, Firefox, Safari, and Opera on the desktop
+- IE8+, Edge
 - Safari on iOS 8, iOS 9, Chrome on Android 5
 - SlimerJS
 
@@ -443,6 +559,13 @@ That's why donations are welcome, and be it as nod of appreciation to keep spiri
 [![Donate with Paypal][donations-paypal-button]][donations-paypal-link]
 
 ## Release Notes
+
+### v1.2.0
+
+- Introduced messages to callbacks
+- Added `cancelled` messages with values `"replace"`, `"merge"`, `"click"`, `"scroll"`
+- Added `notifyCancelled` option to `scrollTo()`, `stopScroll()`
+- Added `$.fn.notifyScrollCallbacks()`
 
 ### v1.1.2
 
@@ -516,6 +639,7 @@ Copyright (c) 2015 Michael Heim.
 [jQuery.documentSize]: https://github.com/hashchange/jquery.documentsize "jQuery.documentSize"
 
 [so-comment-iframe-setup]: http://stackoverflow.com/questions/8149155/animate-scrolltop-not-working-in-firefox/21583714#comment46979441_21583714 "Stack Overflow: Animate scrollTop not working in firefox – Comment by @hashchange"
+[so-callbacks-called-twice]: http://stackoverflow.com/q/8790752/508355 "Callback of .animate() gets called twice jquery – Stack Overflow"
 [so-comment-callback-filtering]: http://stackoverflow.com/questions/8790752/callback-of-animate-gets-called-twice-jquery/8791175#comment48499212_8791175 "Stack Overflow: Callback of .animate() gets called twice jquery – Comment by @hashchange"
 [jQuery-animate]: http://api.jquery.com/animate/ "jQuery API Documentation: .animate()"
 [jQuery-animate-options]: http://api.jquery.com/animate/#animate-properties-options "jQuery API Documentation: .animate() with an options argument"
@@ -528,8 +652,12 @@ Copyright (c) 2015 Michael Heim.
 [absolute-scrolling]: #scrolling-to-a-fixed-position-vertically "Scrolling to a fixed position"
 [relative-scrolling]: #relative-scrolling "Relative scrolling"
 [overlapping-calls]: #starting-a-scroll-movement-while-another-one-is-still-in-progress "Starting a scroll movement while another one is still in progress"
+[overlapping-calls-same-position]: #what-happens-if-the-new-call-is-redundant-because-it-aims-for-the-same-position "What happens if the new call is redundant because it aims for the same position?"
 [minimum-speed]: #minimum-speed "Minimum speed"
 [user-interaction]: #aborting-when-the-user-scrolls-clicks-or-taps "Aborting when the user scrolls, clicks, or taps"
+[animation-callbacks]: #animation-callbacks "Animation callbacks"
+[animation-callbacks-message-arg]: #the-message-argument "Animation callbacks: The message argument"
+[animation-sending-messages]: #sending-messages "Animation callbacks: Sending messages"
 [animation-options]: #animation-options "Animation options"
 [stopping]: #stopping-scroll-animations "Stopping scroll animations"
 [custom-queues]: #custom-queues "Custom queues"
