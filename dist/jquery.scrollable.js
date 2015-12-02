@@ -1,4 +1,4 @@
-// jQuery.scrollable, v1.1.2
+// jQuery.scrollable, v1.2.0
 // Copyright (c) 2015 Michael Heim, Zeilenwechsel.de
 // Distributed under MIT license
 // http://github.com/hashchange/jquery.scrollable
@@ -34,6 +34,11 @@
     
         $.fn.stopScroll = function ( options ) {
             stopScroll( this, options );
+            return this;
+        };
+    
+        $.fn.notifyScrollCallbacks = function ( message, callbackNames, queueName ) {
+            notifyScrollCallbacks( this, message, callbackNames, queueName );
             return this;
         };
     
@@ -96,12 +101,27 @@
          * @param {jQuery}         $container
          * @param {Object}         [options]
          * @param {boolean}        [options.jumpToTargetPosition=false]
+         * @param {Object}         [options.notifyCancelled]
          * @param {string|boolean} [options.queue]                       usually not required, set to the scroll queue by default
          */
         function stopScroll( $container, options ) {
             $container = norm.normalizeContainer( $container );
             options = norm.normalizeOptions( options );
             mgr.stopScroll( $container, options );
+        }
+    
+        /**
+         * Does the actual work of $.fn.notifyScrollCallbacks.
+         *
+         * @param {jQuery}          $container
+         * @param {Object}          message
+         * @param {string|string[]} [callbackNames]  defaults to all exit callbacks ("complete", "done", "fail", "always")
+         * @param {string}          [queueName]      usually not required, set to the scroll queue by default
+         */
+        function notifyScrollCallbacks ( $container, message, callbackNames, queueName ) {
+            $container = norm.normalizeContainer( $container );
+            if ( callbackNames !== undefined && !$.isArray( callbackNames ) ) callbackNames = [callbackNames];
+            mgr.notifyScrollCallbacks( $container, message, callbackNames, queueName );
         }
     
         /**
@@ -147,6 +167,9 @@
          * @param {Object}               options     must be normalized
          */
         mgr.scrollTo = function ( $container, position, options ) {
+            var stopOptions,
+                notifyCancelled = extractNotifyCancelled( options ) || {};
+    
             // Callbacks for window animations are bound to the window, not the animated element
             if ( $.isWindow( $container[0] ) ) options = lib.bindAnimationCallbacks( options, $container[0] );
     
@@ -163,7 +186,9 @@
                     options._history = lib.getLastStepHistory( $container, options );
                 } else {
                     // Not appending, so stop an ongoing scroll and empty the queue
-                    options._history = mgr.stopScroll( $container, options );
+                    $.extend( notifyCancelled, { cancelled: options.merge ? "merge" : "replace" } );
+                    stopOptions = $.extend( { notifyCancelled: notifyCancelled }, options );
+                    options._history = mgr.stopScroll( $container, stopOptions );
                 }
     
                 core.animateScroll( $container, position, options );
@@ -176,12 +201,48 @@
          * @param   {Object}         options                               must be normalized
          * @param   {string|boolean} options.queue                         set during options normalization if not provided explicitly
          * @param   {boolean}        [options.jumpToTargetPosition=false]
+         * @param   {Object}         [options.notifyCancelled]
          * @returns {StepHistory}    the step history of the stopped animation
          */
         mgr.stopScroll = function ( $container, options ) {
-            var $scrollable = mgr.getScrollable( $container );
-            return lib.stopScrollAnimation( $scrollable, options );
+            var notifyCancelled = extractNotifyCancelled( options ),
+                $scrollable = mgr.getScrollable( $container );
+    
+            return lib.stopScrollAnimation( $scrollable, options, notifyCancelled );
         };
+    
+        /**
+         * @param {jQuery}   $container       must be normalized
+         * @param {Object}   message
+         * @param {string[]} [callbackNames]  defaults to all exit callbacks ("complete", "done", "fail", "always")
+         * @param {string}   [queueName]      usually not required, set to the scroll queue by default
+         */
+        mgr.notifyScrollCallbacks = function ( $container, message, callbackNames, queueName ) {
+            var $scrollable = mgr.getScrollable( $container );
+            lib.notifyScrollCallbacks( $scrollable, message, callbackNames, queueName );
+        };
+    
+        /**
+         * Extracts the notifyCancelled option from the options object. Removes the notifyCancelled property from the input
+         * object, modifying it. Returns an independent copy of the notifyCancelled object.
+         *
+         * Returns undefined if the notifyCancelled option does not exist.
+         *
+         * @param   {Object} [options]
+         * @returns {Object|undefined}
+         */
+        function extractNotifyCancelled ( options ) {
+            var notifyCancelled;
+    
+            if ( options && options.notifyCancelled ) {
+                if ( !$.isPlainObject( options.notifyCancelled ) ) throw new Error( 'Invalid notifyCancelled option. Expected a hash but got type ' + $.type( options.notifyCancelled ) );
+    
+                notifyCancelled = $.extend( {}, options.notifyCancelled );
+                delete options.notifyCancelled;
+            }
+    
+            return notifyCancelled;
+        }
     
     } )( mgr, lib, core );
     ( function ( norm, lib, queue ) {
@@ -692,7 +753,7 @@
          * For functions which are not jQuery effects, arguments can be whatever you like.
          *
          * @param {Object}        config
-         * @param {Function}      config.func    the "payload" function to be executed; invoked in the context of config.$elem
+         * @param {Function}      config.func    the "payload" function to be executed; invoked in the context of queueWrapper.$elem
          * @param {Array}         config.args    of config.func
          * @param {AnimationInfo} [config.info]  info to be attached to the sentinel, in an `info` property
          */
@@ -737,7 +798,8 @@
             }
     
             // In the internal custom queue, add a sentinel function as the next item to the queue, in order to track the
-            // queue progress. Sentinels also serve as a store for animation info (scroll target position, callbacks).
+            // queue progress. Sentinels also serve as a store for animation info (scroll target position, step history,
+            // callback messaging).
             //
             // The sentinel must be added to any other queue as well. Sentinels are not needed for tracking progress there
             // (no auto start management for those queues), but we must have the animation info around.
@@ -867,8 +929,11 @@
     ( function ( lib, norm, queue, core ) {
         "use strict";
     
-        /** @type {string[]}  names of all animation options which are callbacks */
-        var animationCallbacks = [ "start", "complete", "done", "fail", "always", "step", "progress" ];
+        /** @type {string[]}  names of all animation options which are exit callbacks (called when the animation terminates) */
+        var animationExitCallbacks = [ "complete", "done", "fail", "always" ],
+    
+            /** @type {string[]}  names of all animation options which are callbacks */
+            animationCallbacks = animationExitCallbacks.concat( "start", "step", "progress" );
     
         /**
          * Returns the maximum position which can be scrolled to on a given axis. The container element is expected to be
@@ -932,33 +997,6 @@
         };
     
         /**
-         * Expects an object of animation options, deletes the callbacks in it and returns a new object consisting only of
-         * the callbacks.
-         *
-         * Returns an empty object if the animation options are undefined, or if no callbacks are present in there.
-         *
-         * @param   {Object|undefined} [animationOptions]
-         * @returns {Callbacks}
-         */
-        lib.extractCallbacks = function ( animationOptions ) {
-            var callbacks = {};
-    
-            if ( animationOptions ) {
-    
-                $.each( animationCallbacks, function ( index, name ) {
-                    var callback = animationOptions[name];
-                    if ( callback ) {
-                        callbacks[name] = callback;
-                        delete animationOptions[name];
-                    }
-                } );
-    
-            }
-    
-            return callbacks;
-        };
-    
-        /**
          * Expects an object of animation options and returns a new object consisting only of the callbacks. Does not modify
          * the input object.
          *
@@ -968,18 +1006,20 @@
          * @returns {Callbacks}
          */
         lib.getCallbacks = function ( animationOptions ) {
-            var callbacks = {};
+            return pick( animationOptions, animationCallbacks );
+        };
     
-            if ( animationOptions ) {
-    
-                $.each( animationCallbacks, function ( index, name ) {
-                    var callback = animationOptions[name];
-                    if ( callback ) callbacks[name] = callback;
-                } );
-    
-            }
-    
-            return callbacks;
+        /**
+         * Expects an object of animation options and returns a new object consisting only of the exit callbacks (complete,
+         * done, fail, always). Does not modify the input object.
+         *
+         * Returns an empty object if the animation options don't define any callbacks, or if the options are undefined.
+         *
+         * @param   {Object}    [animationOptions]
+         * @returns {Callbacks}
+         */
+        lib.getExitCallbacks = function ( animationOptions ) {
+            return pick( animationOptions, animationExitCallbacks );
         };
     
         /**
@@ -1027,14 +1067,17 @@
                 hasPosY = posY !== norm.IGNORE_AXIS,
                 animated = {},
                 history = options._history || { real: [], expected: [] },
+                callbackMessageContainer = createOuterMessageContainer(),
                 animationInfo = {
                     position: position,
-                    callbacks: lib.getCallbacks( options ),
-                    history: history
+                    history: history,
+                    callbackMessages: callbackMessageContainer
                 };
     
             options = addUserScrollDetection( options, history );
             options = addUserClickTouchDetection( $elem, options );
+    
+            options = addMessagingToCallbacks( options, callbackMessageContainer );
     
             if ( hasPosX ) animated.scrollLeft = posX;
             if ( hasPosY ) animated.scrollTop = posY;
@@ -1051,7 +1094,8 @@
          * @param {Object}        properties       the animated property or properties, and their target value(s)
          * @param {Object}        options          animation options
          * @param {AnimationInfo} [animationInfo]  info describing a scroll animation: the resolved, absolute target scroll
-         *                                         position of the animation, and the animation callbacks
+         *                                         position of the animation, the container of the step history, and the
+         *                                         message container for communicating with the animation callbacks
          */
         lib.addAnimation = function ( $elem, properties, options, animationInfo ) {
             var queueWrapper = new queue.QueueWrapper( $elem, options.queue ),
@@ -1070,6 +1114,9 @@
          * animation steps (StepHistory), or undefined if the queue is bypassed (with options.queue == false).
          *
          * Requires the actual scrollable element, as returned by $.fn.scrollable(). The options must have been normalized.
+         *
+         * The last argument allows you to pass messages to the `fail` callbacks of ongoing and queued animations. Pass the
+         * messages as a hash, and they will show up in the messages argument received by the callbacks.
          *
          * Scroll animation queue
          * ----------------------
@@ -1092,9 +1139,10 @@
          * @param   {Object}         options
          * @param   {string|boolean} options.queue
          * @param   {boolean}        [options.jumpToTargetPosition=false]
+         * @param   {Object}         [messages]
          * @returns {StepHistory|undefined}
          */
-        lib.stopScrollAnimation = function ( $scrollable, options ) {
+        lib.stopScrollAnimation = function ( $scrollable, options, messages ) {
             var history;
     
             options = $.extend( { jumpToTargetPosition: false }, options );
@@ -1116,10 +1164,39 @@
                 $scrollable.stop( true, options.jumpToTargetPosition );
             } else {
                 history = getCurrentStepHistory( $scrollable, options );
+    
+                // Ongoing and queued scroll animations are about to be stopped or removed. Allow messages to be sent to
+                // their callbacks.
+                if ( messages ) lib.notifyScrollCallbacks( $scrollable, messages, animationExitCallbacks, options.queue );
+    
                 $scrollable.stop( options.queue, true, options.jumpToTargetPosition );
             }
     
             return history;
+        };
+    
+        /**
+         * Transfers all properties of a message object to the message containers in the queue. Can be restricted to message
+         * containers for specific types of callbacks (e.g. for `done`, `always` callbacks only).
+         *
+         * Affects all scroll animations which are ongoing or queued at the time of this transfer. Later on, the message
+         * containers are going to be passed to the exit callbacks of these animations, as they are invoked.
+         *
+         * Leaves the original message object (the input object) unchanged.
+         *
+         * @param {jQuery}   $scrollable
+         * @param {Object}   message
+         * @param {string[]} [callbackNames] defaults to all exit callbacks ("complete", "done", "fail", "always")
+         * @param {string}   [queueName]     usually not required, set to the scroll queue by default
+         */
+        lib.notifyScrollCallbacks = function ( $scrollable, message, callbackNames, queueName ) {
+            var callbackMessageContainers = getMessageContainers( $scrollable, { queue: queueName }, callbackNames );
+    
+            if ( !$.isPlainObject( message ) ) throw new Error( 'Invalid message argument. Expected a hash but got type ' + $.type( message ) );
+    
+            $.each( callbackMessageContainers, function ( index, messageContainer ) {
+                $.extend( messageContainer, message );
+            } );
         };
     
         /**
@@ -1422,7 +1499,7 @@
                             // the current step. We want to remain at the position the user has scrolled to, so we reduce
                             // the current step to a no-op.
                             tween.now = lastReal[animatedProp];
-                            lib.stopScrollAnimation( $( tween.elem ), { queue: queueName } );
+                            lib.stopScrollAnimation( $( tween.elem ), { queue: queueName }, { cancelled: "scroll" } );
                         }
                     }
     
@@ -1480,7 +1557,7 @@
             if ( enableDetection ) {
     
                 handler = function () {
-                    lib.stopScrollAnimation( $elem, { queue: queueName } );
+                    lib.stopScrollAnimation( $elem, { queue: queueName }, { cancelled: "click" } );
                 };
     
                 modifiedOptions.start = function () {
@@ -1500,6 +1577,52 @@
                 };
     
             }
+    
+            return modifiedOptions;
+        }
+    
+        /**
+         * Replaces each animation exit callback (complete, done, fail, always) in the animation options with a wrapper
+         * function which calls the original callback, adding a message container to the callback arguments.
+         *
+         * Expects the animation options and the (outer) message container as arguments. Returns the modified animation
+         * options. Leaves the original options untouched.
+         *
+         * For callbacks which receive two arguments (done, fail, always), the message container is added as the third one.
+         * The complete callback, which is called without arguments out of the box, receives the message container as the
+         * only argument.
+         *
+         * @param   {Object} animationOptions
+         * @param   {Object} outerMessageContainer
+         * @returns {Object}
+         */
+        function addMessagingToCallbacks ( animationOptions, outerMessageContainer ) {
+            var callbacks = lib.getExitCallbacks( animationOptions ),
+                modifiedOptions = animationOptions ? $.extend( {}, animationOptions ) : {};
+    
+            $.each( callbacks, function ( callbackName, callback ) {
+                var messageContainer = outerMessageContainer[callbackName];
+    
+                modifiedOptions[callbackName] = function () {
+                    var args = $.makeArray( arguments );
+    
+                    // Callbacks with arguments (done, fail, always) are supposed to receive two arguments, but jQuery omits
+                    // the second argument, jumpedToEnd, if the jumpedToEnd flag has not been used. Add it with value
+                    // undefined if necessary.
+                    if ( args.length === 1 ) args.push( undefined );
+    
+                    // Add the message container as the third argument (or, in the case of the `complete` callback, as the
+                    // first and only argument).
+                    //
+                    // We ensure the argument position explicitly, rather than just append the argument at the end, in case
+                    // undocumented arguments get passed to the callbacks in some versions of jQuery.
+                    args.splice( 2, 0, messageContainer );
+    
+                    // Call the original callback
+                    callback.apply( this, args );
+                };
+    
+            } );
     
             return modifiedOptions;
         }
@@ -1570,6 +1693,74 @@
             return info ? info.history : undefined;
         }
     
+        /**
+         * Creates a message container, for passing messages to animation callbacks.
+         *
+         * It consists of an outer container, which holds the actual message containers for each exit callback (complete,
+         * done, fail, always). These "real" message containers, which are just empty hashes at this point, are passed to
+         * the callbacks when they are invoked.
+         *
+         * @returns {OuterMessageContainer}
+         */
+        function createOuterMessageContainer () {
+            var outer = {};
+    
+            $.each( animationExitCallbacks, function ( index, callbackName ) {
+                outer[callbackName] = {};
+            } );
+    
+            return outer;
+        }
+    
+        /**
+         * Returns all message containers in the queue, as an array. Can be restricted to message containers for specific
+         * types of callbacks.
+         *
+         * If there aren't any sentinels of scroll animations in the queue, and hence no message containers, an empty array
+         * is returned.
+         *
+         * The message containers are attached to the sentinels, as part of the info entries. Message containers are used 
+         * for communicating with animation callbacks (more specifically, with the exit callbacks `complete`, `done`, `fail`,
+         * `always`).
+         *
+         * The method returns an array of the actual message containers which are passed to the callbacks, not the outer
+         * message container which keeps them separated by callback type.
+         * 
+         * @param   {jQuery}   $scrollable      the real scrollable element
+         * @param   {Object}   options          must be normalized, therefore containing options.queue
+         * @param   {string[]} [callbackNames]  defaults to all exit callbacks ("complete", "done", "fail", "always")
+         * @returns {Object[]}
+         */
+        function getMessageContainers ( $scrollable, options, callbackNames ) {
+            return getMessageContainers_QW( new queue.QueueWrapper( $scrollable, options.queue ), callbackNames );
+        }
+    
+        /**
+         * Does the actual work of getMessageContainers(). See there for more.
+         *
+         * @param   {queue.QueueWrapper}        queueWrapper
+         * @param   {string[]} [callbackNames]  defaults to all exit callbacks ("complete", "done", "fail", "always")
+         * @returns {Object[]}
+         */
+        function getMessageContainers_QW ( queueWrapper, callbackNames ) {
+            var messageContainers = [],
+                infoEntries = queueWrapper.getInfo(),
+                outerMessageContainers = $.map( infoEntries, function ( info ) {
+                    return info.callbackMessages;
+                } );
+    
+            callbackNames || ( callbackNames = animationExitCallbacks );
+    
+            $.each( callbackNames, function ( index, callbackName ) {
+                if ( !lib.isInArray( callbackName, animationExitCallbacks ) ) throw new Error( 'Invalid animation callback name. Expected the name of an exit callback ("' + animationExitCallbacks.join( '", "' ) + '"), but got "' + callbackName + '"' );
+    
+                $.each( outerMessageContainers, function ( index, outerMessageContainer ) {
+                    messageContainers.push( outerMessageContainer[callbackName] );
+                } );
+            } );
+    
+            return messageContainers;
+        }
     
         /**
          * Calculates the distance, in pixels, from the current scroll position to the target position.
@@ -1586,6 +1777,33 @@
                 deltaY = targetPosition[norm.VERTICAL] === norm.IGNORE_AXIS ? 0 : targetPosition[norm.VERTICAL] - currentPosition[norm.VERTICAL];
     
             return Math.sqrt( Math.pow( deltaX, 2 ) + Math.pow( deltaY, 2 ) );
+        }
+    
+        /**
+         * Expects a hash and returns a copy of it, filtered to only have values for the whitelisted keys. Also omits
+         * existing, matching properties if their value is undefined. Does not modify the input object.
+         *
+         * Returns an empty object if the hash doesn't have any matching properties, or if the hash itself is undefined.
+         *
+         * Roughly replicates the functionality of _.pick() in the Underscore library.
+         *
+         * @param   {Object|undefined} hash
+         * @param   {string[]}         keyNames
+         * @returns {Object}
+         */
+        function pick ( hash, keyNames ) {
+            var picked = {};
+    
+            if ( hash ) {
+    
+                $.each( keyNames, function ( index, name ) {
+                    var value = hash[name];
+                    if ( value !== undefined ) picked[name] = value;
+                } );
+    
+            }
+    
+            return picked;
         }
     
         /**
@@ -1645,9 +1863,19 @@
          * @name AnimationInfo
          * @type {Object}
          *
-         * @property {Coordinates} position
-         * @property {Callbacks}   callbacks
-         * @property {StepHistory} history
+         * @property {Coordinates}           position
+         * @property {OuterMessageContainer} callbackMessages
+         * @property {StepHistory}           history
+         */
+    
+        /**
+         * @name OuterMessageContainer
+         * @type {Object}
+         *
+         * @property {Object} complete
+         * @property {Object} done
+         * @property {Object} fail
+         * @property {Object} always
          */
     
         /**
