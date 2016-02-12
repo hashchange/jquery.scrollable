@@ -489,7 +489,7 @@ It should go without saying that the result is established with feature testing,
 
 jQuery.scrollable has been tested with 
 
-- 2015 versions of Chrome, Firefox, Safari, and Opera on the desktop
+- 2015, 2016 versions of Chrome, Firefox, Safari, and Opera on the desktop
 - IE8+, Edge
 - Safari on iOS 8, iOS 9, Chrome on Android 5
 - SlimerJS
@@ -628,7 +628,7 @@ That's why donations are welcome, and be it as nod of appreciation to keep spiri
 
 MIT.
 
-Copyright (c) 2015 Michael Heim.
+Copyright (c) 2015-2016 Michael Heim.
 
 [dist-dev]: https://raw.github.com/hashchange/jquery.scrollable/master/dist/jquery.scrollable.js "jquery.scrollable.js"
 [dist-prod]: https://raw.github.com/hashchange/jquery.scrollable/master/dist/jquery.scrollable.min.js "jquery.scrollable.min.js"
