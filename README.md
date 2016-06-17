@@ -560,6 +560,10 @@ That's why donations are welcome, and be it as nod of appreciation to keep spiri
 
 ## Release Notes
 
+### v1.2.1
+
+- Updated dependencies, including jQuery to jQuery 3
+
 ### v1.2.0
 
 - Introduced messages to callbacks
