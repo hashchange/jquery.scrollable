@@ -45,8 +45,8 @@
     "package.json"
   ],
   "dependencies": {
-    "jquery": ">=1.7.0 <2.2",
-    "jquery.documentsize": "^1.1.0"
+    "jquery": ">=1.7.0 <3.1",
+    "jquery.documentsize": "^1.2.3"
   },
   "devDependencies": {
     "jquery-legacy": "jquery#^1"
