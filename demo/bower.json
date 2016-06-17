@@ -21,12 +21,12 @@
     "tests"
   ],
   "dependencies": {
+    "foundation": "~5.5.3",
     "jquery": "^1",
-    "requirejs": "~2.1.16",
-    "foundation": "~5.5.1",
-    "modernizr": "~2.8.3",
+    "modernizr": "^2 || ~3.3.1",
+    "requirejs": "~2.2.0",
     "underscore": "~1.8.3",
-    "usertiming": "~0.1.6"
+    "usertiming": "~0.1.8"
   },
   "resolutions": {
     "jquery": "^1"
