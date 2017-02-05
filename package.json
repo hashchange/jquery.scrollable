@@ -31,7 +31,7 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "jquery": ">=1.7.0 <3.1",
+    "jquery": ">=1.7.0 <3.2",
     "jquery.documentsize": "^1.2.3"
   },
   "devDependencies": {
