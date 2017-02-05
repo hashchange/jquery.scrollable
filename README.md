@@ -632,7 +632,7 @@ That's why donations are welcome, and be it as nod of appreciation to keep spiri
 
 MIT.
 
-Copyright (c) 2015-2016 Michael Heim.
+Copyright (c) 2015-2017 Michael Heim.
 
 [dist-dev]: https://raw.github.com/hashchange/jquery.scrollable/master/dist/jquery.scrollable.js "jquery.scrollable.js"
 [dist-prod]: https://raw.github.com/hashchange/jquery.scrollable/master/dist/jquery.scrollable.min.js "jquery.scrollable.min.js"
