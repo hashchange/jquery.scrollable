@@ -489,9 +489,9 @@ It should go without saying that the result is established with feature testing,
 
 jQuery.scrollable has been tested with 
 
-- 2015, 2016 versions of Chrome, Firefox, Safari, and Opera on the desktop
+- 2015, 2016, 2017 versions of Chrome, Firefox, Safari, and Opera on the desktop
 - IE8+, Edge
-- Safari on iOS 8, iOS 9, Chrome on Android 5
+- Safari on iOS 8-10, Chrome on Android 5
 - SlimerJS
 
 IE8 can't handle the heavily asynchronous character of the unit tests. It has been tested manually instead, using the [AMD demo][tool-chain-commands] (run it with `grunt demo`).
@@ -559,6 +559,10 @@ That's why donations are welcome, and be it as nod of appreciation to keep spiri
 [![Donate with Paypal][donations-paypal-button]][donations-paypal-link]
 
 ## Release Notes
+
+### v1.2.2
+
+- Updated jQuery dependency constraint for jQuery 3.1
 
 ### v1.2.1
 
