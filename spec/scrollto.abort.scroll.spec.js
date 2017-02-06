@@ -86,8 +86,10 @@
         } );
 
         afterAll( function () {
-            $window.scrollTop( 0 ).scrollLeft( 0 );
-            f.shutdown();
+            // Fixing an error in iOS tests when $window is lost, by using a direct reference to the global window as a
+            // fallback. Likewise, f may not be around any more. This is likely to be a Jasmine issue with afterAll().
+            ( $window || $( window ) ).scrollTop( 0 ).scrollLeft( 0 );
+            if ( f ) f.shutdown();
         } );
 
 
