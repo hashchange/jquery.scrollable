@@ -560,6 +560,10 @@ That's why donations are welcome, and be it as nod of appreciation to keep spiri
 
 ## Release Notes
 
+### v1.2.3
+
+- Updated jQuery dependency constraint for jQuery 3.2
+
 ### v1.2.2
 
 - Updated jQuery dependency constraint for jQuery 3.1
